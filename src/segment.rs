@@ -7,8 +7,9 @@ use std::str::FromStr;
 const DIO: u16 = 27;
 const CLK: u16 = 18;
 const STB: u16 = 17;
-const BIT_ORDER: u8 = 0;
+const BIT_ORDER: u8 = 1;
 
+#[derive(Debug)]
 pub struct Segment {
     dio: gpio::sysfs::SysFsGpioOutput,
     clk: gpio::sysfs::SysFsGpioOutput,
@@ -71,8 +72,8 @@ impl Segment {
 
         let str_num = num.to_string() + "0";
 
-        integer = i32::from_str(&str_num[..2]).unwrap();
-        decimal = i32::from_str(&str_num[3..=4]).unwrap();
+        integer = i32::from_str(&str_num[..=1]).unwrap();
+        decimal = i32::from_str(&str_num[2..=3]).unwrap();
         self.send_command(0x40);
         self.stb.set_value(false).unwrap();
         self.shift_out(0xc0);
