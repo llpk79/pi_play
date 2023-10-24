@@ -35,7 +35,6 @@ impl Segment {
             } else {
                 self.dio.set_value(val & (1 << (7 - i))).unwrap();
             }
-            // self.dio.set_value(val).unwrap();
             self.clk.set_value(true).unwrap();
             thread::sleep(Duration::from_micros(1));
             self.clk.set_value(false).unwrap();
@@ -76,7 +75,7 @@ impl Segment {
         self.shift_out(0xc0);
         self.shift_out(digits[(integer/10) as usize]);
         self.shift_out(0x00);
-        self.shift_out(digits[(integer%10) as usize]);
+        self.shift_out(digits[(integer%10) as usize] | 0x80);
         self.shift_out(0x00);
         self.shift_out(digits[(decimal/10) as usize]);
         self.shift_out(0x00);
