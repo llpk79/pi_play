@@ -19,7 +19,7 @@ fn main() {
     print!("segment {:?}", segment_display);
     loop {
         let temp = read_temp();
-        segment_display.display_dec(temp);
+        segment_display.display_dec(temp.clone());
         println!("Current temp: {} C", temp);
         thread::sleep(Duration::from_millis(1000));
     };
