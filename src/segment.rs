@@ -23,11 +23,11 @@ impl Segment {
         Self { dio, clk, stb }
     }
 
-    pub fn init(self) {
+    pub fn init(&mut self) {
         self.send_command(0x8f);
     }
 
-    fn shift_out(mut self, mut val: u8) {
+    fn shift_out(&mut self, mut val: u8) {
         for i in 0..8 {
             if BIT_ORDER == 1 {
                 val = val & (1 << i);
@@ -42,13 +42,13 @@ impl Segment {
         }
     }
 
-    fn send_command(mut self, cmd: u8) {
+    fn send_command(&mut self, cmd: u8) {
         self.stb.set_value(false).unwrap();
         self.shift_out(cmd);
         self.stb.set_value(true).unwrap();
     }
 
-    pub fn display_num(mut self, num: u8) {
+    pub fn display_num(&mut self, num: u8) {
         let digits: Vec<i8> = vec![0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07, 0x7f, 0x6f];
         self.send_command(0x40);
         self.stb.set_value(false).unwrap();
@@ -64,7 +64,7 @@ impl Segment {
         self.stb.set_value(true).unwrap();
     }
 
-    pub fn display_dec(mut self, num: f32) {
+    pub fn display_dec(&mut self, num: f32) {
         let digits = vec![0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f];
         let integer: i32;
         let decimal: i32;
