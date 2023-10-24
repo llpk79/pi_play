@@ -31,11 +31,11 @@ impl Segment {
     fn shift_out(&mut self, mut val: u8) {
         for i in 0..8 {
             if BIT_ORDER == 0 {
-                val = val & (1 << i);
+                self.dio.set_value(val & (1 << i)).unwrap();
             } else {
-                val = val & (1 << (7 - i));
+                self.dio.set_value(val & (1 << (7 - i))).unwrap();
             }
-            self.dio.set_value(val).unwrap();
+            // self.dio.set_value(val).unwrap();
             self.clk.set_value(true).unwrap();
             thread::sleep(Duration::from_micros(1));
             self.clk.set_value(false).unwrap();
