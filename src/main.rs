@@ -6,6 +6,7 @@ use pi_play_lib::segment::{Segment};
 
 fn read_temp() -> f32 {
     let file_str: String = read_to_string("/sys/bus/w1/devices/28-3ce1d443e7e1/w1_slave").unwrap().parse().unwrap();
+    println!("file_str {}", file_str);
     let temp_str: String = file_str[69..74].to_string();
     let mut temp = f32::from_str(&temp_str).unwrap();
     temp /= 1000.0;
