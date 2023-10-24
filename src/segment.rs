@@ -7,7 +7,7 @@ use std::str::FromStr;
 const DIO: u16 = 27;
 const CLK: u16 = 18;
 const STB: u16 = 17;
-const BIT_ORDER: u8 = 1;
+const BIT_ORDER: u8 = 0;
 
 #[derive(Debug)]
 pub struct Segment {
@@ -76,7 +76,7 @@ impl Segment {
         self.shift_out(0xc0);
         self.shift_out(digits[(integer/10) as usize]);
         self.shift_out(0x00);
-        self.shift_out(digits[(integer%10) as usize] | 0x80);
+        self.shift_out(digits[(integer%10) as usize]);
         self.shift_out(0x00);
         self.shift_out(digits[(decimal/10) as usize]);
         self.shift_out(0x00);
