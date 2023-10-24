@@ -71,7 +71,7 @@ impl Segment {
         let decimal: i32;
 
         let str_num = num.to_string() + "0";
-
+        println!("str_num {}", str_num);
         integer = i32::from_str(&str_num[..=1]).unwrap();
         decimal = i32::from_str(&str_num[2..=3]).unwrap();
         self.send_command(0x40);
