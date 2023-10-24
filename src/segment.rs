@@ -7,7 +7,7 @@ use std::str::FromStr;
 const DIO: u16 = 27;
 const CLK: u16 = 18;
 const STB: u16 = 17;
-const BIT_ORDER: u8 = 0;
+const BIT_ORDER: u8 = 1;
 
 #[derive(Debug)]
 pub struct Segment {
