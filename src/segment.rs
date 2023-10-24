@@ -37,9 +37,9 @@ impl Segment {
             }
             self.dio.set_value(val).unwrap();
             self.clk.set_value(true).unwrap();
-            thread::sleep(Duration::from_millis(10));
+            thread::sleep(Duration::from_micros(1));
             self.clk.set_value(false).unwrap();
-            thread::sleep(Duration::from_millis(10));
+            thread::sleep(Duration::from_micros(1));
         }
     }
 
@@ -67,18 +67,16 @@ impl Segment {
 
     pub fn display_dec(&mut self, num: String) {
         let digits = vec![0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f];
-        let integer: i32;
-        let decimal: i32;
 
         println!("str_num {}", num);
-        integer = i32::from_str(&num[..=1]).unwrap();
-        decimal = i32::from_str(&num[2..=3]).unwrap();
+        let integer = i32::from_str(&num[..=1]).unwrap();
+        let decimal = i32::from_str(&num[2..=3]).unwrap();
         self.send_command(0x40);
         self.stb.set_value(false).unwrap();
         self.shift_out(0xc0);
-        self.shift_out(digits[(integer as u16/10) as usize]);
+        self.shift_out(digits[(integer/10) as usize]);
         self.shift_out(0x00);
-        self.shift_out(digits[(integer%10) as usize]);
+        self.shift_out(digits[(integer%10) as usize] | 0x80);
         self.shift_out(0x00);
         self.shift_out(digits[(decimal/10) as usize]);
         self.shift_out(0x00);
