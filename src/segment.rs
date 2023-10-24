@@ -69,10 +69,10 @@ impl Segment {
         let integer: i32;
         let decimal: i32;
 
-        let str_num = num.to_string();
+        let str_num = num.to_string() + "0";
 
         integer = i32::from_str(&str_num[..2]).unwrap();
-        decimal = i32::from_str(&*str_num[3..=4] + "0").unwrap();
+        decimal = i32::from_str(&str_num[3..=4]).unwrap();
         self.send_command(0x40);
         self.stb.set_value(false).unwrap();
         self.shift_out(0xc0);
