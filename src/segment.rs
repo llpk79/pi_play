@@ -65,15 +65,14 @@ impl Segment {
         self.stb.set_value(true).unwrap();
     }
 
-    pub fn display_dec(&mut self, num: f32) {
+    pub fn display_dec(&mut self, num: String) {
         let digits = vec![0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f];
         let integer: i32;
         let decimal: i32;
 
-        let str_num = num.to_string() + "0";
-        println!("str_num {}", str_num);
-        integer = i32::from_str(&str_num[..=1]).unwrap();
-        decimal = i32::from_str(&str_num[2..=3]).unwrap();
+        println!("str_num {}", num);
+        integer = i32::from_str(&num[..=1]).unwrap();
+        decimal = i32::from_str(&num[2..=3]).unwrap();
         self.send_command(0x40);
         self.stb.set_value(false).unwrap();
         self.shift_out(0xc0);
