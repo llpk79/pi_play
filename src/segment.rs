@@ -72,7 +72,7 @@ impl Segment {
         let str_num = num.to_string();
 
         integer = i32::from_str(&str_num[..2]).unwrap();
-        decimal = i32::from_str(&str_num[3..=4]).unwrap() + "0";
+        decimal = i32::from_str(&*str_num[3..=4] + "0").unwrap();
         self.send_command(0x40);
         self.stb.set_value(false).unwrap();
         self.shift_out(0xc0);
