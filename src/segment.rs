@@ -4,9 +4,9 @@ use std::time::Duration;
 use std::str::FromStr;
 
 
-const DIO: u16 = 13;
-const CLK: u16 = 12;
-const STB: u16 = 11;
+const DIO: u16 = 27;
+const CLK: u16 = 18;
+const STB: u16 = 17;
 const BIT_ORDER: u8 = 1;
 
 #[derive(Debug)]
