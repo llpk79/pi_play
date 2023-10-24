@@ -13,7 +13,7 @@ fn read_temp() -> f32 {
 }
 
 fn main() {
-    let segment_display = Segment::new();
+    let mut segment_display = Segment::new();
     segment_display.init();
     loop {
         let temp = read_temp();
