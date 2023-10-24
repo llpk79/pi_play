@@ -28,7 +28,7 @@ impl Segment {
         self.send_command(0x8f);
     }
 
-    fn shift_out(&mut self, mut val: u8) {
+    fn shift_out(&mut self, val: u8) {
         for i in 0..8 {
             if BIT_ORDER == 0 {
                 self.dio.set_value(val & (1 << i)).unwrap();
