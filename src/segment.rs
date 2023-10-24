@@ -3,10 +3,10 @@ use std::{thread};
 use std::time::Duration;
 
 
-const DIO: u16 = 13;
-const CLK: u16 = 12;
+const DIO: u16 = 27;
+const CLK: u16 = 18;
 const STB: u16 = 17;
-const BITORDER: u8 = 1;
+const BIT_ORDER: u8 = 1;
 
 pub struct Segment {
     dio: gpio::sysfs::SysFsGpioOutput,
@@ -28,7 +28,7 @@ impl Segment {
 
     fn shift_out(mut self, mut val: u8) {
         for i in 0..8 {
-            if BITORDER == 1 {
+            if BIT_ORDER == 1 {
                 val = val & (1 << i);
             } else {
                 val = val & (1 << (7 - i));
