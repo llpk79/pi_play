@@ -1,6 +1,7 @@
 use gpio::{GpioOut};
 use std::{thread};
 use std::time::Duration;
+use std::str::FromStr;
 
 
 const DIO: u16 = 27;
@@ -68,10 +69,10 @@ impl Segment {
         let integer: i32;
         let decimal: i32;
 
-        let pro: f32 = num * 100.0;
+        let str_num = num.to_string();
 
-        integer = pro / 100;
-        decimal = pro % 100;
+        integer = i32::from_str(&str_num[..2]).unwrap();
+        decimal = i32::from_str(&str_num[3..=4]).unwrap();
         self.send_command(0x40);
         self.stb.set_value(false).unwrap();
         self.shift_out(0xc0);
