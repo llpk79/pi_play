@@ -7,7 +7,7 @@ use std::str::FromStr;
 const DIO: u16 = 27;
 const CLK: u16 = 18;
 const STB: u16 = 17;
-const BIT_ORDER: u8 = 1;
+const BIT_ORDER: u8 = 0;
 
 #[derive(Debug)]
 pub struct Segment {
@@ -30,7 +30,7 @@ impl Segment {
 
     fn shift_out(&mut self, mut val: u8) {
         for i in 0..8 {
-            if BIT_ORDER == 1 {
+            if BIT_ORDER == 0 {
                 val = val & (1 << i);
             } else {
                 val = val & (1 << (7 - i));
@@ -68,9 +68,9 @@ impl Segment {
     pub fn display_dec(&mut self, num: String) {
         let digits = vec![0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f];
 
-        println!("str_num {}", num);
         let integer = i32::from_str(&num[..=1]).unwrap();
         let decimal = i32::from_str(&num[2..=3]).unwrap();
+        println!("int/10 {}\nint%10 {}\n dec/10 {}\ndec%10 {}", integer/10,integer%10,decimal/10,decimal%10);
         self.send_command(0x40);
         self.stb.set_value(false).unwrap();
         self.shift_out(0xc0);
