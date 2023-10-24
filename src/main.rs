@@ -11,7 +11,7 @@ fn read_temp(f: bool) -> String {
     if f {
         let mut temp = f32::from_str(&temp_str).unwrap();
         temp /= 1000.0;
-        temp = (temp * (9/5.0)) + 32;
+        temp = (temp * (9.0/5.0)) + 32.0;
         temp_str = temp.to_string()
     }
     temp_str
