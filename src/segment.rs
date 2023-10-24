@@ -78,7 +78,7 @@ impl Segment {
         self.shift_out(0xc0);
         self.shift_out(digits[(integer as u16/10) as usize]);
         self.shift_out(0x00);
-        self.shift_out(digits[((integer%10) | 0x80) as usize]);
+        self.shift_out(digits[(integer%10) as usize]);
         self.shift_out(0x00);
         self.shift_out(digits[(decimal/10) as usize]);
         self.shift_out(0x00);
