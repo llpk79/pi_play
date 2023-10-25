@@ -14,9 +14,7 @@ fn main() {
     motor.stop_motor();
     loop {
         let mut temp = read_temp(FAHRENHEIT);
-        let motor_on: bool = i32::from_str(&temp).unwrap() > 20000i32;
-        println!("temp {}\n{:?}\n",i32::from_str(&temp).unwrap(), motor_on);
-        if motor_on {
+        if i32::from_str(&temp).unwrap() > 20000i32 {
             motor.start_motor();
         } else {
             motor.stop_motor();
