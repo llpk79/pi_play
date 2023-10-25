@@ -102,7 +102,7 @@ impl Segment {
         self.send_command(0x40);
         self.stb.set_value(false).unwrap();
         self.shift_out(0xc0);
-        self.shift_out(0xf3 | 0x80); // P
+        self.shift_out(0xf3 & 0x80); // P
         self.shift_out(0x00);
         self.shift_out(0xf7); // A
         self.shift_out(0x00);
