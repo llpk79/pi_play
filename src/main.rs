@@ -1,6 +1,6 @@
 use std::{thread};
 use std::time::Duration;
-// use pi_play_lib::segment::{Segment};
+use pi_play_lib::segment::{Segment};
 // use pi_play_lib::temp::{read_temp};
 // use pi_play_lib::motor::{Motor};
 // use std::str::FromStr;
@@ -9,8 +9,8 @@ use pi_play_lib::distance::Distance;
 const FAHRENHEIT: bool = false;
 
 fn main() {
-    // let mut segment_display = Segment::new();
-    // segment_display.init();
+    let mut segment_display = Segment::new();
+    segment_display.init();
     // let mut motor = Motor::new();
     // motor.stop();
     let mut distance = Distance::new();
@@ -34,7 +34,8 @@ fn main() {
         // println!("Current temp: {} {}\n", temp, if FAHRENHEIT {"F"} else {"C"});
 
         let measure = distance.measure();
-        print!("distance: {}\n", measure);
+        let str_dist = measure.to_string().replace(".", "");
+        segment_display.display_dec(str_dist);
         thread::sleep(Duration::from_millis(1000));
     };
 }
