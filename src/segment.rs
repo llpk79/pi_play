@@ -102,13 +102,13 @@ impl Segment {
         self.send_command(0x40);
         self.stb.set_value(false).unwrap();
         self.shift_out(0xc0);
-        self.shift_out(0xf3); // P
+        self.shift_out(0x73); // P
         self.shift_out(0x00);
-        self.shift_out(0xf7); // A
+        self.shift_out(0x77); // A
         self.shift_out(0x00);
-        self.shift_out(0xbe); // U
+        self.shift_out(0x3e); // U
         self.shift_out(0x00);
-        self.shift_out(0xb8); // L
+        self.shift_out(0x38); // L
         self.shift_out(0x00);
         self.stb.set_value(true).unwrap();
     }
