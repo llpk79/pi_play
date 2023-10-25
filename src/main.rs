@@ -35,9 +35,8 @@ fn main() {
 
         let measure = distance.print_measure();
         println!("measure {}\n", measure);
-        // let str_dist = measure.to_string().replace(".", "");
-        // println!("dist {}\n\n", str_dist);
-        // segment_display.display_dec(str_dist);
+
+        segment_display.display_dec(measure);
         thread::sleep(Duration::from_millis(1000));
     };
 }
