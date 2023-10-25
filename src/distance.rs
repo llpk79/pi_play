@@ -37,7 +37,7 @@ impl Distance {
         let reading = self.measure();
         println!("reading {}", reading);
         let mut print_string = reading.to_string();
-        let num_pad = 7 - print_string.len();
+        let num_pad = 8 - print_string.len();
         for _ in 0..num_pad {
             print_string = "0".to_string() + &print_string;
         }
