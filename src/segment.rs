@@ -69,7 +69,6 @@ impl Segment {
 
         let integer = i32::from_str(&num[..=1]).unwrap();
         let decimal = i32::from_str(&num[2..=3]).unwrap();
-        println!("int/10 {}\nint%10 {}\n dec/10 {}\ndec%10 {}", integer/10,integer%10,decimal/10,decimal%10);
         self.send_command(0x40);
         self.stb.set_value(false).unwrap();
         self.shift_out(0xc0);
