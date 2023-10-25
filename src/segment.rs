@@ -119,11 +119,11 @@ impl Segment {
         self.shift_out(0xc0);
         self.shift_out(0x76); // H
         self.shift_out(0x00);
-        self.shift_out(0xf9); // E
+        self.shift_out(0x79); // E
         self.shift_out(0x00);
-        self.shift_out(0xb8); // L
+        self.shift_out(0x38); // L
         self.shift_out(0x00);
-        self.shift_out(0xf3); // P
+        self.shift_out(0x73); // P
         self.shift_out(0x00);
         self.stb.set_value(true).unwrap();
     }
