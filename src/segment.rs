@@ -87,13 +87,13 @@ impl Segment {
         self.send_command(0x40);
         self.stb.set_value(false).unwrap();
         self.shift_out(0xc0);
-        self.shift_out(0xf9);
+        self.shift_out(0xf9); // E
         self.shift_out(0x00);
-        self.shift_out(0xf9);
+        self.shift_out(0xf9); // E
         self.shift_out(0x00);
-        self.shift_out(0xf9);
+        self.shift_out(0xf9); // E
         self.shift_out(0x00);
-        self.shift_out(0xf9);
+        self.shift_out(0xf9); // E
         self.shift_out(0x00);
         self.stb.set_value(true).unwrap();
     }
@@ -109,6 +109,21 @@ impl Segment {
         self.shift_out(0xbe); // U
         self.shift_out(0x00);
         self.shift_out(0xb8); // L
+        self.shift_out(0x00);
+        self.stb.set_value(true).unwrap();
+    }
+
+    pub fn display_help(&mut self) {
+        self.send_command(0x40);
+        self.stb.set_value(false).unwrap();
+        self.shift_out(0xc0);
+        self.shift_out(0xf6); // H
+        self.shift_out(0x00);
+        self.shift_out(0xf9); // E
+        self.shift_out(0x00);
+        self.shift_out(0xb8); // L
+        self.shift_out(0x00);
+        self.shift_out(0xf3); // P
         self.shift_out(0x00);
         self.stb.set_value(true).unwrap();
     }

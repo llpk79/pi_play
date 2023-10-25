@@ -17,7 +17,7 @@ fn main() {
         match i32::from_str(&temp).unwrap() > 21500i32  {
             true => {
                 motor.start_motor();
-                segment_display.display_paul();
+                segment_display.display_help();
             }
             false => {
                 motor.stop_motor();
