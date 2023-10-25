@@ -22,11 +22,11 @@ impl Distance {
         self.out.set_value(true).unwrap();
         thread::sleep(Duration::from_micros(15));
         self.out.set_value(false).unwrap();
-        println!("in val {:?}", self.in_.read_value().unwrap());
         while self.in_.read_value().unwrap() == Low {
             continue
         }
         let t1 = chrono::Utc::now();
+        println!("in val {:?}", self.in_.read_value().unwrap());
         while self.in_.read_value().unwrap() == High {
             continue
         }
