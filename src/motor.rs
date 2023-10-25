@@ -12,12 +12,12 @@ impl Motor {
         Self {in_, out}
     }
 
-    pub fn start_motor(mut self) {
+    pub fn start_motor(&mut self) {
         self.out.set_value(true).unwrap();
         self.in_.set_value(false).unwrap();
     }
 
-    pub fn stop_motor(mut self) {
+    pub fn stop_motor(&mut self) {
         self.out.set_value(true).unwrap();
         self.in_.set_value(true).unwrap();
     }
