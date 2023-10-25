@@ -24,7 +24,7 @@ fn main() {
     loop {
         let mut temp = read_temp(FAHRENHEIT);
         segment_display.display_dec(temp.clone());
-        temp.insert(3, '.');
+        temp.insert(2, '.');
         temp = temp[..5].to_string();
         println!("Current temp: {} {}\n", temp, if FAHRENHEIT {"F"} else {"C"});
         thread::sleep(Duration::from_millis(1000));
