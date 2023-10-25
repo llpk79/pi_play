@@ -22,9 +22,10 @@ fn main() {
     let mut segment_display = Segment::new();
     segment_display.init();
     loop {
-        let temp = read_temp(FAHRENHEIT);
+        let mut temp = read_temp(FAHRENHEIT);
         segment_display.display_dec(temp.clone());
-        println!("Current temp: {} {}\n", temp, if FAHRENHEIT {"F"} else {"C"});
+        temp.insert(3, '.');
+        println!("Current temp: {} {}\n", temp[..5], if FAHRENHEIT {"F"} else {"C"});
         thread::sleep(Duration::from_millis(1000));
     };
 }
