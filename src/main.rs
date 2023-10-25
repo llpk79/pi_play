@@ -21,14 +21,11 @@ fn read_temp(fahrenheit: bool) -> String {
 fn main() {
     let mut segment_display = Segment::new();
     segment_display.init();
-    let mut temp = 1000;
     loop {
-        // let temp = read_temp(FAHRENHEIT);
-        // segment_display.display_dec(temp.clone());
-        segment_display.display_num(temp);
+        let temp = read_temp(FAHRENHEIT);
+        segment_display.display_dec(temp.clone());
         println!("Current temp: {} {}\n", temp, if FAHRENHEIT {"F"} else {"C"});
         thread::sleep(Duration::from_millis(1000));
-        temp += 10;
     };
 }
 
