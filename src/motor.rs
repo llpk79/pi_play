@@ -1,8 +1,8 @@
-use gpio::{GpioOut};
+use gpio::GpioOut;
 
 pub struct Motor {
     in_: gpio::sysfs::SysFsGpioOutput,
-    out: gpio::sysfs::SysFsGpioOutput
+    out: gpio::sysfs::SysFsGpioOutput,
 }
 
 impl Motor {
@@ -11,7 +11,7 @@ impl Motor {
         let mut out = gpio::sysfs::SysFsGpioOutput::open(6).unwrap();
         in_.set_value(false).unwrap();
         out.set_value(false).unwrap();
-        Self {in_, out}
+        Self { in_, out }
     }
 
     pub fn start(&mut self) {

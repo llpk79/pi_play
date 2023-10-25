@@ -1,8 +1,7 @@
-use gpio::{GpioIn, GpioOut};
 use gpio::GpioValue::{High, Low};
+use gpio::{GpioIn, GpioOut};
+use std::thread;
 use std::time::Duration;
-use std::{thread};
-
 
 pub struct Distance {
     in_: gpio::sysfs::SysFsGpioInput,
@@ -23,11 +22,11 @@ impl Distance {
         thread::sleep(Duration::from_micros(15));
         self.out.set_value(false).unwrap();
         while self.in_.read_value().unwrap() == Low {
-            continue
+            continue;
         }
         let t1 = chrono::Utc::now();
         while self.in_.read_value().unwrap() == High {
-            continue
+            continue;
         }
         let t2 = chrono::Utc::now();
         let distance = (t2 - t1).num_microseconds().unwrap() as f64 * 340.0 / 2.0;
@@ -37,11 +36,10 @@ impl Distance {
     pub fn print_measure(&mut self) -> String {
         let reading = self.measure();
         let mut print_string = reading.to_string();
-        let num_pad = 7 - print_string.len();
+        let num_pad = 8 - print_string.len();
         for _ in 0..num_pad {
             print_string = "0".to_string() + &print_string;
         }
-        print_string.insert(1, '0');
         print_string[..4].to_string()
     }
 }

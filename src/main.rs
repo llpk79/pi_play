@@ -1,6 +1,6 @@
-use std::{thread};
+use pi_play_lib::segment::Segment;
+use std::thread;
 use std::time::Duration;
-use pi_play_lib::segment::{Segment};
 // use pi_play_lib::temp::{read_temp};
 // use pi_play_lib::motor::{Motor};
 // use std::str::FromStr;
@@ -38,13 +38,5 @@ fn main() {
 
         segment_display.display_dec(measure);
         thread::sleep(Duration::from_millis(10));
-    };
+    }
 }
-
-
-
-
-
-
-
-

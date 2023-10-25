@@ -1,8 +1,7 @@
-use gpio::{GpioOut};
-use std::{thread};
-use std::time::Duration;
+use gpio::GpioOut;
 use std::str::FromStr;
-
+use std::thread;
+use std::time::Duration;
 
 const DIO: u16 = 27;
 const CLK: u16 = 18;
@@ -55,30 +54,30 @@ impl Segment {
         self.shift_out(0xc0);
         self.shift_out(digits[((num / 1000) % 10) as usize] as u8);
         self.shift_out(0x00);
-        self.shift_out(digits[((num/100)%10) as usize] as u8);
+        self.shift_out(digits[((num / 100) % 10) as usize] as u8);
         self.shift_out(0x00);
-        self.shift_out(digits[((num/10)%10) as usize] as u8);
+        self.shift_out(digits[((num / 10) % 10) as usize] as u8);
         self.shift_out(0x00);
-        self.shift_out(digits[(num%10) as usize] as u8);
+        self.shift_out(digits[(num % 10) as usize] as u8);
         self.shift_out(0x00);
         self.stb.set_value(true).unwrap();
     }
 
     pub fn display_dec(&mut self, num: String) {
-        let digits = vec![0x3f,0x06,0x5b,0x4f,0x66,0x6d,0x7d,0x07,0x7f,0x6f];
+        let digits = vec![0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07, 0x7f, 0x6f];
 
         let integer = i32::from_str(&num[..=1]).unwrap();
         let decimal = i32::from_str(&num[2..=3]).unwrap();
         self.send_command(0x40);
         self.stb.set_value(false).unwrap();
         self.shift_out(0xc0);
-        self.shift_out(digits[(integer/10) as usize] | 0x80);
+        self.shift_out(digits[(integer / 10) as usize] | 0x80);
         self.shift_out(0x00);
-        self.shift_out(digits[(integer%10) as usize]);
+        self.shift_out(digits[(integer % 10) as usize]);
         self.shift_out(0x00);
-        self.shift_out(digits[(decimal/10) as usize]);
+        self.shift_out(digits[(decimal / 10) as usize]);
         self.shift_out(0x00);
-        self.shift_out(digits[(decimal%10) as usize]);
+        self.shift_out(digits[(decimal % 10) as usize]);
         self.shift_out(0x00);
         self.stb.set_value(true).unwrap();
     }
@@ -128,4 +127,3 @@ impl Segment {
         self.stb.set_value(true).unwrap();
     }
 }
-
