@@ -12,7 +12,7 @@ pub struct Distance {
 impl Distance {
     pub fn new() -> Distance {
         let mut in_ = gpio::sysfs::SysFsGpioInput::open(24).unwrap();
-        let mut out = gpio::sysfs::SysFsGpioOutput::open(24).unwrap();
+        let mut out = gpio::sysfs::SysFsGpioOutput::open(23).unwrap();
         out.set_value(false).unwrap();
         thread::sleep(Duration::from_secs(2));
         Self { in_, out }
@@ -22,6 +22,7 @@ impl Distance {
         self.out.set_value(true).unwrap();
         thread::sleep(Duration::from_micros(15));
         self.out.set_value(false).unwrap();
+        println!("in val {:?}", self.in_.read_value().unwrap());
         while self.in_.read_value().unwrap() == Low {
             continue
         }
