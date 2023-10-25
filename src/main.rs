@@ -11,16 +11,16 @@ fn main() {
     let mut segment_display = Segment::new();
     segment_display.init();
     let mut motor = Motor::new();
-    motor.stop_motor();
+    motor.stop();
     loop {
         let mut temp = read_temp(FAHRENHEIT);
         match i32::from_str(&temp).unwrap() > 21500i32  {
             true => {
-                motor.start_motor();
-                segment_display.display_help();
+                motor.start();
+                segment_display.display_paul();
             }
             false => {
-                motor.stop_motor();
+                motor.stop();
                 segment_display.display_dec(temp.clone());
             }
         }
