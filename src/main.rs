@@ -34,7 +34,7 @@ fn main() {
         // println!("Current temp: {} {}\n", temp, if FAHRENHEIT {"F"} else {"C"});
 
         let measure = distance.measure();
-        print!("distance: {}", measure);
+        print!("distance: {}\n", measure);
         thread::sleep(Duration::from_millis(1000));
     };
 }

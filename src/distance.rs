@@ -26,14 +26,11 @@ impl Distance {
             continue
         }
         let t1 = chrono::Utc::now();
-        // println!("in val {:?}", self.in_.read_value().unwrap());
         while self.in_.read_value().unwrap() == High {
             continue
         }
         let t2 = chrono::Utc::now();
-        println!("sec {:?}", (t2 - t1).num_microseconds());
         let distance = (t2 - t1).num_microseconds().unwrap() as f64 * 340.0 / 2.0;
-        println!("dist {}", distance);
-        distance
+        distance /10_000
     }
 }
