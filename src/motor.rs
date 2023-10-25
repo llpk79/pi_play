@@ -24,7 +24,7 @@ impl Motor {
         self.out.set_value(false).unwrap();
     }
 
-    pub fn run(&mut self, speed: f32) {
+    pub fn run(&mut self, speed: u8) {
         self.in_.set_value(speed).unwrap();
         self.out.set_value(false).unwrap();
     }

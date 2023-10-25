@@ -14,10 +14,10 @@ fn main() {
     motor.stop();
     loop {
         let mut temp = read_temp(FAHRENHEIT);
-        let temp_int = f32::from_str(&temp).unwrap();
-        match temp_int > 21500f32  {
+        let temp_dif = i32::from_str(&temp).unwrap()- 21500i32;
+        match temp_dif > 0 {
             true => {
-                let speed: f32 = 1.0 / (1.0 / temp_int);
+                let speed: u8 = (temp_dif / 255) as u8;
                 motor.run(speed);
                 segment_display.display_paul();
             }
