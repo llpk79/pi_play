@@ -7,8 +7,10 @@ pub struct Motor {
 
 impl Motor {
     pub fn new() -> Motor {
-        let in_ = gpio::sysfs::SysFsGpioOutput::open(5).unwrap();
-        let out = gpio::sysfs::SysFsGpioOutput::open(6).unwrap();
+        let mut in_ = gpio::sysfs::SysFsGpioOutput::open(5).unwrap();
+        let mut out = gpio::sysfs::SysFsGpioOutput::open(6).unwrap();
+        in_.set_value(false).unwrap();
+        out.set_value(false).unwrap();
         Self {in_, out}
     }
 
@@ -18,7 +20,7 @@ impl Motor {
     }
 
     pub fn stop_motor(&mut self) {
-        self.out.set_value(true).unwrap();
-        self.in_.set_value(true).unwrap();
+        self.out.set_value(false).unwrap();
+        self.in_.set_value(false).unwrap();
     }
 }
