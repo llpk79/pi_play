@@ -31,8 +31,8 @@ impl Distance {
             continue
         }
         let t2 = chrono::Utc::now();
-        println!("sec {}", (t2 - t1).num_seconds());
-        let distance = (t2 - t1).num_seconds() as f64 * 340.0 / 2.0;
+        println!("sec {:?}", (t2 - t1).num_microseconds());
+        let distance = (t2 - t1).num_microseconds().unwrap() as f64 * 340.0 / 2.0;
         println!("dist {}", distance);
         distance
     }
