@@ -97,5 +97,20 @@ impl Segment {
         self.shift_out(0x00);
         self.stb.set_value(true).unwrap();
     }
+
+    pub fn display_paul(&mut self) {
+        self.send_command(0x40);
+        self.stb.set_value(false).unwrap();
+        self.shift_out(0xc0);
+        self.shift_out(0xd3);
+        self.shift_out(0x00);
+        self.shift_out(0xfe);
+        self.shift_out(0x00);
+        self.shift_out(0xd7);
+        self.shift_out(0x00);
+        self.shift_out(0xd1);
+        self.shift_out(0x00);
+        self.stb.set_value(true).unwrap();
+    }
 }
 
