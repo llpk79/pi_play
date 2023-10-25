@@ -14,9 +14,11 @@ fn main() {
     motor.stop();
     loop {
         let mut temp = read_temp(FAHRENHEIT);
-        match i32::from_str(&temp).unwrap() > 21500i32  {
+        let temp_int = f32::from_str(&temp).unwrap();
+        match temp_int > 21500f32  {
             true => {
-                motor.start();
+                let speed: f32 = 1.0 / (1.0 / temp_int);
+                motor.run(speed);
                 segment_display.display_paul();
             }
             false => {
