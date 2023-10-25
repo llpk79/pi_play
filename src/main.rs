@@ -33,7 +33,7 @@ fn main() {
         // temp = temp[..5].to_string();
         // println!("Current temp: {} {}\n", temp, if FAHRENHEIT {"F"} else {"C"});
 
-        let measure = distance.measure();
+        let measure = distance.print_measure();
         println!("measure {}\n", measure);
         // let str_dist = measure.to_string().replace(".", "");
         // println!("dist {}\n\n", str_dist);

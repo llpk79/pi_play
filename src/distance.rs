@@ -18,7 +18,7 @@ impl Distance {
         Self { in_, out }
     }
 
-    pub fn measure(&mut self) -> f64 {
+    fn measure(&mut self) -> f64 {
         self.out.set_value(true).unwrap();
         thread::sleep(Duration::from_micros(15));
         self.out.set_value(false).unwrap();
@@ -32,5 +32,16 @@ impl Distance {
         let t2 = chrono::Utc::now();
         let distance = (t2 - t1).num_microseconds().unwrap() as f64 * 340.0 / 2.0;
         distance
+    }
+
+    pub fn print_measure(&mut self) -> String {
+        let reading = self.measure();
+        let mut print_string = reading.to_string();
+        let num_pad = 7 - print_string.len();
+        for _ in ..num_pad {
+            print_string = "0".to_string() + &print_string;
+        }
+        print_string.insert(1, '0');
+        print_string[..4].to_string()
     }
 }
