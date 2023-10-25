@@ -14,10 +14,9 @@ fn main() {
     motor.stop_motor();
     loop {
         let mut temp = read_temp(FAHRENHEIT);
-        if i32::from_str(&temp).unwrap() > 20000i32 {
-            motor.start_motor();
-        } else {
-            motor.stop_motor();
+        match i32::from_str(&temp).unwrap() > 20000i32  {
+            true => motor.start_motor(),
+            false => motor.stop_motor()
         }
         segment_display.display_dec(temp.clone());
         temp.insert(2, '.');
