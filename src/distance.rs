@@ -35,6 +35,7 @@ impl Distance {
 
     pub fn print_measure(&mut self) -> String {
         let reading = self.measure();
+        println!("reading {}", reading);
         let mut print_string = reading.to_string();
         let num_pad = 7 - print_string.len();
         for _ in 0..num_pad {
