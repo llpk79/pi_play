@@ -18,6 +18,7 @@ fn main() {
         match temp_dif > 0 {
             true => {
                 let speed: u8 = (temp_dif / 255) as u8;
+                println!("speed {}", speed);
                 motor.run(speed);
                 segment_display.display_paul();
             }
