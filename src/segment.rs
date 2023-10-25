@@ -48,7 +48,7 @@ impl Segment {
         self.stb.set_value(true).unwrap();
     }
 
-    pub fn display_num(&mut self, num: i32) {
+    pub fn display_int(&mut self, num: i32) {
         let digits: Vec<i8> = vec![0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07, 0x7f, 0x6f];
         self.send_command(0x40);
         self.stb.set_value(false).unwrap();
@@ -79,6 +79,21 @@ impl Segment {
         self.shift_out(digits[(decimal/10) as usize]);
         self.shift_out(0x00);
         self.shift_out(digits[(decimal%10) as usize]);
+        self.shift_out(0x00);
+        self.stb.set_value(true).unwrap();
+    }
+
+    pub fn display_err(&mut self) {
+        self.send_command(0x40);
+        self.stb.set_value(false).unwrap();
+        self.shift_out(0xc0);
+        self.shift_out(0xd9);
+        self.shift_out(0x00);
+        self.shift_out(0xd9);
+        self.shift_out(0x00);
+        self.shift_out(0xd9);
+        self.shift_out(0x00);
+        self.shift_out(0xd9);
         self.shift_out(0x00);
         self.stb.set_value(true).unwrap();
     }

@@ -15,10 +15,15 @@ fn main() {
     loop {
         let mut temp = read_temp(FAHRENHEIT);
         match i32::from_str(&temp).unwrap() > 21500i32  {
-            true => motor.start_motor(),
-            false => motor.stop_motor()
+            true => {
+                motor.start_motor();
+                segment_display.display_err();
+            }
+            false => {
+                motor.stop_motor();
+                segment_display.display_dec(temp.clone());
+            }
         }
-        segment_display.display_dec(temp.clone());
         temp.insert(2, '.');
         temp = temp[..5].to_string();
         println!("Current temp: {} {}\n", temp, if FAHRENHEIT {"F"} else {"C"});
