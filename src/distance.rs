@@ -31,6 +31,6 @@ impl Distance {
         }
         let t2 = chrono::Utc::now();
         let distance = (t2 - t1).num_microseconds().unwrap() as f64 * 340.0 / 2.0;
-        distance /10_000
+        distance /10_000.0
     }
 }
