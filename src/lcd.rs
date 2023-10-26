@@ -97,7 +97,7 @@ impl LCD {
 
     fn print_char(&mut self, char: char) {
         let char_code = char as u8;
-        self.send(char_code, 0);
+        self.send(char_code, self.rs_mask);
     }
 
     fn print_line(&mut self, line: &str) {
@@ -114,6 +114,7 @@ impl LCD {
     pub fn display_data(&mut self, data: Vec<String>) {
         self.clear();
         for (i, line) in data.iter().enumerate() {
+            println!("i {}\nlin {}", i, line);
             self.cursor_to(i as u8, 0);
             self.print_line(line);
         }
@@ -132,7 +133,7 @@ impl LCD {
         self.command(0x04|0x08, 80u64);
         self.clear();
         self.command(0x04|0x02, 50u64);
-        thread::sleep(Duration::from_micros(30000));
+        thread::sleep(Duration::from_micros(300000));
     }
 
     pub fn backlight_on(&mut self) {
