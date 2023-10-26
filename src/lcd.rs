@@ -82,13 +82,14 @@ impl LCD {
     }
 
     pub fn display_init(&mut self) {
-        thread::sleep(Duration::from_micros(1));
+        thread::sleep(Duration::from_micros(10000));
         self.write_4_bits(0x30);
-        thread::sleep(Duration::from_micros(45));
+        thread::sleep(Duration::from_micros(45000));
         self.write_4_bits(0x30);
-        thread::sleep(Duration::from_micros(45));
+        thread::sleep(Duration::from_micros(45000));
         self.write_4_bits(0x30);
-        thread::sleep(Duration::from_micros(1));
+        thread::sleep(Duration::from_micros(15));
+        self.write_4_bits(0x20);
         self.write_4_bits((0x20|0x88) & 0xf0);
         self.write_4_bits((0x20|0x88) <<4);
         thread::sleep(Duration::from_micros(50));
@@ -99,6 +100,7 @@ impl LCD {
         self.write_4_bits(0x10 <<4);
         self.write_4_bits((0x04|0x02) & 0xf0);
         self.write_4_bits((0x04|0x02) <<4);
+        thread::sleep(Duration::from_micros(30000));
     }
 
     pub fn backlight_on(&mut self) {
