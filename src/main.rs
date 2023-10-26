@@ -1,3 +1,4 @@
+use pi_play_lib::lcd;
 // use pi_play_lib::segment::Segment;
 // use std::thread;
 // use std::time::Duration;
@@ -12,8 +13,8 @@ use pi_play_lib::lcd::{LCD};
 fn main() {
     let mut lcd = LCD::new();
     lcd.set_slave_address();
-    lcd.backlight_on();
-    lcd.display_init()
+    lcd.backlight_off();
+    lcd.display_init();
     // let mut segment_display = Segment::new();
     // segment_display.init();
     // let mut motor = Motor::new();
