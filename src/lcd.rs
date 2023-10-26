@@ -36,7 +36,7 @@ pub struct LCD {
     columns: u8,
     rows: u8,
     bus: u8,
-    addr: u8,
+    addr: u16,
 }
 
 impl LCD {
@@ -49,7 +49,7 @@ impl LCD {
         let columns = 16u8;
         let rows = 2u8;
         let bus = 1u8;
-        let addr = 0x27u8;
+        let addr = 0x27u16;
         let dev_path = "/dev/i2c-1".to_string();
         let mut i2c = I2c::from_path(dev_path).unwrap();
         Self {
@@ -66,8 +66,12 @@ impl LCD {
         }
     }
 
+    pub fn set_slave_address(&mut self) {
+        self.i2c.smbus_set_slave_address(self.addr, false).unwrap();
+    }
+
     fn write_byte_data(&mut self, data: u8) {
-        self.i2c.smbus_write_byte(data).unwrap();
+        self.i2c.smbus_write_byte_data(0,data).unwrap();
     }
 
     fn write_4_bits(&mut self, mut value: u8) {
