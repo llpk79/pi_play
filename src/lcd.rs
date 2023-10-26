@@ -81,6 +81,20 @@ impl LCD {
         self.write_byte_data(value);
     }
 
+    fn send(&mut self, data: u8) {
+        self.write_4_bits(data & 0xf0);
+        self.write_4_bits(data << 4);
+    }
+
+    fn command(&mut self, value: u8, delay: u64) {
+        self.send(value);
+        thread::sleep(Duration::from_micros(delay))
+    }
+
+    fn clear(&mut self) {
+        self.command(0x10, 50u64);
+    }
+
     pub fn display_init(&mut self) {
         thread::sleep(Duration::from_micros(10000));
         self.write_4_bits(0x30);
@@ -90,16 +104,10 @@ impl LCD {
         self.write_4_bits(0x30);
         thread::sleep(Duration::from_micros(15));
         self.write_4_bits(0x20);
-        self.write_4_bits((0x20|0x88) & 0xf0);
-        self.write_4_bits((0x20|0x88) <<4);
-        thread::sleep(Duration::from_micros(50));
-        self.write_4_bits((0x04|0x88) & 0xf0);
-        self.write_4_bits((0x04|0x88) <<4);
-        thread::sleep(Duration::from_micros(80));
-        self.write_4_bits(0x10 & 0xf0);
-        self.write_4_bits(0x10 <<4);
-        self.write_4_bits((0x04|0x02) & 0xf0);
-        self.write_4_bits((0x04|0x02) <<4);
+        self.command(0x20|0x08, 50u64);
+        self.command(0x04|0x08, 80u64);
+        self.clear();
+        self.command(0x04|0x02, 50u64);
         thread::sleep(Duration::from_micros(30000));
     }
 
