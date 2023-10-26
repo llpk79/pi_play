@@ -14,7 +14,7 @@ fn main() {
     let mut lcd = LCD::new();
     lcd.set_slave_address();
     lcd.display_init();
-    lcd.backlight_off();
+    lcd.backlight_on();
     // let mut segment_display = Segment::new();
     // segment_display.init();
     // let mut motor = Motor::new();
