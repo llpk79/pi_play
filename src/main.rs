@@ -1,16 +1,17 @@
 // use pi_play_lib::segment::Segment;
-use std::thread;
-use std::time::Duration;
+// use std::thread;
+// use std::time::Duration;
 // use pi_play_lib::temp::{read_temp};
 // use pi_play_lib::motor::{Motor};
 // use std::str::FromStr;
 // use pi_play_lib::distance::Distance;
-use pi_play_lib::lcd::{read};
+use pi_play_lib::lcd::{LCD};
 
 // const FAHRENHEIT: bool = false;
 
 fn main() {
-    read();
+    let mut lcd = LCD::new();
+    lcd.display_init()
     // let mut segment_display = Segment::new();
     // segment_display.init();
     // let mut motor = Motor::new();
