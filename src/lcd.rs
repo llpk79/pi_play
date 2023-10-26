@@ -71,7 +71,7 @@ impl LCD {
     }
 
     fn write_byte_data(&mut self, data: u8) {
-        self.i2c.smbus_write_byte_data(self.addr as u8, data).unwrap();
+        self.i2c.smbus_write_byte_data(self.addr as u8, data | self.data_mask).unwrap();
     }
 
     fn write_4_bits(&mut self, mut value: u8) {
