@@ -13,8 +13,10 @@ use pi_play_lib::lcd::{LCD};
 fn main() {
     let mut lcd = LCD::new();
     lcd.set_slave_address();
-    lcd.backlight_off();
+    lcd.backlight_on();
     lcd.display_init();
+    let data = vec!["I'm alive!!".to_string(), "look at me!!".to_string()]
+    lcd.display_data(data);
     // let mut segment_display = Segment::new();
     // segment_display.init();
     // let mut motor = Motor::new();

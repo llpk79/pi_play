@@ -81,18 +81,42 @@ impl LCD {
         self.write_byte_data(value);
     }
 
-    fn send(&mut self, data: u8) {
-        self.write_4_bits(data & 0xf0);
-        self.write_4_bits(data << 4);
+    fn send(&mut self, data: u8, mode: u8) {
+        self.write_4_bits((data & 0xf0) | mode);
+        self.write_4_bits((data << 4) | mode);
     }
 
     fn command(&mut self, value: u8, delay: u64) {
-        self.send(value);
+        self.send(value, 0);
         thread::sleep(Duration::from_micros(delay))
     }
 
     fn clear(&mut self) {
         self.command(0x10, 50u64);
+    }
+
+    fn print_char(&mut self, char: char) {
+        let char_code = char as u8;
+        self.send(char_code, self.rs_mask);
+    }
+
+    fn print_line(&mut self, line: &str) {
+        for char in line.chars() {
+            self.print_char(char);
+        }
+    }
+
+    fn cursor_to(&mut self, row: u8, col: u8) {
+        let offsets: [u8;4] = [0x00, 0x40, 0x14, 0x54];
+        self.command((0x80 | offsets[row as usize] + col), 50u64);
+    }
+
+    pub fn display_data(&mut self, data: Vec<String>) {
+        self.clear();
+        for (i, line) in data.iter().enumerate() {
+            self.cursor_to(i as u8, 0);
+            self.print_line(line);
+        }
     }
 
     pub fn display_init(&mut self) {
@@ -119,10 +143,3 @@ impl LCD {
         self.data_mask = self.data_mask & !self.backlight_mask;
     }
 }
-
-// pub fn read () {
-//     let mut i2c = I2c::from_path("/dev/i2c-1").unwrap();
-//     // i2c.smbus_set_slave_address(0x50, false).unwrap();
-//     let data = i2c.i2c_functionality().unwrap();
-//     println!("I2c data: {:?}", data);
-// }
