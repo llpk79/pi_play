@@ -1,20 +1,22 @@
-use pi_play_lib::segment::Segment;
+// use pi_play_lib::segment::Segment;
 use std::thread;
 use std::time::Duration;
 // use pi_play_lib::temp::{read_temp};
 // use pi_play_lib::motor::{Motor};
 // use std::str::FromStr;
-use pi_play_lib::distance::Distance;
+// use pi_play_lib::distance::Distance;
+use pi_play_lib::lcd::{read};
 
-const FAHRENHEIT: bool = false;
+// const FAHRENHEIT: bool = false;
 
 fn main() {
-    let mut segment_display = Segment::new();
-    segment_display.init();
+    read();
+    // let mut segment_display = Segment::new();
+    // segment_display.init();
     // let mut motor = Motor::new();
     // motor.stop();
-    let mut distance = Distance::new();
-    loop {
+    // let mut distance = Distance::new();
+    // loop {
         // let mut temp = read_temp(FAHRENHEIT);
         // let temp_dif = i32::from_str(&temp).unwrap()- 21500i32;
         // match temp_dif > 0 {
@@ -33,10 +35,10 @@ fn main() {
         // temp = temp[..5].to_string();
         // println!("Current temp: {} {}\n", temp, if FAHRENHEIT {"F"} else {"C"});
 
-        let measure = distance.print_measure();
+        // let measure = distance.print_measure();
         // println!("measure {}\n", measure);
 
-        segment_display.display_dec(measure);
-        thread::sleep(Duration::from_millis(10));
-    }
+        // segment_display.display_dec(measure);
+        // thread::sleep(Duration::from_millis(10));
+    // }
 }
