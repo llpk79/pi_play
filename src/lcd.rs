@@ -97,7 +97,7 @@ impl LCD {
 
     fn print_char(&mut self, char: char) {
         let char_code = char as u8;
-        self.send(char_code, self.rw_mask);
+        self.send(char_code, 0);
     }
 
     fn print_line(&mut self, line: &str) {
