@@ -108,7 +108,7 @@ impl LCD {
 
     fn cursor_to(&mut self, row: u8, col: u8) {
         let offsets: [u8;4] = [0x00, 0x40, 0x14, 0x54];
-        self.command((0x80 | offsets[row as usize] + col), 50u64);
+        self.command(0x80 | (offsets[row as usize] + col), 50u64);
     }
 
     pub fn display_data(&mut self, data: Vec<String>) {
