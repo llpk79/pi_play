@@ -15,7 +15,7 @@ fn main() {
     lcd.set_slave_address();
     lcd.backlight_on();
     lcd.display_init();
-    let data = vec!["I'm alive!!".to_string(), "look at me!!".to_string()]
+    let data = vec!["I'm alive!!".to_string(), "look at me!!".to_string()];
     lcd.display_data(data);
     // let mut segment_display = Segment::new();
     // segment_display.init();
