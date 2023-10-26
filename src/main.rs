@@ -12,6 +12,7 @@ use pi_play_lib::lcd::{LCD};
 fn main() {
     let mut lcd = LCD::new();
     lcd.set_slave_address();
+    lcd.backlight_on();
     lcd.display_init()
     // let mut segment_display = Segment::new();
     // segment_display.init();

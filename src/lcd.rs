@@ -100,6 +100,14 @@ impl LCD {
         self.write_4_bits((0x04|0x02) & 0xf0);
         self.write_4_bits((0x04|0x02) <<4);
     }
+
+    pub fn backlight_on(&mut self) {
+        self.data_mask = self.data_mask | self.backlight_mask;
+    }
+
+    pub fn backlight_off(&mut self) {
+        self.data_mask = self.data_mask & !self.backlight_mask;
+    }
 }
 
 // pub fn read () {
