@@ -41,6 +41,6 @@ impl Distance {
         for _ in 0..num_pad {
             print_string = "0".to_string() + &print_string;
         }
-        print_string[1..5].to_string()
+        print_string[1..6].to_string()
     }
 }

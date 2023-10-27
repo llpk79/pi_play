@@ -77,7 +77,7 @@ impl LCD {
 
     pub fn print_line(&mut self, line: &String) {
         if line.len() > self.columns as usize {
-            line[0..16].to_string();
+            line[0..self.columns as usize].to_string();
         }
         for char in line.chars() {
             self.print_char(char);

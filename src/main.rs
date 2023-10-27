@@ -15,7 +15,7 @@ fn main() {
     lcd.backlight_off();
     lcd.display_init();
     lcd.backlight_on();
-    let data = vec!["Distance        12".to_string(), "Meters: ".to_string()];
+    let data = vec!["Distance        ".to_string(), "Meters: ".to_string()];
     lcd.display_data(data);
     // let mut segment_display = Segment::new();
     // segment_display.init();
