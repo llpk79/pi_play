@@ -39,10 +39,10 @@ fn main() {
         //     }
         // }
         f_temp.insert(2, '.');
-        f_temp = f_temp[..5].to_string();
+        f_temp = f_temp[..4].to_string();
 
         c_temp.insert(2, '.');
-        c_temp = c_temp[..5].to_string();
+        c_temp = c_temp[..4].to_string();
         // println!("Current temp: {} {}\n", temp, if FAHRENHEIT {"F"} else {"C"});
 
         // let measure = distance.print_measure() + "   ";
