@@ -88,7 +88,6 @@ impl LCD {
     pub fn display_data(&mut self, data: Vec<String>) {
         self.clear();
         for (i, line) in data.iter().enumerate() {
-            println!("i {}\nline {}", i, line);
             self.cursor_to(i as u8, 0);
             self.print_line(line);
         }
