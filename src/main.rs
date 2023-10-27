@@ -45,7 +45,7 @@ fn main() {
         let data = format!("{}.{}", &measure[0..1].to_string(), &measure[1..]);
         lcd.cursor_to(1, 8);
         lcd.print_line(&data);
-        }
+        
         // let data = vec!["Hello".to_string(), "World".to_string()];
         // println!("measure {}\n", measure);
         // segment_display.display_dec(measure);
