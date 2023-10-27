@@ -39,9 +39,9 @@ fn main() {
         // temp = temp[..5].to_string();
         // println!("Current temp: {} {}\n", temp, if FAHRENHEIT {"F"} else {"C"});
 
-        let measure = distance.print_measure();
+        let measure = distance.print_measure() + "   ";
         // let data = vec!["Hello".to_string(), "World".to_string()];
-        let data = vec!["Distance".to_string(), format!("Meters: {}.{}", &measure[0..1].to_string(), &measure[1..])];
+        let data = vec!["Distance        ".to_string(), format!("Meters: {}.{}", &measure[0..1].to_string(), &measure[1..])];
         lcd.display_data(data);
         // println!("measure {}\n", measure);
         // segment_display.display_dec(measure);
