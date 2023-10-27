@@ -75,7 +75,7 @@ impl LCD {
     }
 
     fn print_line(&mut self, line: &str) {
-        for char in line[..16].chars() {
+        for char in line.chars() {
             self.print_char(char);
         }
     }
