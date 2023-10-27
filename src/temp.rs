@@ -7,7 +7,7 @@ pub fn read_temp(fahrenheit: bool) -> String {
         .parse()
         .unwrap();
     // let mut temp_str: String = file_str[69..74].to_string();
-    let mut temp_str = file_str.split("t=").collect::<Vec<_>>()[1].to_string();
+    let mut temp_str = file_str.split("t=").collect::<Vec<_>>()[1].to_string().replace("\n", "");
     let mut temp = f32::from_str(&temp_str).unwrap();
     temp /= 1000.0;
     if fahrenheit {
