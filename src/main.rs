@@ -45,6 +45,6 @@ fn main() {
         lcd.display_data(data);
         // println!("measure {}\n", measure);
         // segment_display.display_dec(measure);
-        thread::sleep(Duration::from_millis(5));
+        thread::sleep(Duration::from_millis(1));
     }
 }
