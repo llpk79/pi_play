@@ -12,6 +12,6 @@ pub fn read_temp(fahrenheit: bool) -> String {
     if fahrenheit {
         temp = (temp * 9.0 / 5.0) + 32.0;
     }
-    temp_str = temp.to_string();
+    temp_str = temp.to_string() + "00";
     temp_str
 }

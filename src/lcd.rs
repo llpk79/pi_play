@@ -12,7 +12,6 @@ pub struct LCD {
     backlight_mask: u8,
     data_mask: u8,
     columns: u8,
-    rows: u8,
     addr: u16,
 }
 
@@ -23,7 +22,6 @@ impl LCD {
         let backlight_mask = (1 << 3) as u8;
         let data_mask = 0x00u8;
         let columns = 16u8;
-        let rows = 2u8;
         let addr = 0x27u16;
         let dev_path = "/dev/i2c-1".to_string();
         let i2c = I2c::from_path(dev_path).unwrap();
@@ -34,7 +32,6 @@ impl LCD {
             backlight_mask,
             data_mask,
             columns,
-            rows,
             addr,
         }
     }
