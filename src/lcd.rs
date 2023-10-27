@@ -97,6 +97,7 @@ impl LCD {
 
     fn print_char(&mut self, char: char) {
         let char_code = char as u8;
+        println!("char {}\nchar code {}", char, char_code);
         self.send(char_code, self.rs_mask);
     }
 
@@ -114,7 +115,7 @@ impl LCD {
     pub fn display_data(&mut self, data: Vec<String>) {
         self.clear();
         for (i, line) in data.iter().enumerate() {
-            println!("i {}\nlin {}", i, line);
+            println!("i {}\nline {}", i, line);
             self.cursor_to(i as u8, 0);
             self.print_line(line);
         }
