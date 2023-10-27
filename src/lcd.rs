@@ -1,10 +1,9 @@
 extern crate i2c_linux;
 
-use std::fs::File;
 use i2c_linux::I2c;
+use std::fs::File;
 use std::thread;
 use std::time::Duration;
-
 
 pub struct LCD {
     i2c: I2c<File>,
@@ -19,9 +18,9 @@ pub struct LCD {
 
 impl LCD {
     pub fn new() -> LCD {
-        let enable_mask = (1<<2) as u8;
-        let rs_mask = (1<<0) as u8;
-        let backlight_mask = (1<<3) as u8;
+        let enable_mask = (1 << 2) as u8;
+        let rs_mask = (1 << 0) as u8;
+        let backlight_mask = (1 << 3) as u8;
         let data_mask = 0x00u8;
         let columns = 16u8;
         let rows = 2u8;
@@ -45,7 +44,9 @@ impl LCD {
     }
 
     fn write_byte_data(&mut self, data: u8) {
-        self.i2c.smbus_write_byte_data(0u8, data | self.data_mask).unwrap();
+        self.i2c
+            .smbus_write_byte_data(0u8, data | self.data_mask)
+            .unwrap();
     }
 
     fn write_4_bits(&mut self, mut value: u8) {
@@ -74,14 +75,17 @@ impl LCD {
         self.send(char_code, self.rs_mask);
     }
 
-    pub fn print_line(&mut self, line: &str) {
+    pub fn print_line(&mut self, line: &String) {
+        if line.len() > self.columns as usize {
+            line[0..16].to_string();
+        }
         for char in line.chars() {
             self.print_char(char);
         }
     }
 
     pub fn cursor_to(&mut self, row: u8, col: u8) {
-        let offsets: [u8;4] = [0x00, 0x40, 0x14, 0x54];
+        let offsets: [u8; 4] = [0x00, 0x40, 0x14, 0x54];
         self.command(0x80 | (offsets[row as usize] + col), 50u64);
     }
 
@@ -102,10 +106,10 @@ impl LCD {
         self.write_4_bits(0x30);
         thread::sleep(Duration::from_micros(15));
         self.write_4_bits(0x20);
-        self.command(0x20|0x08, 50u64);
-        self.command(0x04|0x08, 80u64);
+        self.command(0x20 | 0x08, 50u64);
+        self.command(0x04 | 0x08, 80u64);
         self.clear();
-        self.command(0x04|0x02, 50u64);
+        self.command(0x04 | 0x02, 50u64);
         thread::sleep(Duration::from_micros(300000));
     }
 

@@ -5,7 +5,7 @@ use std::time::Duration;
 // use pi_play_lib::motor::{Motor};
 // use std::str::FromStr;
 use pi_play_lib::distance::Distance;
-use pi_play_lib::lcd::{LCD};
+use pi_play_lib::lcd::LCD;
 
 // const FAHRENHEIT: bool = false;
 
@@ -15,7 +15,7 @@ fn main() {
     lcd.backlight_off();
     lcd.display_init();
     lcd.backlight_on();
-    let data = vec!["Distance        ".to_string(), "Meters: ".to_string()];
+    let data = vec!["Distance        12".to_string(), "Meters: ".to_string()];
     lcd.display_data(data);
     // let mut segment_display = Segment::new();
     // segment_display.init();
@@ -45,7 +45,7 @@ fn main() {
         let data = format!("{}.{}", &measure[0..1].to_string(), &measure[1..]);
         lcd.cursor_to(1, 8);
         lcd.print_line(&data);
-        
+
         // let data = vec!["Hello".to_string(), "World".to_string()];
         // println!("measure {}\n", measure);
         // segment_display.display_dec(measure);
