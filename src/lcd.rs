@@ -74,13 +74,13 @@ impl LCD {
         self.send(char_code, self.rs_mask);
     }
 
-    fn print_line(&mut self, line: &str) {
+    pub fn print_line(&mut self, line: &str) {
         for char in line.chars() {
             self.print_char(char);
         }
     }
 
-    fn cursor_to(&mut self, row: u8, col: u8) {
+    pub fn cursor_to(&mut self, row: u8, col: u8) {
         let offsets: [u8;4] = [0x00, 0x40, 0x14, 0x54];
         self.command(0x80 | (offsets[row as usize] + col), 50u64);
     }

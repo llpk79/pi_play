@@ -15,6 +15,8 @@ fn main() {
     lcd.backlight_off();
     lcd.display_init();
     lcd.backlight_on();
+    let data = vec!["Distance        ".to_string(), "Meters: ".to_string()];
+    lcd.display_data(data);
     // let mut segment_display = Segment::new();
     // segment_display.init();
     // let mut motor = Motor::new();
@@ -40,9 +42,11 @@ fn main() {
         // println!("Current temp: {} {}\n", temp, if FAHRENHEIT {"F"} else {"C"});
 
         let measure = distance.print_measure() + "   ";
+        let data = format!("{}.{}", &measure[0..1].to_string(), &measure[1..]);
+        lcd.cursor_to(1, 8);
+        lcd.print_line(&data);
+        }
         // let data = vec!["Hello".to_string(), "World".to_string()];
-        let data = vec!["Distance        ".to_string(), format!("Meters: {}.{}", &measure[0..1].to_string(), &measure[1..])];
-        lcd.display_data(data);
         // println!("measure {}\n", measure);
         // segment_display.display_dec(measure);
         thread::sleep(Duration::from_millis(1));
