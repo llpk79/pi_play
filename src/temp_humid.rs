@@ -1,6 +1,6 @@
 use gpio::GpioValue::{High, Low};
 use gpio::{GpioIn, GpioOut};
-use std::thread;
+use std::{thread, time};
 use std::time::Duration;
 
 
@@ -20,20 +20,20 @@ pub fn measure_temp_humid() -> Vec<String> {
         continue
     };
     for _ in 0..40 {
-        let mut k = 0;
-        while data_pin.read_value().unwrap() == Low {
+        while data_pin.read_value().unwrap() == Low { // hmm
             continue;
         }
+        let start = chrono::Utc::now();
         while data_pin.read_value().unwrap() == High {
-            k += 1;
-            if k > 100 {
-                break
-            }
+            continue
         }
-        if k < 8 {
-            data.push(0);
+        let end = chrono::Utc::now();
+        let bit_time = end - start;
+        println!("bit time {:?}", bit_time.num_microseconds().unwrap());
+        if bit_time.num_microseconds().unwrap() > 30 {
+            data.push(1);
         } else {
-            data.push(1)
+            data.push(0)
         }
     }
     println!("data {:?}", data);
@@ -57,7 +57,7 @@ pub fn measure_temp_humid() -> Vec<String> {
     }
     if check != hum + hum_dec + temp + temp_dec {
         println!("Error reading temp/humidity");
-        println!("check {}\ntest {}", check, hum + hum_dec + temp + temp_dec);
+        println!("check {}\ntest {}\n", check, hum + hum_dec + temp + temp_dec);
     };
     println!("temp {}.{}\nhumidity {}.{}\n", temp, temp_dec, hum, hum_dec);
     let hum = format!("Humidity: {}.{}", hum, hum_dec);
