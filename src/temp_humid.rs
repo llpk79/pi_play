@@ -17,9 +17,8 @@ pub fn measure_temp_humid() -> Vec<String> {
     while data_pin.read_value().unwrap() == High {
         continue
     };
-    let mut j = 0;
     let mut data = Vec::new();
-    while j < 40 {
+    for _ in 0..40 {
         let mut k = 0;
         while data_pin.read_value().unwrap() == Low {
             continue;
@@ -35,7 +34,6 @@ pub fn measure_temp_humid() -> Vec<String> {
         } else {
             data.push(1)
         }
-        j += 1;
     }
     let hum_bit = Vec::from(&data[0..8]);
     let hum_dec_bit = Vec::from(&data[8..16]);
@@ -49,7 +47,7 @@ pub fn measure_temp_humid() -> Vec<String> {
     let mut check = 0;
 
     for i in 0..8 {
-        hum += hum_bit[i] * (2 << (7 - i));
+        hum += hum_bit[i] * i32::pow(2, 7 - i as u32);
         hum_dec += hum_dec_bit[i] * (2 << (7 - 1));
         temp += temp_bit[i] * (2 << (7 - i));
         temp_dec += temp_dec_bit[i] * (2 << (7 - i));
