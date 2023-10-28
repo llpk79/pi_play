@@ -14,18 +14,22 @@ impl TempHumid {
         start_pin.set_value(false).unwrap();
         thread::sleep(Duration::from_millis(20));
         start_pin.set_value(true).unwrap();
-        let mut data_pin = gpio::sysfs::SysFsGpioInput::open(18).unwrap();
-        while data_pin.read_value().unwrap() == Low {
-            continue
-        };
-        while data_pin.read_value().unwrap() == High {
-            continue
-        };
-        println!("data pin {:?}\n", data_pin);
+        let data_pin = gpio::sysfs::SysFsGpioInput::open(18).unwrap();
         Self { data_pin }
     }
 
+    fn init(&mut self) {
+        while self.data_pin.read_value().unwrap() == Low {
+            continue
+        };
+        while self.data_pin.read_value().unwrap() == High {
+            continue
+        };
+        // println!("data pin {:?}\n", self.data_pin);
+    }
+
     fn read(&mut self) -> Vec<i32> {
+        self.init();
         let mut j = 0;
         let mut data = Vec::new();
         while j < 40 {
