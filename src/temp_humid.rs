@@ -6,6 +6,7 @@ use std::time::Duration;
 
 
 pub fn measure_temp_humid() -> Vec<String> {
+    let mut data = Vec::new();
     let mut start_pin = gpio::sysfs::SysFsGpioOutput::open(18).unwrap();
     start_pin.set_value(false).unwrap();
     thread::sleep(Duration::from_millis(20));
@@ -17,7 +18,6 @@ pub fn measure_temp_humid() -> Vec<String> {
     while data_pin.read_value().unwrap() == High {
         continue
     };
-    let mut data = Vec::new();
     for _ in 0..40 {
         let mut k = 0;
         while data_pin.read_value().unwrap() == Low {
@@ -25,7 +25,7 @@ pub fn measure_temp_humid() -> Vec<String> {
         }
         while data_pin.read_value().unwrap() == High {
             k += 1;
-            if k > 100 {
+            if k > 50 {
                 break
             }
         }
