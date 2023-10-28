@@ -1,6 +1,6 @@
 use gpio::GpioValue::{High, Low};
 use gpio::{GpioIn, GpioOut};
-use std::{thread, time};
+use std::{thread};
 use std::time::Duration;
 
 
@@ -10,7 +10,7 @@ pub fn measure_temp_humid() -> Vec<String> {
     let mut start_pin = gpio::sysfs::SysFsGpioOutput::open(18).unwrap();
     // thread::sleep(Duration::from_secs(1));
     start_pin.set_value(false).unwrap();
-    thread::sleep(Duration::from_millis(20));
+    thread::sleep(Duration::from_millis(30));
     start_pin.set_value(true).unwrap();
     let mut data_pin = gpio::sysfs::SysFsGpioInput::open(18).unwrap();
     while data_pin.read_value().unwrap() == Low {
