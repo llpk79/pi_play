@@ -37,6 +37,6 @@ fn main() {
         // lcd.cursor_to(1, 11);
         // lcd.print_line(&c_temp);
         lcd.display_data(measure_temp_humid());
-        thread::sleep(Duration::from_millis(2000));
+        thread::sleep(Duration::from_millis(3000));
     }
 }
