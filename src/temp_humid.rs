@@ -21,7 +21,8 @@ impl TempHumid {
         while data_pin.read_value().unwrap() == High {
             continue
         };
-        Self { data_pin}
+        println!("data pin {:?}\n", data_pin);
+        Self { data_pin }
     }
 
     fn read(&mut self) -> Vec<i32> {
@@ -29,6 +30,7 @@ impl TempHumid {
         let mut data = Vec::new();
         while j < 40 {
             let mut k = 0;
+            println!("data pin read{:?}\n", self.data_pin);
             while self.data_pin.read_value().unwrap() == Low {
                 continue;
             }
