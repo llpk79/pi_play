@@ -8,6 +8,7 @@ use std::time::Duration;
 pub fn measure_temp_humid() -> Vec<String> {
     let mut data = Vec::new();
     let mut start_pin = gpio::sysfs::SysFsGpioOutput::open(18).unwrap();
+    thread::sleep(Duration::from_secs(1));
     start_pin.set_value(false).unwrap();
     thread::sleep(Duration::from_millis(20));
     start_pin.set_value(true).unwrap();
@@ -48,11 +49,11 @@ pub fn measure_temp_humid() -> Vec<String> {
     let mut check = 0;
 
     for i in 0..8 {
-        hum += (hum_bit[i] * i32::pow(2, 7 - i as u32));
-        hum_dec += (hum_dec_bit[i] * i32::pow(2, 7 - i as u32));
-        temp += (temp_bit[i] * i32::pow(2, 7 - i as u32));
-        temp_dec += (temp_dec_bit[i] * i32::pow(2, 7 - i as u32));
-        check += (check_bit[i] * i32::pow(2, 7 - i as u32));
+        hum += hum_bit[i] * i32::pow(2, 7 - i as u32);
+        hum_dec += hum_dec_bit[i] * i32::pow(2, 7 - i as u32);
+        temp += temp_bit[i] * i32::pow(2, 7 - i as u32);
+        temp_dec += temp_dec_bit[i] * i32::pow(2, 7 - i as u32);
+        check += check_bit[i] * i32::pow(2, 7 - i as u32);
     }
     if check != hum + hum_dec + temp + temp_dec {
         println!("Error reading temp/humidity");
