@@ -25,7 +25,7 @@ pub fn measure_temp_humid() -> Vec<String> {
         }
         while data_pin.read_value().unwrap() == High {
             k += 1;
-            if k > 50 {
+            if k > 100 {
                 break
             }
         }
