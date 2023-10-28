@@ -4,7 +4,7 @@ use std::thread;
 use std::time::Duration;
 // use pi_play_lib::distance::Distance;
 use pi_play_lib::lcd::LCD;
-use pi_play_lib::temp_humid::TempHumid;
+use pi_play_lib::temp_humid::measure_temp_humid;
 
 fn main() {
     let mut lcd = LCD::new();
@@ -20,7 +20,7 @@ fn main() {
     // let mut segment_display = Segment::new();
     // segment_display.init();
     // let mut distance = Distance::new();
-    let mut hum_temp = TempHumid::new();
+
     loop {
         // let mut f_temp = read_temp(true);
         // let mut c_temp = read_temp(false);
@@ -36,7 +36,7 @@ fn main() {
         // lcd.print_line(&f_temp);
         // lcd.cursor_to(1, 11);
         // lcd.print_line(&c_temp);
-        lcd.display_data(hum_temp.string_data());
+        lcd.display_data(measure_temp_humid());
         thread::sleep(Duration::from_millis(1));
     }
 }
