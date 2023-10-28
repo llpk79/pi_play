@@ -48,15 +48,15 @@ pub fn measure_temp_humid() -> Vec<String> {
     let mut check = 0;
 
     for i in 0..8 {
-        hum += hum_bit[i] * i32::pow(2, 7 - i as u32);
-        hum_dec += hum_dec_bit[i] * i32::pow(2, 7 - i as u32);
-        temp += temp_bit[i] * i32::pow(2, 7 - i as u32);
-        temp_dec += temp_dec_bit[i] * i32::pow(2, 7 - i as u32);
-        check += check_bit[i] * i32::pow(2, 7 - i as u32);
+        hum += hum_bit[i] * i32::pow(2, i as u32);
+        hum_dec += hum_dec_bit[i] * i32::pow(2, i as u32);
+        temp += temp_bit[i] * i32::pow(2, i as u32);
+        temp_dec += temp_dec_bit[i] * i32::pow(2, i as u32);
+        check += check_bit[i] * i32::pow(2, i as u32);
     }
     if check != hum + hum_dec + temp + temp_dec {
         println!("Error reading temp/humidity");
-        // self.translate();
+        println!("check {}\ntest {}", check, hum + hum_dec + temp + temp_dec);
     };
     println!("temp {}.{}\nhumidity {}.{}\n,check {}\n", temp, temp_dec, hum, hum_dec, check);
     let hum = format!("Humidity: {}.{}", hum, hum_dec);
