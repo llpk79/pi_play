@@ -28,7 +28,7 @@ pub fn measure_temp_humid() -> Vec<String> {
         while data_pin.read_value().unwrap() == High {
             if (chrono::Utc::now() - start).num_microseconds().unwrap() > 80 {
                 break
-            }
+            } else { continue }
         }
         let end = chrono::Utc::now();
         let bit_time = end - start;
