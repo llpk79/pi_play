@@ -35,6 +35,7 @@ pub fn measure_temp_humid() -> Vec<String> {
             data.push(1)
         }
     }
+    println!("data {:?}", data);
     let hum_bit = Vec::from(&data[0..8]);
     let hum_dec_bit = Vec::from(&data[8..16]);
     let temp_bit = Vec::from(&data[16..24]);
