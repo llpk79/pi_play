@@ -30,7 +30,7 @@ impl TempHumid {
         let mut data = Vec::new();
         while j < 40 {
             let mut k = 0;
-            println!("data pin read{:?}\n", self.data_pin);
+            println!("data pin read{:?}\n", self.data_pin.read_value().unwrap());
             while self.data_pin.read_value().unwrap() == Low {
                 continue;
             }
