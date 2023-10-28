@@ -11,7 +11,6 @@ pub fn measure_temp_humid() -> Vec<String> {
     // thread::sleep(Duration::from_secs(1));
     start_pin.set_value(false).unwrap();
     thread::sleep(Duration::from_micros(300));
-    println!("func");
     start_pin.set_value(true).unwrap();
     let mut data_pin = gpio::sysfs::SysFsGpioInput::open(18).unwrap();
     while data_pin.read_value().unwrap() == Low {
@@ -20,6 +19,7 @@ pub fn measure_temp_humid() -> Vec<String> {
     while data_pin.read_value().unwrap() == High {
         continue
     };
+    println!("func");
     for _ in 0..40 {
         while data_pin.read_value().unwrap() == Low {
             continue;
