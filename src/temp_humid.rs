@@ -21,7 +21,6 @@ pub fn measure_temp_humid() -> Vec<String> {
     let mut data = Vec::new();
     while j < 40 {
         let mut k = 0;
-        println!("data pin read{:?}\n", data_pin.read_value().unwrap());
         while data_pin.read_value().unwrap() == Low {
             continue;
         }
@@ -60,6 +59,7 @@ pub fn measure_temp_humid() -> Vec<String> {
         println!("Error reading temp/humidity");
         // self.translate();
     };
+    println!("temp {}.{}\nhumidity {}.{}\n", temp, temp_dec, hum, hum_dec);
     let hum = format!("Humidity: {}.{}", hum, hum_dec);
     let temp = format!("C: {}.{}", temp, temp_dec);
     vec![hum, temp]
