@@ -57,7 +57,7 @@ pub fn measure_temp_humid() -> Vec<String> {
         println!("Error reading temp/humidity");
         // self.translate();
     };
-    println!("temp {}.{}\nhumidity {}.{}\n", temp, temp_dec, hum, hum_dec);
+    println!("temp {}.{}\nhumidity {}.{}\n,check {}\n", temp, temp_dec, hum, hum_dec, check);
     let hum = format!("Humidity: {}.{}", hum, hum_dec);
     let temp = format!("C: {}.{}", temp, temp_dec);
     vec![hum, temp]
