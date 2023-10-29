@@ -8,7 +8,7 @@ use std::time::Duration;
 pub fn measure_temp_humid() -> Vec<String> {
     let mut data = Vec::new();
     let mut start_pin = gpio::sysfs::SysFsGpioOutput::open(18).unwrap();
-    thread::sleep(Duration::from_millis(100));
+    // thread::sleep(Duration::from_millis(100));
     start_pin.set_value(false).unwrap();
     thread::sleep(Duration::from_millis(20));
     start_pin.set_value(true).unwrap();
