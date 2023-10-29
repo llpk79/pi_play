@@ -19,11 +19,11 @@ pub fn measure_temp_humid() -> Vec<String> {
     while data_pin.read_value().unwrap() == High {
         continue
     };
-    println!("func");
     for _ in 0..40 {
         while data_pin.read_value().unwrap() == Low {
             continue
         }
+        println!("func");
         let start = chrono::Utc::now();
         while data_pin.read_value().unwrap() == High {
             continue
