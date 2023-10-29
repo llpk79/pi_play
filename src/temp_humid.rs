@@ -43,14 +43,14 @@ pub fn measure_temp_humid() -> Vec<String> {
         // }
         let end = chrono::Utc::now();
         let bit_time = end - start;
-        println!("bit time {:?}", bit_time.num_microseconds().unwrap());
+        // println!("bit time {:?}", bit_time.num_microseconds().unwrap());
         if bit_time.num_microseconds().unwrap() > 30 {
             data.push(1);
         } else {
             data.push(0)
         }
     }
-    println!("data {:?}", data);
+    // println!("data {:?}", data);
     let hum_bit = Vec::from(&data[0..8]);
     let hum_dec_bit = Vec::from(&data[8..16]);
     let temp_bit = Vec::from(&data[16..24]);
