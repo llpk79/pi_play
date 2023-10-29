@@ -28,7 +28,7 @@ pub fn measure_temp_humid() -> Vec<String> {
         };
         let end = chrono::Utc::now();
         let bit_time = end - start;
-        // println!("bit time {:?}", bit_time.num_microseconds().unwrap());
+        println!("bit time {:?}", bit_time.num_microseconds().unwrap());
         if bit_time.num_microseconds().unwrap() > 30 {
             data.push(1);
         } else {
