@@ -64,6 +64,6 @@ pub fn measure_temp_humid() -> Vec<String> {
     let hum = format!("Humidity: {}.{}", hum, hum_dec);
     let temp = format!("C: {}.{}", temp, temp_dec);
     let mut stop_pin = gpio::sysfs::SysFsGpioOutput::open(18).unwrap();
-    stop_pin.set_value(false).unwrap();
+    stop_pin.set_value(true).unwrap();
     vec![hum, temp]
 }
