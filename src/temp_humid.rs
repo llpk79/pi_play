@@ -20,17 +20,18 @@ pub fn measure_temp_humid() -> Vec<String> {
         continue
     };
     for i in 0..40 {
+        // while data_pin.read_value().unwrap() == Low {
+        //     continue
+        // }
+        thread::sleep(Duration::from_micros(50));
         println!("{}", i);
-        while data_pin.read_value().unwrap() == Low {
-            continue
-        }
         let start = chrono::Utc::now();
         while data_pin.read_value().unwrap() == High {
             continue
         }
         let end = chrono::Utc::now();
         let bit_time = end - start;
-        // println!("bit time {:?}", bit_time.num_microseconds().unwrap());
+        println!("bit time {:?}", bit_time.num_microseconds().unwrap());
         if bit_time.num_microseconds().unwrap() > 30 {
             data.push(1);
         } else {
