@@ -24,7 +24,7 @@ pub fn measure_temp_humid() -> Vec<String> {
             continue
         }
         // thread::sleep(Duration::from_micros(50));
-        println!("{}", i);
+        // println!("{}", i);
         let start = chrono::Utc::now();
         let mut limit = 0;
         while data_pin.read_value().unwrap() == High {
