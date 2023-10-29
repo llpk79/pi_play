@@ -39,7 +39,7 @@ fn main() {
         // println!("here");
         let hum_temp = measure_temp_humid();
         lcd.display_data(hum_temp);
-        thread::sleep(Duration::from_millis(2000));
+        thread::sleep(Duration::from_secs(31));
         // println!("now here");
     }
 }
