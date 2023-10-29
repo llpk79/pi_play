@@ -71,9 +71,9 @@ pub fn measure_temp_humid() -> Vec<String> {
     }
     if check != hum + hum_dec + temp + temp_dec {
         println!("Error reading temp/humidity");
-        println!("check {}\ntest {}\n", check, hum + hum_dec + temp + temp_dec);
+        // println!("check {}\ntest {}\n", check, hum + hum_dec + temp + temp_dec);
     };
-    println!("temp {}.{}\nhumidity {}.{}\n", temp, temp_dec, hum, hum_dec);
+    // println!("temp {}.{}\nhumidity {}.{}\n", temp, temp_dec, hum, hum_dec);
     let hum = format!("Humidity: {}.{}", hum, hum_dec);
     let temp = format!("C: {}.{}", temp, temp_dec);
     let mut stop_pin = gpio::sysfs::SysFsGpioOutput::open(18).unwrap();
