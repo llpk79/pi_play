@@ -19,14 +19,14 @@ pub fn measure_temp_humid() -> Vec<String> {
     while data_pin.read_value().unwrap() == High {
         continue
     };
-    for i in 0..40 {
+    for _ in 0..40 {
         while data_pin.read_value().unwrap() == Low {
             continue
         }
         // thread::sleep(Duration::from_micros(50));
         // println!("{}", i);
         let start = chrono::Utc::now();
-        let mut limit = 0;
+        // let mut limit = 0;
         while data_pin.read_value().unwrap() == High {
             // if limit > 5 {
             //     break
@@ -76,7 +76,7 @@ pub fn measure_temp_humid() -> Vec<String> {
     println!("temp {}.{}\nhumidity {}.{}\n", temp, temp_dec, hum, hum_dec);
     let hum = format!("Humidity: {}.{}", hum, hum_dec);
     let temp = format!("C: {}.{}", temp, temp_dec);
-    let mut stop_pin = gpio::sysfs::SysFsGpioOutput::open(18).unwrap();
-    stop_pin.set_value(true).unwrap();
+    // let mut stop_pin = gpio::sysfs::SysFsGpioOutput::open(18).unwrap();
+    // stop_pin.set_value(true).unwrap();
     vec![hum, temp]
 }
