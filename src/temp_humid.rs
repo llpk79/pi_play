@@ -26,7 +26,7 @@ pub fn measure_temp_humid() -> Vec<String> {
         let start = chrono::Utc::now();
         let mut k = 0;
         'inner: while data_pin.read_value().unwrap() == High {
-            if k > 10 {
+            if k > 4 {
                 break 'inner;
             } else {
                 println!("k {}", k);
