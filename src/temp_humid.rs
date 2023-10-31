@@ -24,16 +24,16 @@ pub fn measure_temp_humid() -> Vec<String> {
             continue;
         };
         let start = chrono::Utc::now();
-        let mut k = 0;
-        'inner: while data_pin.read_value().unwrap() == High {
-            if k > 2 {
-                println!("break");
-                break 'inner;
-            } else {
-                println!("k {}", k);
-                k += 1;
-                continue;
-            };
+        // let mut k = 0;
+        while data_pin.read_value().unwrap() == High {
+            // if k > 2 {
+            //     println!("break");
+            //     break 'inner;
+            // } else {
+            //     println!("k {}", k);
+            //     k += 1;
+            //     continue;
+            // };
             // continue;
         };
         let end = chrono::Utc::now();
