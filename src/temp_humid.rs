@@ -27,6 +27,7 @@ pub fn measure_temp_humid() -> Vec<String> {
         let mut k = 0;
         'inner: while data_pin.read_value().unwrap() == High {
             if k > 2 {
+                println!("break");
                 break 'inner;
             } else {
                 println!("k {}", k);
