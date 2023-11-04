@@ -58,22 +58,23 @@ impl Receiver {
         while self.in_.read_value().unwrap() == High {
             continue;
         };
-        while self.in_.read_value().unwrap() == Low {
-            continue;
-        };
-        let start = chrono::Utc::now();
-        while self.in_.read_value().unwrap() == High {
-            continue;
-        };
-        let end = chrono::Utc::now();
-        let bit_time = end - start;
-        println!("bit time {:?}", bit_time.num_microseconds().unwrap());
-        if bit_time.num_microseconds().unwrap() > 45 {
-            data.push(1);
-        } else {
-            data.push(0);
-        };
-        data
+        while data.len() < 40 {
+            while self.in_.read_value().unwrap() == Low {
+                continue;
+            };
+            let start = chrono::Utc::now();
+            while self.in_.read_value().unwrap() == High {
+                continue;
+            };
+            let end = chrono::Utc::now();
+            let bit_time = end - start;
+            println!("bit time {:?}", bit_time.num_microseconds().unwrap());
+            if bit_time.num_microseconds().unwrap() > 45 {
+                data.push(1);
+            } else {
+                data.push(0);
+            };
+        }data
     }
 
     pub fn print_message(&mut self) {
