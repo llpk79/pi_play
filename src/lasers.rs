@@ -23,9 +23,9 @@ impl Laser {
     pub fn send_message(&mut self, message: String) {
         thread::sleep(Duration::from_millis(250));
         self.out.set_value(false).unwrap();
-        thread::sleep(Duration::from_micros(20));
+        thread::sleep(Duration::from_millis(20));
         self.out.set_value(true).unwrap();
-        thread::sleep(Duration::from_micros(20));
+        thread::sleep(Duration::from_millis(20));
         self.out.set_value(false).unwrap();
         for char in message.chars() {
             let code = char as i8;
@@ -33,10 +33,10 @@ impl Laser {
                 match bit == 1 {
                     true => {
                         self.out.set_value(true).unwrap();
-                        thread::sleep(Duration::from_micros(25))},
+                        thread::sleep(Duration::from_millis(50))},
                     false => {
                         self.out.set_value(true).unwrap();
-                        thread::sleep(Duration::from_micros(60))
+                        thread::sleep(Duration::from_micros(100))
                     }
                 }
             }
@@ -69,7 +69,7 @@ impl Receiver {
             let end = chrono::Utc::now();
             let bit_time = end - start;
             println!("bit time {:?}", bit_time.num_microseconds().unwrap());
-            if bit_time.num_microseconds().unwrap() > 45 {
+            if bit_time.num_milliseconds() > 75 {
                 data.push(1);
             } else {
                 data.push(0);
