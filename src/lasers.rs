@@ -85,7 +85,9 @@ impl Receiver {
     }
 
     pub fn print_message(&mut self) {
+        println!("getting data");
         let data = self.receive_message();
+        println!("decoding data");
         let mut chars = Vec::new();
         for i in (0..data.len()).step_by(8) {
             let mut code:u32 = 0;
