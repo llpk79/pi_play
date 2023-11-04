@@ -28,7 +28,6 @@ impl Laser {
         thread::sleep(Duration::from_millis(200));
         self.out.set_value(false).unwrap();
         println!("boop");
-        loop {
             for char in message.chars() {
                 let code = char as i8;
                 for bit in code.to_le_bytes() {
@@ -47,7 +46,6 @@ impl Laser {
                 }
                 thread::sleep(Duration::from_millis(150))
             }
-        }
     }
 }
 
