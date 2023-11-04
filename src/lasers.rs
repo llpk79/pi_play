@@ -35,11 +35,13 @@ impl Laser {
                     match bit == 1 {
                         true => {
                             self.out.set_value(true).unwrap();
-                            thread::sleep(Duration::from_millis(2500))
+                            thread::sleep(Duration::from_millis(2500));
+                            self.out.set_value(false).unwrap();
                         }
                         false => {
                             self.out.set_value(true).unwrap();
-                            thread::sleep(Duration::from_micros(5000))
+                            thread::sleep(Duration::from_micros(5000));
+                            self.out.set_value(false);
                         }
                     }
                 }
