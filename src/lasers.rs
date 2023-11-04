@@ -27,17 +27,20 @@ impl Laser {
         self.out.set_value(true).unwrap();
         thread::sleep(Duration::from_millis(20));
         self.out.set_value(false).unwrap();
-        for char in message.chars() {
-            println!("sent {}", char);
-            let code = char as i8;
-            for bit in code.to_le_bytes() {
-                match bit == 1 {
-                    true => {
-                        self.out.set_value(true).unwrap();
-                        thread::sleep(Duration::from_millis(100))},
-                    false => {
-                        self.out.set_value(true).unwrap();
-                        thread::sleep(Duration::from_micros(200))
+        loop {
+            for char in message.chars() {
+                println!("sent {}", char);
+                let code = char as i8;
+                for bit in code.to_le_bytes() {
+                    match bit == 1 {
+                        true => {
+                            self.out.set_value(true).unwrap();
+                            thread::sleep(Duration::from_millis(1000))
+                        }
+                        false => {
+                            self.out.set_value(true).unwrap();
+                            thread::sleep(Duration::from_micros(2000))
+                        }
                     }
                 }
             }
@@ -70,7 +73,7 @@ impl Receiver {
             let end = chrono::Utc::now();
             let bit_time = end - start;
             println!("bit time {:?}", bit_time.num_microseconds().unwrap());
-            if bit_time.num_milliseconds() > 200 {
+            if bit_time.num_milliseconds() > 1700 {
                 data.push(1);
             } else {
                 data.push(0);
