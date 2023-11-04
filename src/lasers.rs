@@ -23,9 +23,9 @@ impl Laser {
     pub fn send_message(&mut self, message: String) {
         thread::sleep(Duration::from_millis(250));
         self.out.set_value(false).unwrap();
-        thread::sleep(Duration::from_millis(20));
+        thread::sleep(Duration::from_millis(200));
         self.out.set_value(true).unwrap();
-        thread::sleep(Duration::from_millis(20));
+        thread::sleep(Duration::from_millis(200));
         self.out.set_value(false).unwrap();
         loop {
             for char in message.chars() {
@@ -35,16 +35,17 @@ impl Laser {
                     match bit == 1 {
                         true => {
                             self.out.set_value(true).unwrap();
-                            thread::sleep(Duration::from_millis(2500));
+                            thread::sleep(Duration::from_millis(250));
                             self.out.set_value(false).unwrap();
                         }
                         false => {
                             self.out.set_value(true).unwrap();
-                            thread::sleep(Duration::from_micros(5000));
+                            thread::sleep(Duration::from_micros(500));
                             self.out.set_value(false).unwrap();
                         }
                     }
                 }
+                thread::sleep(Duration::from_millis(150))
             }
         }
     }
