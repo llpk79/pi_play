@@ -66,11 +66,11 @@ impl Receiver {
         };
         println!("beep");
         while data.len() < 10 {
-            while self.in_.read_value().unwrap() == Low {
+            while self.in_.read_value().unwrap() == High {
                 continue;
             };
             let start = chrono::Utc::now();
-            while self.in_.read_value().unwrap() == High {
+            while self.in_.read_value().unwrap() == Low {
                 continue;
             };
             let end = chrono::Utc::now();
