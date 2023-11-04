@@ -63,7 +63,7 @@ impl Receiver {
         while self.in_.read_value().unwrap() == High {
             continue;
         };
-        println!("beep")
+        println!("beep");
         while data.len() < 10 {
             while self.in_.read_value().unwrap() == Low {
                 continue;
