@@ -27,9 +27,9 @@ impl Laser {
         self.out.set_value(true).unwrap();
         thread::sleep(Duration::from_millis(200));
         self.out.set_value(false).unwrap();
+        println!("boop");
         loop {
             for char in message.chars() {
-                println!("sent {}", char);
                 let code = char as i8;
                 for bit in code.to_le_bytes() {
                     match bit == 1 {
@@ -76,7 +76,7 @@ impl Receiver {
             let end = chrono::Utc::now();
             let bit_time = end - start;
             println!("bit time {:?}", bit_time.num_microseconds().unwrap());
-            if bit_time.num_milliseconds() > 5000 {
+            if bit_time.num_milliseconds() > 450 {
                 data.push(1);
             } else {
                 data.push(0);
