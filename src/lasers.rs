@@ -41,7 +41,7 @@ impl Laser {
                         false => {
                             self.out.set_value(true).unwrap();
                             thread::sleep(Duration::from_micros(5000));
-                            self.out.set_value(false);
+                            self.out.set_value(false).unwrap();
                         }
                     }
                 }
