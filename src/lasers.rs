@@ -22,7 +22,7 @@ impl Laser {
     }
 
     pub fn send_message(&mut self, message: String) {
-        thread::sleep_ms(250);
+        thread::sleep(Duration::from_millis(250));
         self.out.set_value(false).unwrap();
         thread::sleep(Duration::from_millis(20));
         self.out.set_value(true).unwrap();
@@ -36,11 +36,11 @@ impl Laser {
                     match bit == 1 {
                         true => {
                             self.out.set_value(true).unwrap();
-                            thread::sleep_ms(250);
+                            thread::sleep(Duration::from_millis(2500))
                         }
                         false => {
                             self.out.set_value(true).unwrap();
-                            thread::sleep_ms(500);
+                            thread::sleep(Duration::from_micros(5000))
                         }
                     }
                 }
@@ -74,7 +74,7 @@ impl Receiver {
             let end = chrono::Utc::now();
             let bit_time = end - start;
             println!("bit time {:?}", bit_time.num_microseconds().unwrap());
-            if bit_time.num_milliseconds() > 450 {
+            if bit_time.num_milliseconds() > 5000 {
                 data.push(1);
             } else {
                 data.push(0);

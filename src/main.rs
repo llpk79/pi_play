@@ -24,7 +24,7 @@ fn main() {
     // segment_display.init();
     // let mut distance = Distance::new();
 
-    loop {
+    thread::spawn(move || loop {
         laser.send_message("Hello World".to_string());
         receiver.print_message()
         // let mut f_temp = read_temp(true);
@@ -46,5 +46,5 @@ fn main() {
         // lcd.display_data(hum_temp);
         // thread::sleep(Duration::from_secs(31));
         // println!("now here");
-    }
+    });
 }
