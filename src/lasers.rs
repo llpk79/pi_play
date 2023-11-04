@@ -2,7 +2,6 @@ use gpio::GpioValue::{High, Low};
 use gpio::{GpioIn, GpioOut};
 use std::{thread};
 use std::time::Duration;
-use std::time;
 
 const LASER_PIN:u16 = 18;
 const RECIEVER_PIN:u16 = 23;

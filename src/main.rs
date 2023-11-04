@@ -1,7 +1,7 @@
 // use pi_play_lib::segment::Segment;
 // use pi_play_lib::temp::read_temp;
 use std::thread;
-use std::time::Duration;
+// use std::time::Duration;
 // use pi_play_lib::distance::Distance;
 // use pi_play_lib::lcd::LCD;
 // use pi_play_lib::temp_humid::measure_temp_humid;
@@ -24,7 +24,7 @@ fn main() {
     // segment_display.init();
     // let mut distance = Distance::new();
 
-    thread::spawn(move || loop {
+    let handler = thread::spawn(move || loop {
         laser.send_message("Hello World".to_string());
         receiver.print_message()
         // let mut f_temp = read_temp(true);
@@ -47,4 +47,5 @@ fn main() {
         // thread::sleep(Duration::from_secs(31));
         // println!("now here");
     });
+    handler.join().unwrap();
 }
