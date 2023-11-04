@@ -65,7 +65,7 @@ impl Receiver {
             continue;
         };
         println!("beep");
-        while data.len() < 10 {
+        while data.len() < 40 {
             while self.in_.read_value().unwrap() == Low {
                 continue;
             };
@@ -89,7 +89,7 @@ impl Receiver {
         let data = self.receive_message();
         println!("decoding data");
         let mut chars = Vec::new();
-        for i in (0..data.len()).step_by(8) {
+        for i in (0..data.len() - 1).step_by(8) {
             let mut code:u32 = 0;
             for j in 0..8 {
                 code += data[i + j] * u32::pow(2, 7 - j as u32);
