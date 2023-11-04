@@ -84,6 +84,8 @@ impl Receiver {
 
     pub fn print_message(&mut self) {
         println!("getting data");
+        let mut laser = Laser::new();
+        laser.send_message("Hello World ".to_string());
         let data = self.receive_message();
         println!("decoding data");
         let mut chars = Vec::new();

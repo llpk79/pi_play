@@ -25,7 +25,7 @@ fn main() {
     // let mut distance = Distance::new();
 
     let handler = thread::spawn(move || loop {
-        laser.send_message("Hello World ".to_string());
+        // laser.send_message("Hello World ".to_string());
         receiver.print_message()
         // let mut f_temp = read_temp(true);
         // let mut c_temp = read_temp(false);
