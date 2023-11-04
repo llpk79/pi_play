@@ -34,12 +34,12 @@ impl Laser {
                     match bit == 1 {
                         true => {
                             self.out.set_value(true).unwrap();
-                            thread::sleep(Duration::from_millis(250));
+                            thread::sleep(Duration::from_millis(500));
                             self.out.set_value(false).unwrap();
                         }
                         false => {
                             self.out.set_value(true).unwrap();
-                            thread::sleep(Duration::from_micros(500));
+                            thread::sleep(Duration::from_millis(250));
                             self.out.set_value(false).unwrap();
                         }
                     }
@@ -66,16 +66,16 @@ impl Receiver {
         };
         println!("beep");
         while data.len() < 10 {
-            while self.in_.read_value().unwrap() == High {
+            while self.in_.read_value().unwrap() == Low {
                 continue;
             };
             let start = chrono::Utc::now();
-            while self.in_.read_value().unwrap() == Low {
+            while self.in_.read_value().unwrap() == High {
                 continue;
             };
             let end = chrono::Utc::now();
             let bit_time = end - start;
-            println!("bit time {:?}", bit_time.num_microseconds().unwrap());
+            println!("bit time {:?}", bit_time.num_milliseconds());
             if bit_time.num_milliseconds() > 450 {
                 data.push(1);
             } else {
