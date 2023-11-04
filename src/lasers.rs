@@ -60,6 +60,7 @@ impl Receiver {
         while self.in_.read_value().unwrap() == Low {
             continue;
         };
+        println!("blooopies");
         while self.in_.read_value().unwrap() == High {
             continue;
         };
