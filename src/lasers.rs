@@ -2,6 +2,7 @@ use gpio::GpioValue::{High, Low};
 use gpio::{GpioIn, GpioOut};
 use std::{thread};
 use std::time::Duration;
+use std::time;
 
 const LASER_PIN:u16 = 18;
 const RECIEVER_PIN:u16 = 23;
@@ -21,7 +22,7 @@ impl Laser {
     }
 
     pub fn send_message(&mut self, message: String) {
-        thread::sleep(Duration::from_millis(250));
+        thread::sleep_ms(250);
         self.out.set_value(false).unwrap();
         thread::sleep(Duration::from_millis(20));
         self.out.set_value(true).unwrap();
@@ -35,11 +36,11 @@ impl Laser {
                     match bit == 1 {
                         true => {
                             self.out.set_value(true).unwrap();
-                            thread::sleep(Duration::from_millis(2500))
+                            thread::sleep_ms(250);
                         }
                         false => {
                             self.out.set_value(true).unwrap();
-                            thread::sleep(Duration::from_micros(5000))
+                            thread::sleep_ms(500);
                         }
                     }
                 }
@@ -73,7 +74,7 @@ impl Receiver {
             let end = chrono::Utc::now();
             let bit_time = end - start;
             println!("bit time {:?}", bit_time.num_microseconds().unwrap());
-            if bit_time.num_milliseconds() > 5000 {
+            if bit_time.num_milliseconds() > 450 {
                 data.push(1);
             } else {
                 data.push(0);
