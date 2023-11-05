@@ -48,7 +48,7 @@ impl Laser {
             }
             thread::sleep(Duration::from_millis(5))
         }
-        println!("output \n{:?}", data);
+        // println!("output \n{:?}", data);
     }
 }
 
