@@ -1,10 +1,9 @@
 use gpio::GpioValue::{High, Low};
 use gpio::{GpioIn, GpioOut};
-use std::{thread};
+use std::thread;
 use std::time::Duration;
 
-
-const PIN:u16 = 25;
+const PIN: u16 = 25;
 
 pub fn measure_temp_humid() -> Vec<String> {
     let mut data = Vec::new();
@@ -15,18 +14,18 @@ pub fn measure_temp_humid() -> Vec<String> {
     let mut data_pin = gpio::sysfs::SysFsGpioInput::open(PIN).unwrap();
     while data_pin.read_value().unwrap() == Low {
         continue;
-    };
+    }
     while data_pin.read_value().unwrap() == High {
         continue;
-    };
+    }
     while data.len() < 40 {
         while data_pin.read_value().unwrap() == Low {
             continue;
-        };
+        }
         let start = chrono::Utc::now();
         while data_pin.read_value().unwrap() == High {
             continue;
-        };
+        }
         let end = chrono::Utc::now();
         let bit_time = end - start;
         println!("bit time {:?}", bit_time.num_microseconds().unwrap());
@@ -35,7 +34,7 @@ pub fn measure_temp_humid() -> Vec<String> {
         } else {
             data.push(0);
         };
-    };
+    }
     let hum_bit = Vec::from(&data[0..8]);
     let hum_dec_bit = Vec::from(&data[8..16]);
     let temp_bit = Vec::from(&data[16..24]);
@@ -53,7 +52,7 @@ pub fn measure_temp_humid() -> Vec<String> {
         temp += temp_bit[i] * i32::pow(2, 7 - i as u32);
         temp_dec += temp_dec_bit[i] * i32::pow(2, 7 - i as u32);
         check += check_bit[i] * i32::pow(2, 7 - i as u32);
-    };
+    }
     if check != hum + hum_dec + temp + temp_dec {
         println!("Error reading temp/humidity");
         // println!("check {}\ntest {}\n", check, hum + hum_dec + temp + temp_dec);
