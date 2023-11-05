@@ -132,7 +132,6 @@ impl Receiver {
         for (i, code) in data[data.len() - 32..data.len()].iter().enumerate() {
             check += *code << i;
         }
-        println!("sum {}\ncheck {}\n", sum, check);
         sum == check
     }
 
@@ -141,6 +140,9 @@ impl Receiver {
         println!("Message received. validating...");
         if data.len() < 8 {
             return;
+        }
+        if !self.validate(&data) {
+            println!("Invalid data detected.");
         }
         let mut chars = Vec::new();
         let mut codes = Vec::new();
@@ -160,8 +162,5 @@ impl Receiver {
             }
         }
         println!("message: {}\n", message);
-        if !self.validate(&data) {
-            println!("Invalid data detected.");
-        }
     }
 }
