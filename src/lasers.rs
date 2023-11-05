@@ -100,6 +100,7 @@ impl Receiver {
             let mut code: u32 = 0;
             for j in 0..8 {
                 code += data[i + j] * u32::pow(2, 7 - j as u32);
+                println!("code {}\nindex {}", code, i + j);
             }
             codes.push(code);
             chars.push(char::from_u32(code))
