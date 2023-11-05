@@ -71,7 +71,8 @@ impl Receiver {
             continue;
         }
         let end = chrono::Utc::now();
-        if (end - begin).num_microseconds().unwrap() > 900 {
+        let initiation_time = (end - begin).num_microseconds().unwrap();
+        if (900 < initiation_time) && (initiation_time < 1100) {
             'outer: loop {
                 while self.in_.read_value().unwrap() == Low {
                     continue;
@@ -88,8 +89,8 @@ impl Receiver {
 
                     301..=500 => data.push(0),
 
-                    501..=1010 => continue,
-                    1011.. => break 'outer
+                    501..=1510 => continue,
+                    1511.. => break 'outer
                 };
             }
         }
