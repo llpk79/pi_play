@@ -22,11 +22,11 @@ impl Laser {
 
     pub fn send_message(&mut self, message: String) {
         // self.out.set_value(false).unwrap();
-        thread::sleep(Duration::from_micros(1000));
+        thread::sleep(Duration::from_micros(2000));
         self.out.set_value(true).unwrap();
-        thread::sleep(Duration::from_micros(1000));
+        thread::sleep(Duration::from_micros(2000));
         self.out.set_value(false).unwrap();
-        thread::sleep(Duration::from_micros(500));
+        thread::sleep(Duration::from_micros(1000));
         let mut data = Vec::new();
         for char in message.chars() {
             let code = char as i8;
@@ -35,17 +35,17 @@ impl Laser {
                 match bit == 1 {
                     true => {
                         self.out.set_value(true).unwrap();
-                        thread::sleep(Duration::from_micros(250));
+                        thread::sleep(Duration::from_micros(500));
                         self.out.set_value(false).unwrap();
                     }
                     false => {
                         self.out.set_value(true).unwrap();
-                        thread::sleep(Duration::from_micros(150));
+                        thread::sleep(Duration::from_micros(200));
                         self.out.set_value(false).unwrap();
                     }
                 }
             }
-            thread::sleep(Duration::from_micros(150))
+            thread::sleep(Duration::from_micros(500))
         }
     }
 }
@@ -66,8 +66,8 @@ impl Receiver {
             continue;
         }
         let end = chrono::Utc::now();
-        if (end - begin).num_microseconds().unwrap() > 900 {
-            for _ in 0..96 {
+        if (end - begin).num_microseconds().unwrap() > 1900 {
+            for _ in 0..64 {
                 while self.in_.read_value().unwrap() == Low {
                     continue;
                 }
@@ -77,7 +77,7 @@ impl Receiver {
                 }
                 let end = chrono::Utc::now();
                 let bit_time = (end - start).num_microseconds().unwrap();
-                if bit_time > 200 {
+                if bit_time > 300 {
                     data.push(1);
                 } else {
                     data.push(0);
