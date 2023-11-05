@@ -12,7 +12,7 @@ fn main() {
     let mut receiver = Receiver::new();
 
     let laser_thread = thread::spawn(move || loop {
-        laser.send_message(":) hi :D".to_string());
+        laser.send_message("This is a very long message to send\nlet's see how it goes sending\na very loooooooooong message :)".to_string());
     });
     let receiver_thread = thread::spawn(move || loop {
         receiver.print_message();
