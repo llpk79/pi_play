@@ -68,16 +68,16 @@ impl Receiver {
         };
         println!("beepies");
         while data.len() < 96 {
-            while self.in_.read_value().unwrap() == High {
+            while self.in_.read_value().unwrap() == Low {
                 continue;
             };
             let start = chrono::Utc::now();
-            while self.in_.read_value().unwrap() == Low {
+            while self.in_.read_value().unwrap() == High {
                 continue;
             };
             let end = chrono::Utc::now();
             let bit_time = (end - start).num_milliseconds();
-            println!("bit time {:?}", bit_time > 35);
+            println!("bit time {}", bit_time);
             if bit_time > 35 {
                 data.push(1);
             } else {
