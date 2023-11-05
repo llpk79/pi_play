@@ -22,11 +22,11 @@ impl Laser {
 
     pub fn send_message(&mut self, message: String) {
         // self.out.set_value(false).unwrap();
-        thread::sleep(Duration::from_micros(2000));
-        self.out.set_value(true).unwrap();
-        thread::sleep(Duration::from_micros(2000));
-        self.out.set_value(false).unwrap();
         thread::sleep(Duration::from_micros(1000));
+        self.out.set_value(true).unwrap();
+        thread::sleep(Duration::from_micros(1000));
+        self.out.set_value(false).unwrap();
+        thread::sleep(Duration::from_micros(500));
         let mut data = Vec::new();
         for char in message.chars() {
             let code = char as i8;
@@ -47,6 +47,11 @@ impl Laser {
             }
             thread::sleep(Duration::from_micros(500))
         }
+        self.out.set_value(true).unwrap();
+        thread::sleep(Duration::from_micros(1500));
+        self.out.set_value(false).unwrap();
+        thread::sleep(Duration::from_micros(500));
+
     }
 }
 
@@ -66,8 +71,8 @@ impl Receiver {
             continue;
         }
         let end = chrono::Utc::now();
-        if (end - begin).num_microseconds().unwrap() > 1900 {
-            for _ in 0..568 {
+        if (end - begin).num_microseconds().unwrap() > 900 {
+            'outer: loop {
                 while self.in_.read_value().unwrap() == Low {
                     continue;
                 }
@@ -77,10 +82,14 @@ impl Receiver {
                 }
                 let end = chrono::Utc::now();
                 let bit_time = (end - start).num_microseconds().unwrap();
-                if bit_time > 300 {
-                    data.push(1);
-                } else {
-                    data.push(0);
+                match bit_time {
+                    i64::MIN..=-1_i64 => continue,
+                     0..=300 => data.push(1),
+
+                    301..=500 => data.push(0),
+
+                    501..=1010 => continue,
+                    1011.. => break 'outer
                 };
             }
         }
@@ -89,6 +98,9 @@ impl Receiver {
 
     pub fn print_message(&mut self) {
         let data = self.receive_message();
+        if data.len() == 0 {
+            return;
+        }
         let mut chars = Vec::new();
         let mut codes = Vec::new();
         for i in (0..data.len() - 1).step_by(8) {
