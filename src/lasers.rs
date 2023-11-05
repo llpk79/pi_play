@@ -117,7 +117,7 @@ impl Receiver {
                 if i + j >= data.len() {  // I do not know why this happens sometimes.
                     break;
                 }
-                code += data[i + j] * u32::pow(2, j as u32);
+                code += data[i + j] << j;
             }
             codes.push(code);
             chars.push(char::from_u32(code))
