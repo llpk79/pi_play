@@ -101,7 +101,7 @@ impl Receiver {
                 }
                 let end = chrono::Utc::now();
                 let bit_time = (end - start).num_milliseconds();
-                println!("bit time {}", bit_time);
+                // println!("bit time {}", bit_time);
                 match bit_time {
                     i64::MIN..=-0_i64 => continue,
                     1..=2 => data.push(0),
@@ -131,6 +131,7 @@ impl Receiver {
         for (i, code) in data[data.len() - 32..data.len()].iter().enumerate() {
             check += (*code << i) as i32;
         }
+        println!("sum {}\ncheck {}\n", sum, check);
         sum == check
     }
 
