@@ -20,18 +20,18 @@ impl Laser {
         Self { out }
     }
 
-    fn encode_message(&mut self, message: String) -> Vec<i8> {
+    fn encode_message(&mut self, message: String) -> Vec<u8> {
         let mut data = Vec::new();
         let mut check_sum:i32 = 0;
         for char in message.chars() {
-            let code = char as i8;
+            let code = char as u8;
             check_sum += code as i32;
             for bit in (0..8).map(|n| (code >> n) & 1) {
                 data.push(bit);
             }
         }
         for bit in (0..32).map(|n| (check_sum >> n) & 1) {
-            data.push(bit as i8);
+            data.push(bit as u8);
         }
         data
     }
