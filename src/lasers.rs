@@ -136,12 +136,13 @@ impl Receiver {
 
     pub fn print_message(&mut self) {
         let data = self.receive_message();
-        println!("Message received. validating...");
+        println!("Message received. validating...\n");
         if data.len() < 8 {
             return;
         }
         if !self.validate(&data) {
             println!("Invalid data detected.");
+            return;
         }
         let mut chars = Vec::new();
         let mut codes = Vec::new();
@@ -160,6 +161,6 @@ impl Receiver {
                 None => continue,
             }
         }
-        println!("message: {}\n", message);
+        println!("Validated message:\n\t{}\n", message);
     }
 }
