@@ -132,6 +132,7 @@ impl Receiver {
 
     pub fn print_message(&mut self) {
         let data = self.receive_message();
+        println!("Message received. validating...");
         if data.len() < 8 {
             return;
         }
@@ -139,7 +140,6 @@ impl Receiver {
             println!("Invalid data detected.");
             return;
         }
-        println!("Message received. Decoding...");
         let mut chars = Vec::new();
         let mut codes = Vec::new();
         for i in (0..data.len() - 33).step_by(8) {
