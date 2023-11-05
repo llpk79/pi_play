@@ -63,9 +63,12 @@ impl Receiver {
         while self.in_.read_value().unwrap() == Low {
             continue;
         }
+        let begin = chrono::Utc::now();
         while self.in_.read_value().unwrap() == High {
             continue;
         }
+        let end = chrono::Utc::now();
+        if (end - begin).num_milliseconds() > 19 {
         for _ in 0..96 {
             while self.in_.read_value().unwrap() == Low {
                 continue;
@@ -82,6 +85,7 @@ impl Receiver {
             } else {
                 data.push(0);
             };
+        }
         }
         data
     }
