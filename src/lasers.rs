@@ -32,7 +32,7 @@ impl Laser {
             for char in message.chars() {
                 let code = char as i8;
                 println!("code {:?}\n", code);
-                for bit in code.to_le_bytes() {
+                for bit in (0..8).map(|n| (code >> n) & 1) {
                     match bit == 1 {
                         true => {
                             self.out.set_value(true).unwrap();
