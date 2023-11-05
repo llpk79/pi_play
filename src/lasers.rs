@@ -59,20 +59,20 @@ impl Receiver {
 
     fn receive_message(&mut self) -> Vec<u32>{
         let mut data = Vec::new();
-        while self.in_.read_value().unwrap() == Low {
-            continue;
-        };
-        println!("blooopies");
         while self.in_.read_value().unwrap() == High {
             continue;
         };
+        println!("blooopies");
+        while self.in_.read_value().unwrap() == Low {
+            continue;
+        };
         println!("beepies");
-        while data.len() < 40 {
-            while self.in_.read_value().unwrap() == Low {
+        while data.len() < 96 {
+            while self.in_.read_value().unwrap() == High {
                 continue;
             };
             let start = chrono::Utc::now();
-            while self.in_.read_value().unwrap() == High {
+            while self.in_.read_value().unwrap() == Low {
                 continue;
             };
             let end = chrono::Utc::now();
