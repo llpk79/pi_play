@@ -23,6 +23,7 @@ impl Laser {
     fn encode_message(&mut self, message: String) -> Vec<u8> {
         let mut data = Vec::new();
         let mut check_sum:i32 = 0;
+        let mut sum = 0;
         for char in message.chars() {
             let code = char as u8;
             check_sum += code as i32;
@@ -33,6 +34,10 @@ impl Laser {
         for bit in (0..32).map(|n| (check_sum >> n) & 1) {
             data.push(bit as u8);
         }
+        for (i, bit) in data.iter().enumerate() {
+            sum += bit << i;
+        }
+        println!("e check {}\ne sum {}", check_sum, sum);
         data
     }
 
