@@ -21,8 +21,8 @@ impl Laser {
     }
 
     pub fn send_message(&mut self, message: String) {
-        self.out.set_value(false).unwrap();
-        thread::sleep(Duration::from_millis(20));
+        // self.out.set_value(false).unwrap();
+        // thread::sleep(Duration::from_millis(20));
          self.out.set_value(true).unwrap();
         thread::sleep(Duration::from_millis(20));
         self.out.set_value(false).unwrap();
