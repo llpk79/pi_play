@@ -67,7 +67,7 @@ impl Receiver {
         }
         let end = chrono::Utc::now();
         if (end - begin).num_microseconds().unwrap() > 1900 {
-            for _ in 0..776 {
+            for _ in 0..568 {
                 while self.in_.read_value().unwrap() == Low {
                     continue;
                 }
