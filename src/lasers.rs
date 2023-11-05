@@ -36,17 +36,17 @@ impl Laser {
                     match bit == 1 {
                         true => {
                             self.out.set_value(true).unwrap();
-                            thread::sleep(Duration::from_millis(5));
+                            thread::sleep(Duration::from_micros(50));
                             self.out.set_value(false).unwrap();
                         }
                         false => {
                             self.out.set_value(true).unwrap();
-                            thread::sleep(Duration::from_millis(2));
+                            thread::sleep(Duration::from_micros(25));
                             self.out.set_value(false).unwrap();
                         }
                     }
                 }
-                thread::sleep(Duration::from_millis(5))
+                thread::sleep(Duration::from_micros(5))
             }
     }
 }
@@ -76,9 +76,9 @@ impl Receiver {
                 continue;
             };
             let end = chrono::Utc::now();
-            let bit_time = (end - start).num_milliseconds();
+            let bit_time = (end - start).num_microseconds().unwrap();
             // println!("bit time {}", bit_time);
-            if bit_time > 3 {
+            if bit_time > 35 {
                 data.push(1);
             } else {
                 data.push(0);
