@@ -140,10 +140,6 @@ impl Receiver {
         if data.len() < 8 {
             return;
         }
-        if !self.validate(&data) {
-            println!("Invalid data detected.");
-            return;
-        }
         let mut chars = Vec::new();
         let mut codes = Vec::new();
         for i in (0..data.len() - 33).step_by(8) {
@@ -161,6 +157,9 @@ impl Receiver {
                 None => continue,
             }
         }
-        println!("message: {}\n", message)
+        println!("message: {}\n", message);
+        if !self.validate(&data) {
+            println!("Invalid data detected.");
+        }
     }
 }
