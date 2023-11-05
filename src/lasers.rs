@@ -21,12 +21,12 @@ impl Laser {
     }
 
     pub fn send_message(&mut self, message: String) {
-        // self.out.set_value(false).unwrap();
-        thread::sleep(Duration::from_millis(200));
-         self.out.set_value(true).unwrap();
-        thread::sleep(Duration::from_millis(20));
         self.out.set_value(false).unwrap();
-        thread::sleep(Duration::from_millis(10));
+        thread::sleep(Duration::from_millis(200));
+        //  self.out.set_value(true).unwrap();
+        // thread::sleep(Duration::from_millis(20));
+        // self.out.set_value(false).unwrap();
+        // thread::sleep(Duration::from_millis(10));
         let mut data =  Vec::new();
         for char in message.chars() {
             let code = char as i8;
@@ -60,12 +60,12 @@ impl Receiver {
 
     fn receive_message(&mut self) -> Vec<u32> {
         let mut data = Vec::new();
-        while self.in_.read_value().unwrap() == High {
-            continue;
-        }
-        while self.in_.read_value().unwrap() == Low {
-            continue;
-        }
+        // while self.in_.read_value().unwrap() == High {
+        //     continue;
+        // }
+        // while self.in_.read_value().unwrap() == Low {
+        //     continue;
+        // }
         for _ in 0..96 {
             while self.in_.read_value().unwrap() == Low {
                 continue;
