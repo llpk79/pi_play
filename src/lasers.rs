@@ -95,14 +95,16 @@ impl Receiver {
         let data = self.receive_message();
         println!("decoding data: \n{:?}", data);
         let mut chars = Vec::new();
+        let mut codes = Vec::new();
         for i in (0..data.len() - 1).step_by(8) {
             let mut code: u32 = 0;
             for j in 0..8 {
                 code += data[i + j] * u32::pow(2, 7 - j as u32);
             }
+            codes.push(code);
             chars.push(char::from_u32(code))
         }
-        println!("chars {:?}", chars);
+        println!("codes {:?}", codes);
         let mut message: String = "".to_string();
         for char in chars {
             match char {
