@@ -72,6 +72,7 @@ impl Receiver {
         let end = chrono::Utc::now();
         let initiation_time = (end - begin).num_microseconds().unwrap();
         if (900 < initiation_time) && (initiation_time < 1100) {
+            println!("bleeep");
             'outer: loop {
                 while self.in_.read_value().unwrap() == Low {
                     continue;
@@ -85,8 +86,8 @@ impl Receiver {
                 println!("bit time {}", bit_time);
                 match bit_time {
                     i64::MIN..=-0_i64 => continue,
-                    1..=300 => data.push(1),
-                    301..=510 => data.push(0),
+                    1..=300 => data.push(0),
+                    301..=510 => data.push(1),
                     511..=1500 => continue,
                     1501.. => break 'outer,
                 };
