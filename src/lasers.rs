@@ -22,11 +22,11 @@ impl Laser {
 
     pub fn send_message(&mut self, message: String) {
         // Initiation sequence.
-        thread::sleep(Duration::from_millis(10));
+        thread::sleep(Duration::from_micros(100));
         self.out.set_value(true).unwrap();
-        thread::sleep(Duration::from_millis(10));
+        thread::sleep(Duration::from_micros(100));
         self.out.set_value(false).unwrap();
-        thread::sleep(Duration::from_millis(5));
+        thread::sleep(Duration::from_micros(50));
         let mut data = Vec::new();
 
         // Begin message transmission.
@@ -37,24 +37,24 @@ impl Laser {
                 match bit == 1 {
                     true => {
                         self.out.set_value(true).unwrap();
-                        thread::sleep(Duration::from_millis(3));
+                        thread::sleep(Duration::from_micros(30));
                         self.out.set_value(false).unwrap();
                     }
                     false => {
                         self.out.set_value(true).unwrap();
-                        thread::sleep(Duration::from_millis(1));
+                        thread::sleep(Duration::from_micros(10));
                         self.out.set_value(false).unwrap();
                     }
                 }
             }
-            thread::sleep(Duration::from_millis(10))
+            thread::sleep(Duration::from_micros(100))
         }
 
         // Termination sequence.
         self.out.set_value(true).unwrap();
-        thread::sleep(Duration::from_millis(15));
+        thread::sleep(Duration::from_micros(150));
         self.out.set_value(false).unwrap();
-        thread::sleep(Duration::from_millis(10));
+        thread::sleep(Duration::from_micros(10));
     }
 }
 
@@ -76,9 +76,9 @@ impl Receiver {
             continue;
         }
         let end = chrono::Utc::now();
-        let initiation_time = (end - begin).num_milliseconds();
-        if (9 < initiation_time) && (initiation_time < 11) {
-
+        let initiation_time = (end - begin).num_microseconds().unwrap();
+        if (90 < initiation_time) && (initiation_time < 110) {
+            println!("Incoming message detected...\n");
             // Data reception
             'outer: loop {
                 while self.in_.read_value().unwrap() == Low {
@@ -89,14 +89,14 @@ impl Receiver {
                     continue;
                 }
                 let end = chrono::Utc::now();
-                let bit_time = (end - start).num_milliseconds();
+                let bit_time = (end - start).num_microseconds().unwrap();
                 // println!("bit time {}", bit_time);
                 match bit_time {
                     i64::MIN..=-0_i64 => continue,
-                    1..=2 => data.push(0),
-                    3..=5 => data.push(1),
-                    6..=11 => continue,
-                    12.. => break 'outer,  // Termination sequence.
+                    1..=20 => data.push(0),
+                    21..=50 => data.push(1),
+                    51..=160 => continue,
+                    161.. => break 'outer,  // Termination sequence.
                 };
             }
         }
@@ -108,13 +108,14 @@ impl Receiver {
         if data.len() < 8 {
             return;
         }
+        println!("Message received. Decoding...");
         let mut chars = Vec::new();
         let mut codes = Vec::new();
         for i in (0..data.len() - 1).step_by(8) {
             let mut code: u32 = 0;
             for j in 0..8 {
                 if i + j >= data.len() {  // I do not know why this happens sometimes.
-                    return;
+                    break;
                 }
                 code += data[i + j] * u32::pow(2, j as u32);
             }
