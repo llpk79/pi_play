@@ -21,13 +21,15 @@ impl Laser {
     }
 
     pub fn send_message(&mut self, message: String) {
-        // self.out.set_value(false).unwrap();
+        // Initiation sequence.
         thread::sleep(Duration::from_millis(10));
         self.out.set_value(true).unwrap();
         thread::sleep(Duration::from_millis(10));
         self.out.set_value(false).unwrap();
         thread::sleep(Duration::from_millis(5));
         let mut data = Vec::new();
+
+        // Begin message transmission.
         for char in message.chars() {
             let code = char as i8;
             for bit in (0..8).map(|n| (code >> n) & 1) {
@@ -47,6 +49,8 @@ impl Laser {
             }
             thread::sleep(Duration::from_millis(10))
         }
+
+        // Termination sequence.
         self.out.set_value(true).unwrap();
         thread::sleep(Duration::from_millis(15));
         self.out.set_value(false).unwrap();
@@ -62,6 +66,8 @@ impl Receiver {
 
     fn receive_message(&mut self) -> Vec<u32> {
         let mut data = Vec::new();
+
+        // Detect initiation sequence.
         while self.in_.read_value().unwrap() == Low {
             continue;
         }
@@ -72,7 +78,8 @@ impl Receiver {
         let end = chrono::Utc::now();
         let initiation_time = (end - begin).num_milliseconds();
         if (9 < initiation_time) && (initiation_time < 11) {
-            println!("bleeep");
+
+            // Data reception
             'outer: loop {
                 while self.in_.read_value().unwrap() == Low {
                     continue;
@@ -83,13 +90,13 @@ impl Receiver {
                 }
                 let end = chrono::Utc::now();
                 let bit_time = (end - start).num_milliseconds();
-                println!("bit time {}", bit_time);
+                // println!("bit time {}", bit_time);
                 match bit_time {
                     i64::MIN..=-0_i64 => continue,
                     1..=3 => data.push(0),
                     4..=5 => data.push(1),
                     6..=11 => continue,
-                    12.. => break 'outer,
+                    12.. => break 'outer,  // Termination sequence.
                 };
             }
         }
@@ -98,7 +105,7 @@ impl Receiver {
 
     pub fn print_message(&mut self) {
         let data = self.receive_message();
-        if data.len() == 0 {
+        if data.len() < 8 {
             return;
         }
         let mut chars = Vec::new();
@@ -106,7 +113,7 @@ impl Receiver {
         for i in (0..data.len() - 1).step_by(8) {
             let mut code: u32 = 0;
             for j in 0..8 {
-                if i + j >= data.len() {
+                if i + j >= data.len() {  // I do not know why this happens sometimes.
                     return;
                 }
                 code += data[i + j] * u32::pow(2, j as u32);
