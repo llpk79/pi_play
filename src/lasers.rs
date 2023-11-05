@@ -38,34 +38,34 @@ impl Laser {
 
     pub fn send_message(&mut self, message: String) {
         // Initiation sequence.
-        thread::sleep(Duration::from_millis(10));
+        thread::sleep(Duration::from_micros(200));
         self.out.set_value(true).unwrap();
-        thread::sleep(Duration::from_millis(10));
+        thread::sleep(Duration::from_micros(200));
         self.out.set_value(false).unwrap();
-        thread::sleep(Duration::from_millis(5));
+        thread::sleep(Duration::from_micros(100));
         let encoded_message = self.encode_message(message);
         // Begin message transmission.
         for bit in encoded_message {
             match bit == 1 {
                 true => {
                     self.out.set_value(true).unwrap();
-                    thread::sleep(Duration::from_millis(3));
+                    thread::sleep(Duration::from_micros(50));
                     self.out.set_value(false).unwrap();
                 }
                 false => {
                     self.out.set_value(true).unwrap();
-                    thread::sleep(Duration::from_millis(1));
+                    thread::sleep(Duration::from_micros(25));
                     self.out.set_value(false).unwrap();
                 }
             }
-            thread::sleep(Duration::from_millis(5))
+            thread::sleep(Duration::from_micros(25))
         }
 
         // Termination sequence.
         self.out.set_value(true).unwrap();
-        thread::sleep(Duration::from_millis(20));
+        thread::sleep(Duration::from_micros(300));
         self.out.set_value(false).unwrap();
-        thread::sleep(Duration::from_millis(5));
+        thread::sleep(Duration::from_micros(25));
     }
 }
 
@@ -88,7 +88,7 @@ impl Receiver {
         }
         let end = chrono::Utc::now();
         let initiation_time = (end - begin).num_milliseconds();
-        if (9 < initiation_time) && (initiation_time < 11) {
+        if (190 < initiation_time) && (initiation_time < 220) {
             println!("Incoming message detected...\n");
             // Data reception
             'outer: loop {
@@ -101,13 +101,13 @@ impl Receiver {
                 }
                 let end = chrono::Utc::now();
                 let bit_time = (end - start).num_milliseconds();
-                // println!("bit time {}", bit_time);
+                println!("bit time {}", bit_time);
                 match bit_time {
                     i64::MIN..=-0_i64 => continue,
-                    1..=2 => data.push(0),
-                    3..=5 => data.push(1),
-                    6..=15 => continue,
-                    16.. => break 'outer, // Termination sequence.
+                    1..=80 => data.push(0),
+                    81..=110 => data.push(1),
+                    111..=300 => continue,
+                    301.. => break 'outer, // Termination sequence.
                 };
             }
         }
@@ -141,7 +141,7 @@ impl Receiver {
             return;
         }
         if !self.validate(&data) {
-            println!("Invalid data detected.");
+            println!("ERROR: Invalid data detected.\n\n");
             return;
         }
         let mut chars = Vec::new();
@@ -161,6 +161,6 @@ impl Receiver {
                 None => continue,
             }
         }
-        println!("Validated message:\n\t{}\n", message);
+        println!("Validated message:\n\t{}\n\n", message);
     }
 }
