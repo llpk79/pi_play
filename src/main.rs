@@ -13,7 +13,7 @@ fn main() {
 
     let laser_thread = thread::spawn(move || loop {
         laser.send_message(
-            "Goodnight. It's time to busha the teetha. Don't let the bed bugs bite!!".to_string(),
+            "Hello World ".to_string(),
         );
     });
     let receiver_thread = thread::spawn(move || loop {
