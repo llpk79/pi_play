@@ -93,9 +93,9 @@ impl Receiver {
                 println!("bit time {}", bit_time);
                 match bit_time {
                     i64::MIN..=-0_i64 => continue,
-                    1..=40 => data.push(0),
-                    41..=100 => data.push(1),
-                    101..=330 => continue,
+                    1..=100 => data.push(0),
+                    101..=200 => data.push(1),
+                    201..=330 => continue,
                     331.. => break 'outer,  // Termination sequence.
                 };
             }
