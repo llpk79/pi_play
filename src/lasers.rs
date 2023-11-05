@@ -23,15 +23,15 @@ impl Laser {
     pub fn send_message(&mut self, message: String) {
         self.out.set_value(false).unwrap();
         thread::sleep(Duration::from_millis(20));
-        println!("high");
+        // println!("high");
         self.out.set_value(true).unwrap();
         thread::sleep(Duration::from_millis(20));
-        println!("low");
+        // println!("low");
         self.out.set_value(false).unwrap();
         thread::sleep(Duration::from_millis(10));
             for char in message.chars() {
                 let code = char as i8;
-                println!("char {}\ncode {}\n", char, code);
+                // println!("char {}\ncode {}\n", char, code);
                 for bit in (0..8).map(|n| (code >> n) & 1) {
                     // println!("bit {}", bit);
                     match bit == 1 {
@@ -63,11 +63,11 @@ impl Receiver {
         while self.in_.read_value().unwrap() == High {
             continue;
         };
-        println!("blooopies");
+        // println!("blooopies");
         while self.in_.read_value().unwrap() == Low {
             continue;
         };
-        println!("beepies");
+        // println!("beepies");
         while data.len() < 96 {
             while self.in_.read_value().unwrap() == Low {
                 continue;
