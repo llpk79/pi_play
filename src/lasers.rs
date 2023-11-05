@@ -48,7 +48,7 @@ impl Laser {
             }
             thread::sleep(Duration::from_millis(5))
         }
-        println!("output {:?}", data);
+        println!("output \n{:?}", data);
     }
 }
 
@@ -89,7 +89,7 @@ impl Receiver {
     pub fn print_message(&mut self) {
         println!("getting data");
         let data = self.receive_message();
-        println!("decoding data: {:?}", data);
+        println!("decoding data: \n{:?}", data);
         let mut chars = Vec::new();
         for i in (0..data.len() - 1).step_by(8) {
             let mut code: u32 = 0;
