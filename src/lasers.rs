@@ -77,7 +77,7 @@ impl Receiver {
             };
             let end = chrono::Utc::now();
             let bit_time = (end - start).num_milliseconds();
-            println!("bit time {}", bit_time);
+            // println!("bit time {}", bit_time);
             if bit_time > 35 {
                 data.push(1);
             } else {
