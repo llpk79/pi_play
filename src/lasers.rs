@@ -33,7 +33,6 @@ impl Laser {
         for bit in (0..32).map(|n| (check_sum >> n) & 1) {
             data.push(bit as u8);
         }
-        println!("e check {}", check_sum);
         data
     }
 
