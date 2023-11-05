@@ -13,7 +13,7 @@ fn main() {
 
     let laser_thread = thread::spawn(move || loop {
         laser.send_message(
-            "Hello World ".to_string(),
+            "Type any arbitrary thing, no worries about how long it is, just go for it! It should print out if you hold the laser steady on the receiver for long enough. It will reset itself without error if it's shaky or gets moved.".to_string(),
         );
     });
     let receiver_thread = thread::spawn(move || loop {
