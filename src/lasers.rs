@@ -34,7 +34,7 @@ impl Laser {
         for bit in (0..32).map(|n| (check_sum >> n) & 1) {
             data.push(bit as u8);
         }
-        for (i, bit) in data[data.len() - 32..].iter().enumerate() {
+        for (i, bit) in data[data.len() - 32..data.len() - 1].iter().enumerate() {
             sum += bit << i;
         }
         println!("e check {}\ne sum {}", check_sum, sum);
