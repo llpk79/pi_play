@@ -117,10 +117,10 @@ impl Receiver {
     fn validate(&mut self, data: &Vec<u32>) -> bool {
         let mut check:i32 = 0;
         let mut sum:i32 = 0;
-        for (i, code) in data[0..data.len() - 32].iter().enumerate() {
+        for i in 0..data.len() - 32 {
             let mut byte = 0;
             for j in 0..8 {
-                byte += (*code << j) as i32 ;
+                byte += (data[i + j] << j) as i32 ;
             }
             sum += byte;
         }
