@@ -68,7 +68,7 @@ impl Receiver {
             continue;
         };
         // println!("beepies");
-        while data.len() < 96 {
+        for _ in  0..96 {
             while self.in_.read_value().unwrap() == Low {
                 continue;
             };
