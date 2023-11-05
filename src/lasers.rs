@@ -143,7 +143,7 @@ impl Receiver {
         }
         let mut chars = Vec::new();
         let mut codes = Vec::new();
-        for i in (0..data.len() - 33).step_by(8) {
+        for i in (0..data.len() - 32).step_by(8) {
             let mut code: u32 = 0;
             for j in 0..8 {
                 code += data[i + j] << j;
