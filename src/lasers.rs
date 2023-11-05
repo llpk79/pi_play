@@ -32,7 +32,7 @@ impl Laser {
             for char in message.chars() {
                 let code = char as i8;
                 for bit in (0..8).map(|n| (code >> n) & 1) {
-                    println!("bit {}", bit);
+                    // println!("bit {}", bit);
                     match bit == 1 {
                         true => {
                             self.out.set_value(true).unwrap();
@@ -76,9 +76,9 @@ impl Receiver {
                 continue;
             };
             let end = chrono::Utc::now();
-            let bit_time = end - start;
-            println!("bit time {:?}", bit_time.num_milliseconds());
-            if bit_time.num_milliseconds() > 45 {
+            let bit_time = (end - start).num_milliseconds();
+            println!("bit time {:?}", bit_time > 35);
+            if bit_time > 35 {
                 data.push(1);
             } else {
                 data.push(0);
@@ -105,6 +105,6 @@ impl Receiver {
                 None => continue
             }
         }
-        println!("{}", message)
+        println!("message: {}", message)
     }
 }
