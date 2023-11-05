@@ -84,12 +84,12 @@ impl Receiver {
                 let end = chrono::Utc::now();
                 let bit_time = (end - start).num_microseconds().unwrap();
                 match bit_time {
-                    i64::MIN..=-1_i64 => continue,
-                     0..=300 => data.push(1),
+                    i64::MIN..=-0_i64 => continue,
+                     1..=300 => data.push(1),
 
-                    301..=500 => data.push(0),
+                    301..=550 => data.push(0),
 
-                    501..=1510 => continue,
+                    551..=1510 => continue,
                     1511.. => break 'outer
                 };
             }
