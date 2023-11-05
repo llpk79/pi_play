@@ -31,7 +31,7 @@ impl Laser {
         thread::sleep(Duration::from_millis(100));
             for char in message.chars() {
                 let code = char as i8;
-                for bit in (0..8).rev().map(|n| (code >> n) & 1) {
+                for bit in (0..8).map(|n| (code >> n) & 1) {
                     // println!("bit {}", bit);
                     match bit == 1 {
                         true => {
@@ -89,7 +89,7 @@ impl Receiver {
     pub fn print_message(&mut self) {
         println!("getting data");
         let data = self.receive_message();
-        println!("decoding data");
+        println!("decoding data: {:?}", data);
         let mut chars = Vec::new();
         for i in (0..data.len() - 1).step_by(8) {
             let mut code:u32 = 0;
