@@ -38,34 +38,34 @@ impl Laser {
 
     pub fn send_message(&mut self, message: String) {
         // Initiation sequence.
-        thread::sleep(Duration::from_micros(200));
+        thread::sleep(Duration::from_millis(10));
         self.out.set_value(true).unwrap();
-        thread::sleep(Duration::from_micros(200));
+        thread::sleep(Duration::from_millis(10));
         self.out.set_value(false).unwrap();
-        thread::sleep(Duration::from_micros(100));
+        thread::sleep(Duration::from_millis(5));
         let encoded_message = self.encode_message(message);
         // Begin message transmission.
         for bit in encoded_message {
             match bit == 1 {
                 true => {
                     self.out.set_value(true).unwrap();
-                    thread::sleep(Duration::from_micros(60));
+                    thread::sleep(Duration::from_millis(3));
                     self.out.set_value(false).unwrap();
                 }
                 false => {
                     self.out.set_value(true).unwrap();
-                    thread::sleep(Duration::from_micros(20));
+                    thread::sleep(Duration::from_millis(1));
                     self.out.set_value(false).unwrap();
                 }
             }
-            thread::sleep(Duration::from_micros(200))
+            thread::sleep(Duration::from_millis(5))
         }
 
         // Termination sequence.
         self.out.set_value(true).unwrap();
-        thread::sleep(Duration::from_micros(300));
+        thread::sleep(Duration::from_millis(20));
         self.out.set_value(false).unwrap();
-        thread::sleep(Duration::from_micros(20));
+        thread::sleep(Duration::from_millis(5));
     }
 }
 
@@ -87,8 +87,8 @@ impl Receiver {
             continue;
         }
         let end = chrono::Utc::now();
-        let initiation_time = (end - begin).num_microseconds().unwrap();
-        if (180 < initiation_time) && (initiation_time < 220) {
+        let initiation_time = (end - begin).num_milliseconds();
+        if (9 < initiation_time) && (initiation_time < 11) {
             println!("Incoming message detected...\n");
             // Data reception
             'outer: loop {
@@ -100,14 +100,14 @@ impl Receiver {
                     continue;
                 }
                 let end = chrono::Utc::now();
-                let bit_time = (end - start).num_microseconds().unwrap();
+                let bit_time = (end - start).num_milliseconds();
                 // println!("bit time {}", bit_time);
                 match bit_time {
                     i64::MIN..=-0_i64 => continue,
-                    1..=100 => data.push(0),
-                    101..=200 => data.push(1),
-                    201..=330 => continue,
-                    331.. => break 'outer, // Termination sequence.
+                    1..=2 => data.push(0),
+                    3..=5 => data.push(1),
+                    6..=15 => continue,
+                    16.. => break 'outer, // Termination sequence.
                 };
             }
         }
@@ -120,6 +120,10 @@ impl Receiver {
         for i in 0..data.len() - 32 {
             let mut byte = 0;
             for j in 0..8 {
+                if i + j >= data.len() {
+                    // I do not know why this happens sometimes.
+                    break;
+                }
                 byte += (data[i + j] << j) as i32 ;
             }
             sum += byte;
@@ -145,10 +149,6 @@ impl Receiver {
         for i in (0..data.len() - 33).step_by(8) {
             let mut code: u32 = 0;
             for j in 0..8 {
-                if i + j >= data.len() {
-                    // I do not know why this happens sometimes.
-                    break;
-                }
                 code += data[i + j] << j;
             }
             codes.push(code as u8);
