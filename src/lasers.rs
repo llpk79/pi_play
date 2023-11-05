@@ -118,7 +118,7 @@ impl Receiver {
     fn validate(&mut self, data: &Vec<u32>) -> bool {
         let mut check:u32 = 0;
         let mut sum:u32 = 0;
-        for i in 0..data.len() - 32 {
+        for i in (0..data.len() - 32).step_by(8) {
             let mut byte = 0;
             for j in 0..8 {
                 if i + j >= data.len() {
