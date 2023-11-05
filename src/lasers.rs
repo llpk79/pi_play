@@ -106,6 +106,6 @@ impl Receiver {
                 None => continue,
             }
         }
-        println!("message: {}\nlen {}", message, message.len())
+        println!("message: {}\n", message)
     }
 }
