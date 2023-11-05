@@ -80,9 +80,9 @@ impl Receiver {
             let bit_time = (end - start).num_milliseconds();
             // println!("bit time {}", bit_time);
             if bit_time > 30 {
-                data.push(0);
-            } else {
                 data.push(1);
+            } else {
+                data.push(0);
             };
         }data
     }
