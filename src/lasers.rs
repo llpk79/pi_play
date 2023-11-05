@@ -102,6 +102,7 @@ impl Receiver {
             }
             chars.push(char::from_u32(code))
         }
+        println!("chars {:?}", chars);
         let mut message: String = "".to_string();
         for char in chars {
             match char {
