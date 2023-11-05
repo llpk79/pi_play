@@ -31,8 +31,8 @@ impl Laser {
         thread::sleep(Duration::from_millis(100));
             for char in message.chars() {
                 let code = char as i8;
-                println!("code {:?}\n", code);
                 for bit in (0..8).map(|n| (code >> n) & 1) {
+                    println!("bit {}", bit);
                     match bit == 1 {
                         true => {
                             self.out.set_value(true).unwrap();
