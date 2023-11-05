@@ -20,6 +20,22 @@ impl Laser {
         Self { out }
     }
 
+    fn encode_message(&mut self, message: String) -> Vec<i8> {
+        let mut data = Vec::new();
+        let mut check_sum:i32 = 0;
+        for char in message.chars() {
+            let code = char as i8;
+            check_sum += code as i32;
+            for bit in (0..8).map(|n| (code >> n) & 1) {
+                data.push(bit);
+            }
+        }
+        for bit in (0..32).map(|n| (check_sum >> n) & 1) {
+            data.push(bit as i8);
+        }
+        data
+    }
+
     pub fn send_message(&mut self, message: String) {
         // Initiation sequence.
         thread::sleep(Duration::from_micros(200));
@@ -27,24 +43,19 @@ impl Laser {
         thread::sleep(Duration::from_micros(200));
         self.out.set_value(false).unwrap();
         thread::sleep(Duration::from_micros(100));
-        let mut data = Vec::new();
-
+        let encoded_message = self.encode_message(message);
         // Begin message transmission.
-        for char in message.chars() {
-            let code = char as i8;
-            for bit in (0..8).map(|n| (code >> n) & 1) {
-                data.push(bit);
-                match bit == 1 {
-                    true => {
-                        self.out.set_value(true).unwrap();
-                        thread::sleep(Duration::from_micros(60));
-                        self.out.set_value(false).unwrap();
-                    }
-                    false => {
-                        self.out.set_value(true).unwrap();
-                        thread::sleep(Duration::from_micros(20));
-                        self.out.set_value(false).unwrap();
-                    }
+        for bit in encoded_message {
+            match bit == 1 {
+                true => {
+                    self.out.set_value(true).unwrap();
+                    thread::sleep(Duration::from_micros(60));
+                    self.out.set_value(false).unwrap();
+                }
+                false => {
+                    self.out.set_value(true).unwrap();
+                    thread::sleep(Duration::from_micros(20));
+                    self.out.set_value(false).unwrap();
                 }
             }
             thread::sleep(Duration::from_micros(200))
@@ -96,11 +107,27 @@ impl Receiver {
                     1..=100 => data.push(0),
                     101..=200 => data.push(1),
                     201..=330 => continue,
-                    331.. => break 'outer,  // Termination sequence.
+                    331.. => break 'outer, // Termination sequence.
                 };
             }
         }
         data
+    }
+
+    fn validate(&mut self, data: &Vec<u32>) -> bool {
+        let mut check:i32 = 0;
+        let mut sum:i32 = 0;
+        for (i, code) in data[0..data.len() - 32].iter().enumerate() {
+            let mut byte = 0;
+            for j in 0..8 {
+                byte += (*code << j) as i32 ;
+            }
+            sum += byte;
+        }
+        for (i, code) in data[data.len() - 32..data.len()].iter().enumerate() {
+            check += (*code << i) as i32;
+        }
+        sum == check
     }
 
     pub fn print_message(&mut self) {
@@ -108,18 +135,23 @@ impl Receiver {
         if data.len() < 8 {
             return;
         }
+        if !self.validate(&data) {
+            println!("Invalid data detected.");
+            return;
+        }
         println!("Message received. Decoding...");
         let mut chars = Vec::new();
         let mut codes = Vec::new();
-        for i in (0..data.len() - 1).step_by(8) {
+        for i in (0..data.len() - 33).step_by(8) {
             let mut code: u32 = 0;
             for j in 0..8 {
-                if i + j >= data.len() {  // I do not know why this happens sometimes.
+                if i + j >= data.len() {
+                    // I do not know why this happens sometimes.
                     break;
                 }
                 code += data[i + j] << j;
             }
-            codes.push(code);
+            codes.push(code as u8);
             chars.push(char::from_u32(code))
         }
         let mut message: String = "".to_string();
