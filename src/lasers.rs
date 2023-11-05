@@ -27,9 +27,9 @@ impl Laser {
         self.out.set_value(true).unwrap();
         thread::sleep(Duration::from_millis(200));
         self.out.set_value(false).unwrap();
-        println!("boop");
             for char in message.chars() {
                 let code = char as i8;
+                println!("char {}\ncode {}\n", char, code);
                 for bit in code.to_le_bytes() {
                     match bit == 1 {
                         true => {
@@ -44,7 +44,7 @@ impl Laser {
                         }
                     }
                 }
-                thread::sleep(Duration::from_millis(15))
+                thread::sleep(Duration::from_millis(5))
             }
     }
 }
@@ -66,11 +66,11 @@ impl Receiver {
         };
         println!("beep");
         while data.len() < 40 {
-            while self.in_.read_value().unwrap() == Low {
+            while self.in_.read_value().unwrap() == High {
                 continue;
             };
             let start = chrono::Utc::now();
-            while self.in_.read_value().unwrap() == High {
+            while self.in_.read_value().unwrap() == Low {
                 continue;
             };
             let end = chrono::Utc::now();
