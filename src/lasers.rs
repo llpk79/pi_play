@@ -116,8 +116,8 @@ impl Receiver {
     }
 
     fn validate(&mut self, data: &Vec<u32>) -> bool {
-        let mut check:i32 = 0;
-        let mut sum:i32 = 0;
+        let mut check:u32 = 0;
+        let mut sum:u32 = 0;
         for i in 0..data.len() - 32 {
             let mut byte = 0;
             for j in 0..8 {
@@ -125,12 +125,12 @@ impl Receiver {
                     // I do not know why this happens sometimes.
                     break;
                 }
-                byte += (data[i + j] << j) as i32 ;
+                byte += data[i + j] << j as u32;
             }
             sum += byte;
         }
         for (i, code) in data[data.len() - 32..data.len()].iter().enumerate() {
-            check += (*code << i) as i32;
+            check += *code << i;
         }
         println!("sum {}\ncheck {}\n", sum, check);
         sum == check
