@@ -51,7 +51,6 @@ impl Laser {
         thread::sleep(Duration::from_micros(1500));
         self.out.set_value(false).unwrap();
         thread::sleep(Duration::from_micros(500));
-
     }
 }
 
@@ -83,14 +82,13 @@ impl Receiver {
                 }
                 let end = chrono::Utc::now();
                 let bit_time = (end - start).num_microseconds().unwrap();
+                println!("bit time {}", bit_time);
                 match bit_time {
                     i64::MIN..=-0_i64 => continue,
-                     1..=300 => data.push(1),
-
-                    301..=550 => data.push(0),
-
+                    1..=300 => data.push(0),
+                    301..=550 => data.push(1),
                     551..=1510 => continue,
-                    1511.. => break 'outer
+                    1511.. => break 'outer,
                 };
             }
         }
@@ -104,7 +102,7 @@ impl Receiver {
         }
         let mut chars = Vec::new();
         let mut codes = Vec::new();
-        for i in (0..data.len() - 2).step_by(8) {
+        for i in (0..data.len() - 1).step_by(8) {
             let mut code: u32 = 0;
             for j in 0..8 {
                 code += data[i + j] * u32::pow(2, j as u32);
