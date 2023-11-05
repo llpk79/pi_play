@@ -31,7 +31,7 @@ impl Laser {
         thread::sleep(Duration::from_millis(100));
             for char in message.chars() {
                 let code = char as i8;
-                println!("ode {:?}\n", code.to_le_bytes());
+                println!("code {:?}\n", code);
                 for bit in code.to_le_bytes() {
                     match bit == 1 {
                         true => {
