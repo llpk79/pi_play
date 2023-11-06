@@ -2,6 +2,7 @@ use gpio::GpioValue::{High, Low};
 use gpio::{GpioIn, GpioOut};
 use std::time::Duration;
 use std::{fs, thread};
+use std::fmt::format;
 
 const LASER_PIN: u16 = 18;
 const RECEIVER_PIN: u16 = 23;
@@ -16,7 +17,10 @@ pub struct Receiver {
 
 impl Laser {
     pub fn new() -> Laser {
-        let out = gpio::sysfs::SysFsGpioOutput::open(LASER_PIN).unwrap();
+        let out = match gpio::sysfs::SysFsGpioOutput::open(LASER_PIN) {
+            Ok(out) => out,
+            Err(_e) => panic!()
+        };
         Self { out }
     }
 
@@ -39,39 +43,42 @@ impl Laser {
     pub fn send_message(&mut self, message: String) {
         // Initiation sequence.
         thread::sleep(Duration::from_millis(10));
-        self.out.set_value(true).unwrap();
+        self.out.set_value(true).expect("Error setting pin");
         thread::sleep(Duration::from_millis(10));
-        self.out.set_value(false).unwrap();
+        self.out.set_value(false).expect("Error setting pin");
         thread::sleep(Duration::from_millis(5));
         let encoded_message = self.encode_message(message);
         // Begin message transmission.
         for bit in encoded_message {
             match bit == 1 {
                 true => {
-                    self.out.set_value(true).unwrap();
+                    self.out.set_value(true).expect("Error setting pin");
                     thread::sleep(Duration::from_millis(3));
-                    self.out.set_value(false).unwrap();
+                    self.out.set_value(false).expect("Error setting pin");
                 }
                 false => {
-                    self.out.set_value(true).unwrap();
+                    self.out.set_value(true).expect("Error setting pin");
                     thread::sleep(Duration::from_millis(1));
-                    self.out.set_value(false).unwrap();
+                    self.out.set_value(false).expect("Error setting pin");
                 }
             }
             thread::sleep(Duration::from_millis(1))
         }
 
         // Termination sequence.
-        self.out.set_value(true).unwrap();
+        self.out.set_value(true).expect("Error setting pin");
         thread::sleep(Duration::from_millis(15));
-        self.out.set_value(false).unwrap();
+        self.out.set_value(false).expect("Error setting pin");
         thread::sleep(Duration::from_millis(1));
     }
 }
 
 impl Receiver {
     pub fn new() -> Receiver {
-        let in_ = gpio::sysfs::SysFsGpioInput::open(RECEIVER_PIN).unwrap();
+        let in_ = match gpio::sysfs::SysFsGpioInput::open(RECEIVER_PIN) {
+            Ok(in_) => in_,
+            Err(_e) => panic!()
+        };
         Self { in_ }
     }
 
@@ -79,11 +86,11 @@ impl Receiver {
         let mut data = Vec::new();
 
         // Detect initiation sequence.
-        while self.in_.read_value().unwrap() == Low {
+        while self.in_.read_value().expect("Error reading pin") == Low {
             continue;
         }
         let begin = chrono::Utc::now();
-        while self.in_.read_value().unwrap() == High {
+        while self.in_.read_value().expect("Error reading pin") == High {
             continue;
         }
         let end = chrono::Utc::now();
@@ -92,11 +99,11 @@ impl Receiver {
             println!("Incoming message detected...\n");
             // Data reception
             'outer: loop {
-                while self.in_.read_value().unwrap() == Low {
+                while self.in_.read_value().expect("Error reading pin") == Low {
                     continue;
                 }
                 let start = chrono::Utc::now();
-                while self.in_.read_value().unwrap() == High {
+                while self.in_.read_value().expect("Error reading pin") == High {
                     continue;
                 }
                 let end = chrono::Utc::now();
