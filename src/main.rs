@@ -1,11 +1,5 @@
-// use pi_play_lib::segment::Segment;
-// use pi_play_lib::temp::read_temp;
 use std::time::Duration;
 use std::{fs, thread};
-// use std::time::Duration;
-// use pi_play_lib::distance::Distance;
-// use pi_play_lib::lcd::LCD;
-// use pi_play_lib::temp_humid::measure_temp_humid;
 use pi_play_lib::lasers::{Laser, Receiver};
 
 fn main() {
@@ -14,7 +8,7 @@ fn main() {
 
     let laser_thread = thread::spawn(move || loop {
         laser.send_message(
-            fs::read_to_string("./src/temp_humid.rs").unwrap()
+            fs::read_to_string("./src/main.rs").unwrap()
             // "Hello World ".to_string(),
         );
         thread::sleep(Duration::from_secs(2))
