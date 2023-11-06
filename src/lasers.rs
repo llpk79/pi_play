@@ -143,6 +143,7 @@ impl Receiver {
         for (i, code) in data[data.len() - 32..data.len()].iter().enumerate() {
             check += *code << i;
         }
+        // VERY roughly estimate data fidelity.
         let min = min(sum, check) as f32;
         let max = max(sum, check) as f32;
         (codes, min / max > 0.90)
