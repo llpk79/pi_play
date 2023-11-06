@@ -1,6 +1,6 @@
 use gpio::GpioValue::{High, Low};
 use gpio::{GpioIn, GpioOut};
-use std::thread;
+use std::{fs, thread};
 use std::time::Duration;
 
 const LASER_PIN: u16 = 18;
@@ -159,6 +159,7 @@ impl Receiver {
                 None => continue,
             }
         }
+        fs::write("./test.txt",&message).expect("file not written");
         println!("Validated message: {}\n", message);
     }
 }
