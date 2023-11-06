@@ -12,7 +12,7 @@ fn main() {
             laser.send_message(
                 fs::read_to_string("./src/main.rs").unwrap(), // "Hello World ".to_string(),
             );
-            thread::sleep(Duration::from_secs(2))
+            thread::sleep(Duration::from_secs(5))
         });
     let receiver_thread = thread::Builder::new()
         .name("receiver".to_string())
