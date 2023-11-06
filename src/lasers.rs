@@ -42,34 +42,34 @@ impl Laser {
 
     pub fn send_message(&mut self, message: String) {
         // Initiation sequence.
-        thread::sleep(Duration::from_millis(10));
+        thread::sleep(Duration::from_micros(1000));
         self.out.set_value(true).expect("Error setting pin");
-        thread::sleep(Duration::from_millis(10));
+        thread::sleep(Duration::from_micros(1000));
         self.out.set_value(false).expect("Error setting pin");
-        thread::sleep(Duration::from_millis(5));
+        thread::sleep(Duration::from_micros(500));
         let encoded_message = self.encode_message(message);
         // Begin message transmission.
         for bit in encoded_message {
             match bit == 1 {
                 true => {
                     self.out.set_value(true).expect("Error setting pin");
-                    thread::sleep(Duration::from_millis(3));
+                    thread::sleep(Duration::from_micros(750));
                     self.out.set_value(false).expect("Error setting pin");
                 }
                 false => {
                     self.out.set_value(true).expect("Error setting pin");
-                    thread::sleep(Duration::from_millis(1));
+                    thread::sleep(Duration::from_micros(500));
                     self.out.set_value(false).expect("Error setting pin");
                 }
             }
-            thread::sleep(Duration::from_millis(1))
+            thread::sleep(Duration::from_micros(1))
         }
 
         // Termination sequence.
         self.out.set_value(true).expect("Error setting pin");
-        thread::sleep(Duration::from_millis(15));
+        thread::sleep(Duration::from_micros(1500));
         self.out.set_value(false).expect("Error setting pin");
-        thread::sleep(Duration::from_millis(1));
+        thread::sleep(Duration::from_micros(100));
     }
 }
 
@@ -94,8 +94,8 @@ impl Receiver {
             continue;
         }
         let end = chrono::Utc::now();
-        let initiation_time = (end - begin).num_milliseconds();
-        if (9 < initiation_time) && (initiation_time < 11) {
+        let initiation_time = (end - begin).num_microseconds().expect("micro");
+        if (900 < initiation_time) && (initiation_time < 1100) {
             println!("Incoming message detected...\n");
             // Data reception
             'outer: loop {
@@ -107,14 +107,14 @@ impl Receiver {
                     continue;
                 }
                 let end = chrono::Utc::now();
-                let bit_time = (end - start).num_milliseconds();
+                let bit_time = (end - start).num_microseconds().expect("micro");
                 // println!("bit time {}", bit_time);
                 match bit_time {
                     i64::MIN..=-0_i64 => continue,
-                    1..=2 => data.push(0),
-                    3..=4 => data.push(1),
-                    5..=12 => continue,
-                    13.. => break 'outer, // Termination sequence.
+                    1..=500 => data.push(0),
+                    501..=750 => data.push(1),
+                    751..=1499 => continue,
+                    1500.. => break 'outer, // Termination sequence.
                 };
             }
         }
@@ -146,7 +146,7 @@ impl Receiver {
         // VERY roughly estimate data fidelity.
         let min = min(sum, check) as f32;
         let max = max(sum, check) as f32;
-        (codes, min / max > 0.98)
+        (codes, min / max > 0.95)
     }
 
     pub fn print_message(&mut self) -> f32 {
