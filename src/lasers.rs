@@ -152,6 +152,6 @@ impl Receiver {
             }
         }
         fs::write("./test.txt", &message).expect("file not written");
-        println!("Validated message: {}\n", message);
+        println!("Validated message:\n{}\n\n", message);
     }
 }
