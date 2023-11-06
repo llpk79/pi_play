@@ -2,6 +2,7 @@ use gpio::GpioValue::{High, Low};
 use gpio::{GpioIn, GpioOut};
 use std::time::Duration;
 use std::{fs, thread};
+use std::cmp::{max, min};
 
 const LASER_PIN: u16 = 18;
 const RECEIVER_PIN: u16 = 23;
@@ -142,7 +143,9 @@ impl Receiver {
         for (i, code) in data[data.len() - 32..data.len()].iter().enumerate() {
             check += *code << i;
         }
-        (codes, sum == check)
+        let min = min(sum, check) as f32;
+        let max = max(sum, check) as f32;
+        (codes, min / max > 0.95)
     }
 
     pub fn print_message(&mut self) {
