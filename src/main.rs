@@ -14,8 +14,8 @@ fn main() {
 
     let laser_thread = thread::spawn(move || loop {
         laser.send_message(
-            fs::read_to_string("./src/temp_humid.rs").unwrap()
-            // "Hello World ".to_string(),
+            // fs::read_to_string("./src/temp_humid.rs").unwrap()
+            "Hello World ".to_string(),
         );
         thread::sleep(Duration::from_secs(2))
     });
