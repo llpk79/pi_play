@@ -112,8 +112,8 @@ impl Receiver {
                 match bit_time {
                     i64::MIN..=-0_i64 => continue,
                     1..=750 => data.push(0),
-                    751..=1500 => data.push(1),
-                    1501.. => break 'outer, // Termination sequence.
+                    751..=1550 => data.push(1),
+                    1551.. => break 'outer, // Termination sequence.
                 };
             }
         }
