@@ -1,7 +1,7 @@
 use gpio::GpioValue::{High, Low};
 use gpio::{GpioIn, GpioOut};
-use std::{fs, thread};
 use std::time::Duration;
+use std::{fs, thread};
 
 const LASER_PIN: u16 = 18;
 const RECEIVER_PIN: u16 = 23;
@@ -22,7 +22,7 @@ impl Laser {
 
     fn encode_message(&mut self, message: String) -> Vec<u8> {
         let mut data = Vec::new();
-        let mut check_sum:i32 = 0;
+        let mut check_sum: i32 = 0;
         for char in message.chars() {
             let code = char as u8;
             check_sum += code as i32;
@@ -115,9 +115,9 @@ impl Receiver {
     }
 
     fn validate(&mut self, data: &Vec<u32>) -> (Vec<u32>, bool) {
-        let mut check:u32 = 0;
-        let mut sum:u32 = 0;
-        let mut codes:Vec<u32> = Vec::new();
+        let mut check: u32 = 0;
+        let mut sum: u32 = 0;
+        let mut codes: Vec<u32> = Vec::new();
         for i in (0..data.len() - 32).step_by(8) {
             let mut byte = 0;
             for j in 0..8 {
@@ -151,7 +151,7 @@ impl Receiver {
                 None => continue,
             }
         }
-        fs::write("./test.txt",&message).expect("file not written");
+        fs::write("./test.txt", &message).expect("file not written");
         println!("Validated message: {}\n", message);
     }
 }

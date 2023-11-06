@@ -1,7 +1,7 @@
 // use pi_play_lib::segment::Segment;
 // use pi_play_lib::temp::read_temp;
-use std::{fs, thread};
 use std::time::Duration;
+use std::{fs, thread};
 // use std::time::Duration;
 // use pi_play_lib::distance::Distance;
 // use pi_play_lib::lcd::LCD;
@@ -14,8 +14,8 @@ fn main() {
 
     let laser_thread = thread::spawn(move || loop {
         laser.send_message(
-            // fs::read_to_string("./src/distance.rs").unwrap()
-            "Hello World ".to_string()
+            fs::read_to_string("./src/distance.rs").unwrap()
+            // "Hello World ".to_string(),
         );
         thread::sleep(Duration::from_secs(2))
     });
