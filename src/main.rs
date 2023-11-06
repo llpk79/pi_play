@@ -20,8 +20,11 @@ fn main() {
         thread::sleep(Duration::from_secs(2))
     });
     let receiver_thread = thread::spawn(move || loop {
+        let start = chrono::Utc::now();
         receiver.print_message();
-        thread::sleep(Duration::from_secs(2))
+        thread::sleep(Duration::from_secs(2));
+        let end = chrono::Utc::now();
+        println!("Message in {} sec", (end - start).num_seconds());
     });
     laser_thread.join().unwrap();
     receiver_thread.join().unwrap();
