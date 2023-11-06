@@ -159,6 +159,6 @@ impl Receiver {
                 None => continue,
             }
         }
-        println!("Validated message:\n\t{}\n\n", message);
+        println!("Validated message: {}\n", message);
     }
 }
