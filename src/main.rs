@@ -20,7 +20,7 @@ fn main() {
             let start = chrono::Utc::now();
             receiver.print_message();
             let end = chrono::Utc::now();
-            println!("Message in {} sec", (end - start).num_seconds());
+            println!("Message in {} sec\n", (end - start).num_seconds());
             thread::sleep(Duration::from_secs(2));
         });
     laser_thread.unwrap().join().unwrap();
