@@ -49,12 +49,12 @@ impl Laser {
             match bit == 1 {
                 true => {
                     self.out.set_value(true).unwrap();
-                    thread::sleep(Duration::from_micros(200));
+                    thread::sleep(Duration::from_micros(300));
                     self.out.set_value(false).unwrap();
                 }
                 false => {
                     self.out.set_value(true).unwrap();
-                    thread::sleep(Duration::from_micros(100));
+                    thread::sleep(Duration::from_micros(200));
                     self.out.set_value(false).unwrap();
                 }
             }
@@ -104,9 +104,9 @@ impl Receiver {
                 println!("bit time {}", bit_time);
                 match bit_time {
                     i64::MIN..=-0_i64 => continue,
-                    1..=200 => data.push(0),
-                    201..=320 => data.push(1),
-                    321..=750 => continue,
+                    1..=300 => data.push(0),
+                    301..=400 => data.push(1),
+                    401..=750 => continue,
                     751.. => break 'outer, // Termination sequence.
                 };
             }
