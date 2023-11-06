@@ -1,8 +1,8 @@
 use gpio::GpioValue::{High, Low};
 use gpio::{GpioIn, GpioOut};
+use std::cmp::{max, min};
 use std::time::Duration;
 use std::{fs, thread};
-use std::cmp::{max, min};
 
 const LASER_PIN: u16 = 18;
 const RECEIVER_PIN: u16 = 23;
@@ -19,7 +19,7 @@ impl Laser {
     pub fn new() -> Laser {
         let out = match gpio::sysfs::SysFsGpioOutput::open(LASER_PIN) {
             Ok(out) => out,
-            Err(_e) => panic!()
+            Err(_e) => panic!(),
         };
         Self { out }
     }
@@ -77,7 +77,7 @@ impl Receiver {
     pub fn new() -> Receiver {
         let in_ = match gpio::sysfs::SysFsGpioInput::open(RECEIVER_PIN) {
             Ok(in_) => in_,
-            Err(_e) => panic!()
+            Err(_e) => panic!(),
         };
         Self { in_ }
     }
@@ -149,13 +149,14 @@ impl Receiver {
         (codes, min / max > 0.98)
     }
 
-    pub fn print_message(&mut self) {
+    pub fn print_message(&mut self) -> f32 {
         let data = self.receive_message();
         println!("Message received. validating...\n");
         let (codes, valid) = self.validate(&data);
+        let num_kbytes = codes.clone().len() as f32 / 1000.0;
         if !valid {
             println!("ERROR: Invalid data detected.\n\n");
-            return;
+            return num_kbytes;
         }
         let mut message: String = "".to_string();
         for code in codes {
@@ -166,5 +167,6 @@ impl Receiver {
         }
         fs::write("./test.txt", &message).expect("file not written");
         println!("Validated message:\n\n{}\n\n", message);
+        num_kbytes
     }
 }

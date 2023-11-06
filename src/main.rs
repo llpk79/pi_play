@@ -18,9 +18,14 @@ fn main() {
         .name("receiver".to_string())
         .spawn(move || loop {
             let start = chrono::Utc::now();
-            receiver.print_message();
+            let kbytes = receiver.print_message();
             let end = chrono::Utc::now();
-            println!("Message in {} sec\n", (end - start).num_seconds());
+            let seconds = (end - start).num_seconds();
+            println!(
+                "Message in {} sec\nKB/s {}",
+                seconds,
+                kbytes / seconds as f32
+            );
             thread::sleep(Duration::from_secs(2));
         });
     laser_thread.unwrap().join().unwrap();
