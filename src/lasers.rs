@@ -115,6 +115,9 @@ impl Receiver {
     }
 
     fn validate(&mut self, data: &Vec<u32>) -> (Vec<u32>, bool) {
+        if !data.len() < 40 {
+            return (Vec::from([0]), false)
+        }
         let mut check: u32 = 0;
         let mut sum: u32 = 0;
         let mut codes: Vec<u32> = Vec::new();
@@ -140,7 +143,7 @@ impl Receiver {
         let data = self.receive_message();
         println!("Message received. validating...\n");
         let (codes, valid) = self.validate(&data);
-        if !valid || data.len() < 40 {
+        if !valid {
             println!("ERROR: Invalid data detected.\n\n");
             return;
         }
