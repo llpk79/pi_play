@@ -38,34 +38,34 @@ impl Laser {
 
     pub fn send_message(&mut self, message: String) {
         // Initiation sequence.
-        thread::sleep(Duration::from_micros(500));
+        thread::sleep(Duration::from_micros(5000));
         self.out.set_value(true).unwrap();
-        thread::sleep(Duration::from_micros(500));
+        thread::sleep(Duration::from_micros(5000));
         self.out.set_value(false).unwrap();
-        thread::sleep(Duration::from_micros(400));
+        thread::sleep(Duration::from_micros(4000));
         let encoded_message = self.encode_message(message);
         // Begin message transmission.
         for bit in encoded_message {
             match bit == 1 {
                 true => {
                     self.out.set_value(true).unwrap();
-                    thread::sleep(Duration::from_micros(300));
+                    thread::sleep(Duration::from_micros(3000));
                     self.out.set_value(false).unwrap();
                 }
                 false => {
                     self.out.set_value(true).unwrap();
-                    thread::sleep(Duration::from_micros(200));
+                    thread::sleep(Duration::from_micros(2000));
                     self.out.set_value(false).unwrap();
                 }
             }
-            thread::sleep(Duration::from_micros(100))
+            thread::sleep(Duration::from_micros(1000))
         }
 
         // Termination sequence.
         self.out.set_value(true).unwrap();
-        thread::sleep(Duration::from_micros(750));
+        thread::sleep(Duration::from_micros(7500));
         self.out.set_value(false).unwrap();
-        thread::sleep(Duration::from_micros(100));
+        thread::sleep(Duration::from_micros(1000));
     }
 }
 
@@ -88,7 +88,7 @@ impl Receiver {
         }
         let end = chrono::Utc::now();
         let initiation_time = (end - begin).num_microseconds().unwrap();
-        if (450 < initiation_time) && (initiation_time < 550) {
+        if (4500 < initiation_time) && (initiation_time < 5500) {
             println!("Incoming message detected...\n");
             // Data reception
             'outer: loop {
@@ -104,10 +104,10 @@ impl Receiver {
                 println!("bit time {}", bit_time);
                 match bit_time {
                     i64::MIN..=-0_i64 => continue,
-                    1..=300 => data.push(0),
-                    301..=400 => data.push(1),
-                    401..=750 => continue,
-                    751.. => break 'outer, // Termination sequence.
+                    1..=3000 => data.push(0),
+                    3001..=4000 => data.push(1),
+                    4001..=7500 => continue,
+                    7501.. => break 'outer, // Termination sequence.
                 };
             }
         }
