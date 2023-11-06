@@ -104,8 +104,8 @@ impl Receiver {
                 println!("bit time {}", bit_time);
                 match bit_time {
                     i64::MIN..=-0_i64 => continue,
-                    1..=150 => data.push(0),
-                    151..=320 => data.push(1),
+                    1..=200 => data.push(0),
+                    201..=320 => data.push(1),
                     321..=750 => continue,
                     751.. => break 'outer, // Termination sequence.
                 };
@@ -137,7 +137,7 @@ impl Receiver {
     pub fn print_message(&mut self) {
         let data = self.receive_message();
         println!("Message received. validating...\n");
-        if data.len() < 8 {
+        if data.len() < 40 {
             return;
         }
         if !self.validate(&data) {
