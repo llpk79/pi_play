@@ -26,7 +26,7 @@ fn main() {
                 seconds,
                 kbytes / seconds as f32
             );
-            thread::sleep(Duration::from_secs(2));
+            thread::sleep(Duration::from_secs(5));
         });
     laser_thread.unwrap().join().unwrap();
     receiver_thread.unwrap().join().unwrap();
