@@ -38,9 +38,9 @@ impl Laser {
 
     pub fn send_message(&mut self, message: String) {
         // Initiation sequence.
-        thread::sleep(Duration::from_micros(2500));
+        thread::sleep(Duration::from_micros(4000));
         self.out.set_value(true).unwrap();
-        thread::sleep(Duration::from_micros(2500));
+        thread::sleep(Duration::from_micros(40000));
         self.out.set_value(false).unwrap();
         thread::sleep(Duration::from_micros(2000));
         let encoded_message = self.encode_message(message);
@@ -49,7 +49,7 @@ impl Laser {
             match bit == 1 {
                 true => {
                     self.out.set_value(true).unwrap();
-                    thread::sleep(Duration::from_micros(1500));
+                    thread::sleep(Duration::from_micros(2000));
                     self.out.set_value(false).unwrap();
                 }
                 false => {
