@@ -114,9 +114,10 @@ impl Receiver {
         data
     }
 
-    fn validate(&mut self, data: &Vec<u32>) -> bool {
+    fn validate(&mut self, data: &Vec<u32>) -> (Vec<u32>, bool) {
         let mut check:u32 = 0;
         let mut sum:u32 = 0;
+        let mut codes:Vec<u32> = Vec::new();
         for i in (0..data.len() - 32).step_by(8) {
             let mut byte = 0;
             for j in 0..8 {
@@ -127,34 +128,25 @@ impl Receiver {
                 byte += data[i + j] << j as u32;
             }
             sum += byte;
+            codes.push(byte);
         }
         for (i, code) in data[data.len() - 32..data.len()].iter().enumerate() {
             check += *code << i;
         }
-        sum == check
+        (codes, sum == check)
     }
 
     pub fn print_message(&mut self) {
         let data = self.receive_message();
         println!("Message received. validating...\n");
-        if data.len() < 40 {
-            return;
-        }
-        if !self.validate(&data) {
+        let (codes, valid) = self.validate(&data);
+        if !valid || data.len() < 40 {
             println!("ERROR: Invalid data detected.\n\n");
             return;
         }
-        let mut chars = Vec::new();
-        for i in (0..data.len() - 32).step_by(8) {
-            let mut code: u32 = 0;
-            for j in 0..8 {
-                code += data[i + j] << j;
-            }
-            chars.push(char::from_u32(code))
-        }
         let mut message: String = "".to_string();
-        for char in chars {
-            match char {
+        for code in codes {
+            match char::from_u32(code) {
                 Some(char) => message = message + &format!("{}", char),
                 None => continue,
             }
