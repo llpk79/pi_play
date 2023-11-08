@@ -53,12 +53,12 @@ impl Laser {
             match bit == 1 {
                 true => {
                     self.out.set_value(true).expect("Error setting pin");
-                    thread::sleep(Duration::from_micros(300));
+                    thread::sleep(Duration::from_micros(150));
                     self.out.set_value(false).expect("Error setting pin");
                 }
                 false => {
                     self.out.set_value(true).expect("Error setting pin");
-                    thread::sleep(Duration::from_micros(150));
+                    thread::sleep(Duration::from_micros(75));
                     self.out.set_value(false).expect("Error setting pin");
                 }
             }
@@ -115,8 +115,8 @@ impl Receiver {
             // println!("bit time {}", bit_time);
             match bit_time {
                 i64::MIN..=-0_i64 => continue,
-                1..=250 => data.push(0),
-                251..=900 => data.push(1),
+                1..=100 => data.push(0),
+                101..=900 => data.push(1),
                 901..=1500 => {
                     // data.clear();
                     // break 'outer;
