@@ -156,7 +156,7 @@ impl Receiver {
         (codes, min / max > 0.98)
     }
 
-    pub fn print_message(&mut self) -> (f32, i64) {
+    pub fn print_message(&mut self) -> (f32, f64) {
         let start = chrono::Utc::now();
         let data = self.receive_message();
         println!("Message received. Validating...\n");
@@ -164,7 +164,7 @@ impl Receiver {
         let num_kbytes = codes.clone().len() as f32 / 1000.0;
         if !valid {
             println!("ERROR: Invalid data detected.\n\n");
-            return (num_kbytes, (chrono::Utc::now() - start).num_seconds());
+            return (num_kbytes, ((chrono::Utc::now() - start).num_milliseconds() * 1000) as f64);
         }
         let mut message: String = "".to_string();
         for code in codes {
@@ -175,7 +175,7 @@ impl Receiver {
         }
         fs::write("./test.txt", &message).expect("file not written");
         let end = chrono::Utc::now();
-        let seconds = (end - start).num_milliseconds();
+        let seconds = ((end - start).num_milliseconds() * 1000) as f64;
         println!("Validated message:\n\n{}\n\n", message);
         (num_kbytes, seconds)
     }
