@@ -16,6 +16,8 @@ pub struct Receiver {
 }
 
 impl Laser {
+
+    /// Open port for laser pin.
     pub fn new() -> Laser {
         let out = match gpio::sysfs::SysFsGpioOutput::open(LASER_PIN) {
             Ok(out) => out,
@@ -24,6 +26,8 @@ impl Laser {
         Self { out }
     }
 
+    /// String -> char code -> `[bits]`.
+    /// Sum char codes to 32 bit int and append to data as check_sum.
     fn encode_message(&mut self, message: String) -> Vec<u8> {
         let mut data = Vec::new();
         let mut check_sum: i32 = 0;
@@ -40,6 +44,11 @@ impl Laser {
         data
     }
 
+    /// Initiate message with 1000 us pulse.
+    ///
+    /// Transmit message; long pulse = 1 short pulse = 0.
+    ///
+    /// Terminate message with 1500 us pulse.
     pub fn send_message(&mut self, message: String) {
         // Initiation sequence.
         thread::sleep(Duration::from_micros(1000));
@@ -47,7 +56,9 @@ impl Laser {
         thread::sleep(Duration::from_micros(1000));
         self.out.set_value(false).expect("Error setting pin");
         thread::sleep(Duration::from_micros(500));
+
         let encoded_message = self.encode_message(message);
+
         // Begin message transmission.
         for bit in encoded_message {
             match bit == 1 {
@@ -62,6 +73,7 @@ impl Laser {
                     self.out.set_value(false).expect("Error setting pin");
                 }
             }
+            // Bit resolution.
             thread::sleep(Duration::from_micros(50))
         }
 
@@ -74,6 +86,8 @@ impl Laser {
 }
 
 impl Receiver {
+
+    /// Open port for receiver pin.
     pub fn new() -> Receiver {
         let in_ = match gpio::sysfs::SysFsGpioInput::open(RECEIVER_PIN) {
             Ok(in_) => in_,
@@ -82,6 +96,9 @@ impl Receiver {
         Self { in_ }
     }
 
+    /// Loop while checking for initiation sequence.
+    /// Push 1 for long pulse, 0 for short.
+    /// Return data upon termination sequence
     fn receive_message(&mut self) -> Vec<u32> {
         let mut data = Vec::new();
         loop {
@@ -89,6 +106,7 @@ impl Receiver {
             while self.in_.read_value().expect("Error reading pin") == Low {
                 continue;
             }
+            // Get the amount of time the laser is on.
             let begin = chrono::Utc::now();
             while self.in_.read_value().expect("Error reading pin") == High {
                 continue;
@@ -105,6 +123,7 @@ impl Receiver {
             while self.in_.read_value().expect("Error reading pin") == Low {
                 continue;
             }
+            // Get the amount of time the laser is on.
             let start = chrono::Utc::now();
             while self.in_.read_value().expect("Error reading pin") == High {
                 continue;
@@ -126,6 +145,9 @@ impl Receiver {
         data
     }
 
+    /// Decode binary into char codes and return.
+    /// Add char codes and return boolean comparison with check_sum.
+    /// Return check_sum.
     fn validate(&mut self, data: &Vec<u32>) -> (Vec<u32>, bool, f32) {
         let data_len = data.len();
         if data.len() < 40 {
@@ -137,10 +159,10 @@ impl Receiver {
         for i in (0..data_len - 32).step_by(8) {
             let mut byte = 0;
             for j in 0..8 {
-                if i + j >= data_len {
-                    // I do not know why this happens sometimes.
-                    break;
-                }
+                // if i + j >= data_len {
+                //     // I do not know why this happens sometimes.
+                //     break;
+                // }
                 byte += data[i + j] << j as u32;
             }
             sum += byte;
