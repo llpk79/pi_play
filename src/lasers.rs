@@ -16,7 +16,6 @@ pub struct Receiver {
 }
 
 impl Laser {
-
     /// Open port for laser pin.
     pub fn new() -> Laser {
         let out = match gpio::sysfs::SysFsGpioOutput::open(LASER_PIN) {
@@ -86,7 +85,6 @@ impl Laser {
 }
 
 impl Receiver {
-
     /// Open port for receiver pin.
     pub fn new() -> Receiver {
         let in_ = match gpio::sysfs::SysFsGpioInput::open(RECEIVER_PIN) {
@@ -145,56 +143,55 @@ impl Receiver {
         data
     }
 
-    /// Decode binary into char codes and return.
+    /// Decode binary into string and return.
     /// Add char codes and return boolean comparison with check_sum.
     /// Return check_sum.
-    fn validate(&mut self, data: &Vec<u32>) -> (Vec<u32>, bool, f32) {
+    fn decode(&mut self, data: &Vec<u32>) -> (String, bool, f32) {
         let data_len = data.len();
         if data.len() < 40 {
-            return (Vec::from([0]), false, 0.0);
+            return ("".to_string(), false, 0.0);
         }
         let mut check: u32 = 0;
         let mut sum: u32 = 0;
-        let mut codes: Vec<u32> = Vec::new();
+        let mut message = "".to_string();
         for i in (0..data_len - 32).step_by(8) {
             let mut byte = 0;
             for j in 0..8 {
-                // if i + j >= data_len {
-                //     // I do not know why this happens sometimes.
-                //     break;
-                // }
                 byte += data[i + j] << j as u32;
             }
             sum += byte;
-            codes.push(byte);
+            message = message + &format!("{}", char::from_u32(byte).expect("Error decoding char"));
         }
-        for (i, code) in data[data_len - 32..data_len].iter().enumerate() {
-            check += *code << i;
+        for (i, bit) in data[data_len - 32..data_len].iter().enumerate() {
+            check += *bit << i;
         }
         // VERY roughly estimate data fidelity.
         let min = min(sum, check) as f32;
         let max = max(sum, check) as f32;
         let error = min / max;
-        (codes, error > 0.99, error)
+        (message, error > 0.99, error)
     }
 
+    /// Call receive and decode methods.
+    /// Char codes -> chars -> String.
+    /// Print to stdout
+    /// Return num Kbytes, seconds and error
     pub fn print_message(&mut self) -> (f32, f64, f32) {
         let start = chrono::Utc::now();
         println!("\nAwaiting transmission...");
+
         let data = self.receive_message();
         println!("Message received. Validating...\n");
-        let (codes, valid, error) = self.validate(&data);
-        let num_kbytes = codes.clone().len() as f32 / 1000.0;
+
+        let (message, valid, error) = self.decode(&data);
+        let num_kbytes = message.clone().len() as f32 / 1000.0;
         if !valid {
             println!("ERROR: Invalid data detected.\n\n");
-            return (num_kbytes, ((chrono::Utc::now() - start).num_milliseconds() as f64 / 1000.0f64), error);
-        }
-        let mut message: String = "".to_string();
-        for code in codes {
-            match char::from_u32(code) {
-                Some(char) => message = message + &format!("{}", char),
-                None => continue,
-            }
+            return (
+                num_kbytes,
+                ((chrono::Utc::now() - start).num_milliseconds() as f64 / 1000.0f64),
+                error,
+            );
         }
         fs::write("./test.txt", &message).expect("file not written");
         let end = chrono::Utc::now();

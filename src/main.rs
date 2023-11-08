@@ -17,7 +17,7 @@ fn main() {
                 1.0 - error,
             );
         });
-    
+
     let laser_thread = thread::Builder::new()
         .name("laser".to_string())
         .spawn(move || loop {
@@ -27,7 +27,7 @@ fn main() {
             );
             thread::sleep(Duration::from_millis(250))
         });
-    
+
     laser_thread.unwrap().join().unwrap();
     receiver_thread.unwrap().join().unwrap();
 }
