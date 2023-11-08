@@ -62,7 +62,7 @@ impl Laser {
                     self.out.set_value(false).expect("Error setting pin");
                 }
             }
-            thread::sleep(Duration::from_micros(100))
+            thread::sleep(Duration::from_micros(50))
         }
 
         // Termination sequence.
