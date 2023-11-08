@@ -84,45 +84,48 @@ impl Receiver {
 
     fn receive_message(&mut self) -> Vec<u32> {
         let mut data = Vec::new();
-        println!("Awaiting transmission...");
-        // Detect initiation sequence.
-        while self.in_.read_value().expect("Error reading pin") == Low {
-            continue;
-        }
-        let begin = chrono::Utc::now();
-        while self.in_.read_value().expect("Error reading pin") == High {
-            continue;
-        }
-        let end = chrono::Utc::now();
-        let initiation_time = (end - begin).num_microseconds().expect("micro");
-        println!("initiation time {}", initiation_time);
-        if (900 < initiation_time) && (initiation_time < 1400) {
-            println!("\nIncoming message detected...\n");
-            // Data reception
-            'outer: loop {
-                while self.in_.read_value().expect("Error reading pin") == Low {
-                    continue;
-                }
-                let start = chrono::Utc::now();
-                while self.in_.read_value().expect("Error reading pin") == High {
-                    continue;
-                }
-                let end = chrono::Utc::now();
-                let bit_time = (end - start).num_microseconds().expect("micro");
-                println!("bit time {}", bit_time);
-                match bit_time {
-                    i64::MIN..=-0_i64 => continue,
-                    1..=250 => data.push(0),
-                    251..=900 => data.push(1),
-                    901..=1500 => {
-                        // data.clear();
-                        // break 'outer;
-                        continue;
-                    }
-                    1501.. => break 'outer, // Termination sequence.
-                };
+        let initiation_time: f64 = 0.0;
+        while (900.0 < initiation_time) && (initiation_time < 1400.0) {
+            println!("Awaiting transmission...");
+            // Detect initiation sequence.
+            while self.in_.read_value().expect("Error reading pin") == Low {
+                continue;
             }
+            let begin = chrono::Utc::now();
+            while self.in_.read_value().expect("Error reading pin") == High {
+                continue;
+            }
+            let end = chrono::Utc::now();
+            let initiation_time = (end - begin).num_microseconds().expect("micro");
+            println!("initiation time {}", initiation_time);
         }
+        println!("\nIncoming message detected...\n");
+        // Data reception
+        'outer: loop {
+            while self.in_.read_value().
+                expect("Error reading pin") == Low {
+                continue;
+            }
+            let start = chrono::Utc::now();
+            while self.in_.read_value().expect("Error reading pin") == High {
+                continue;
+            }
+            let end = chrono::Utc::now();
+            let bit_time = (end - start).num_microseconds().expect("micro");
+            println!("bit time {}", bit_time);
+            match bit_time {
+                i64::MIN..=-0_i64 => continue,
+                1..=250 => data.push(0),
+                251..=900 => data.push(1),
+                901..=1500 => {
+                    // data.clear();
+                    // break 'outer;
+                    continue;
+                }
+                1501.. => break 'outer, // Termination sequence.
+            };
+        }
+
         data
     }
 
