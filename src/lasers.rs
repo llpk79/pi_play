@@ -53,7 +53,7 @@ impl Laser {
             match bit == 1 {
                 true => {
                     self.out.set_value(true).expect("Error setting pin");
-                    thread::sleep(Duration::from_micros(5));
+                    thread::sleep(Duration::from_micros(10));
                     self.out.set_value(false).expect("Error setting pin");
                 }
                 false => {
