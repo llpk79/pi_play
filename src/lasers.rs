@@ -156,7 +156,7 @@ impl Receiver {
         let num_kbytes = codes.clone().len() as f32 / 1000.0;
         if !valid {
             println!("ERROR: Invalid data detected.\n\n");
-            return num_kbytes;
+            return (num_kbytes, 1);
         }
         let mut message: String = "".to_string();
         for code in codes {
