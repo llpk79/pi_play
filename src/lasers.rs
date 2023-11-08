@@ -112,7 +112,7 @@ impl Receiver {
             }
             let end = chrono::Utc::now();
             let bit_time = (end - start).num_microseconds().expect("micro");
-            // println!("bit time {}", bit_time);
+            println!("bit time {}", bit_time);
             match bit_time {
                 i64::MIN..=-0_i64 => continue,
                 1..=250 => data.push(0),
