@@ -13,14 +13,14 @@ fn main() {
             println!(
                 "Message in {} sec\nKB/s {}",
                 seconds,
-                kbytes / seconds as f32
+                kbytes as f64 / seconds
             );
         });
     let laser_thread = thread::Builder::new()
         .name("laser".to_string())
         .spawn(move || loop {
             laser.send_message(
-                fs::read_to_string("./src/main.rs").unwrap(),
+                fs::read_to_string("./src/lasers.rs").unwrap(),
                 // "Hello World ".to_string(),
             );
             thread::sleep(Duration::from_millis(250))
