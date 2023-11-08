@@ -115,8 +115,8 @@ impl Receiver {
             println!("bit time {}", bit_time);
             match bit_time {
                 i64::MIN..=-0_i64 => continue,
-                1..=90 => data.push(0),
-                91..=900 => data.push(1),
+                1..=75 => data.push(0),
+                76..=900 => data.push(1),
                 901..=1500 => {
                     continue;
                 }
