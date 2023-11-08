@@ -96,7 +96,7 @@ impl Receiver {
         let end = chrono::Utc::now();
         let initiation_time = (end - begin).num_microseconds().expect("micro");
         if (900 < initiation_time) && (initiation_time < 1100) {
-            println!("Incoming message detected...\n");
+            println!("\nIncoming message detected...\n");
             // Data reception
             'outer: loop {
                 while self.in_.read_value().expect("Error reading pin") == Low {
@@ -112,8 +112,9 @@ impl Receiver {
                 match bit_time {
                     i64::MIN..=-0_i64 => continue,
                     1..=250 => data.push(0),
-                    251..=1500 => data.push(1),
-                    1501.. => break 'outer, // Termination sequence.
+                    251..=900 => data.push(1),
+                    901..=1100 => {data.clear(); continue},
+                    1101.. => break 'outer, // Termination sequence.
                 };
             }
         }
@@ -151,12 +152,12 @@ impl Receiver {
     pub fn print_message(&mut self) -> (f32, i64) {
         let start = chrono::Utc::now();
         let data = self.receive_message();
-        println!("Message received. validating...\n");
+        println!("Message received. Validating...\n");
         let (codes, valid) = self.validate(&data);
         let num_kbytes = codes.clone().len() as f32 / 1000.0;
         if !valid {
             println!("ERROR: Invalid data detected.\n\n");
-            return (num_kbytes, 1);
+            return (num_kbytes, (chrono::Utc::now() - start).num_seconds());
         }
         let mut message: String = "".to_string();
         for code in codes {
