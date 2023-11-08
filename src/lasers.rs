@@ -85,7 +85,7 @@ impl Receiver {
     fn receive_message(&mut self) -> Vec<u32> {
         let mut data = Vec::new();
         let initiation_time: f64 = 0.0;
-        while !((900.0 < initiation_time) && (initiation_time < 1400.0)) {
+        while !(900.0 < initiation_time) && !(initiation_time < 1400.0) {
             println!("Awaiting transmission...");
             // Detect initiation sequence.
             while self.in_.read_value().expect("Error reading pin") == Low {
