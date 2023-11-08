@@ -18,10 +18,7 @@ fn main() {
     let receiver_thread = thread::Builder::new()
         .name("receiver".to_string())
         .spawn(move || loop {
-            let start = chrono::Utc::now();
-            let kbytes = receiver.print_message();
-            let end = chrono::Utc::now();
-            let seconds = (end - start).num_seconds();
+            let (kbytes, seconds) = receiver.print_message();
             println!(
                 "Message in {} sec\nKB/s {}",
                 seconds,

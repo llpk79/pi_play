@@ -148,7 +148,8 @@ impl Receiver {
         (codes, min / max > 0.95)
     }
 
-    pub fn print_message(&mut self) -> f32 {
+    pub fn print_message(&mut self) -> (f32, i64) {
+        let start = chrono::Utc::now();
         let data = self.receive_message();
         println!("Message received. validating...\n");
         let (codes, valid) = self.validate(&data);
@@ -165,7 +166,9 @@ impl Receiver {
             }
         }
         fs::write("./test.txt", &message).expect("file not written");
+        let end = chrono::Utc::now();
+        let seconds = (end - start).num_seconds();
         println!("Validated message:\n\n{}\n\n", message);
-        num_kbytes
+        (num_kbytes, seconds)
     }
 }
