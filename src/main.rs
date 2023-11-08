@@ -21,7 +21,7 @@ fn main() {
         .name("laser".to_string())
         .spawn(move || loop {
             laser.send_message(
-                fs::read_to_string("./src/lasers.rs").unwrap(),
+                fs::read_to_string("./src/main.rs").unwrap(),
                 // "Hello World ".to_string(),
             );
             thread::sleep(Duration::from_millis(250))
