@@ -129,7 +129,7 @@ impl Receiver {
 
     fn validate(&mut self, data: &Vec<u32>) -> (Vec<u32>, bool) {
         let data_len = data.len();
-        if !data.len() < 40 {
+        if data.len() < 40 {
             return (Vec::from([0]), false);
         }
         let mut check: u32 = 0;
