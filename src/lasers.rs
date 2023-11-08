@@ -113,7 +113,7 @@ impl Receiver {
                     i64::MIN..=-0_i64 => continue,
                     1..=250 => data.push(0),
                     251..=900 => data.push(1),
-                    901..=1500 => {data.clear(); continue},
+                    901..=1500 => {data.clear(); break 'outer},
                     1501.. => break 'outer, // Termination sequence.
                 };
             }
@@ -122,16 +122,17 @@ impl Receiver {
     }
 
     fn validate(&mut self, data: &Vec<u32>) -> (Vec<u32>, bool) {
+        let data_len = data.len();
         if !data.len() < 40 {
             return (Vec::from([0]), false);
         }
         let mut check: u32 = 0;
         let mut sum: u32 = 0;
         let mut codes: Vec<u32> = Vec::new();
-        for i in (0..data.len() - 32).step_by(8) {
+        for i in (0..data_len - 32).step_by(8) {
             let mut byte = 0;
             for j in 0..8 {
-                if i + j >= data.len() {
+                if i + j >= data_len {
                     // I do not know why this happens sometimes.
                     break;
                 }
@@ -140,7 +141,7 @@ impl Receiver {
             sum += byte;
             codes.push(byte);
         }
-        for (i, code) in data[data.len() - 32..data.len()].iter().enumerate() {
+        for (i, code) in data[data_len - 32..data_len].iter().enumerate() {
             check += *code << i;
         }
         // VERY roughly estimate data fidelity.
