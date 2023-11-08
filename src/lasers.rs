@@ -62,7 +62,7 @@ impl Laser {
                     self.out.set_value(false).expect("Error setting pin");
                 }
             }
-            thread::sleep(Duration::from_micros(50))
+            thread::sleep(Duration::from_micros(75))
         }
 
         // Termination sequence.
@@ -115,8 +115,8 @@ impl Receiver {
             println!("bit time {}", bit_time);
             match bit_time {
                 i64::MIN..=-0_i64 => continue,
-                1..=150 => data.push(0),
-                151..=900 => data.push(1),
+                1..=175 => data.push(0),
+                176..=900 => data.push(1),
                 901..=1500 => {
                     // data.clear();
                     // break 'outer;
