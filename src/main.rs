@@ -13,7 +13,7 @@ fn main() {
                 fs::read_to_string("./src/main.rs").unwrap(),
                 // "Hello World ".to_string(),
             );
-            thread::sleep(Duration::from_secs(4))
+            thread::sleep(Duration::from_secs(2))
         });
     let receiver_thread = thread::Builder::new()
         .name("receiver".to_string())
@@ -24,7 +24,7 @@ fn main() {
                 seconds,
                 kbytes / seconds as f32
             );
-            thread::sleep(Duration::from_secs(3));
+            // thread::sleep(Duration::from_secs(3));
         });
     laser_thread.unwrap().join().unwrap();
     receiver_thread.unwrap().join().unwrap();

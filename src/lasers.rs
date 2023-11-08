@@ -118,8 +118,9 @@ impl Receiver {
                 1..=250 => data.push(0),
                 251..=900 => data.push(1),
                 901..=1500 => {
-                    data.clear();
-                    break 'outer;
+                    // data.clear();
+                    // break 'outer;
+                    continue;
                 }
                 1501.. => break 'outer, // Termination sequence.
             };
