@@ -175,7 +175,7 @@ impl Receiver {
         }
         fs::write("./test.txt", &message).expect("file not written");
         let end = chrono::Utc::now();
-        let seconds = (end - start).num_seconds();
+        let seconds = (end - start).num_milliseconds();
         println!("Validated message:\n\n{}\n\n", message);
         (num_kbytes, seconds)
     }

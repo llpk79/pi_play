@@ -23,7 +23,7 @@ fn main() {
                 fs::read_to_string("./src/main.rs").unwrap(),
                 // "Hello World ".to_string(),
             );
-            // thread::sleep(Duration::from_secs(2))
+            thread::sleep(Duration::from_millis(250))
         });
     laser_thread.unwrap().join().unwrap();
     receiver_thread.unwrap().join().unwrap();
