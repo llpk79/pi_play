@@ -193,7 +193,6 @@ impl Receiver {
                 error,
             );
         }
-        fs::write("./test.txt", &message).expect("file not written");
         let end = chrono::Utc::now();
         let seconds = (end - start).num_milliseconds() as f64 / 1000.0f64;
         println!("Validated message:\n\n{}\n\n", message);
