@@ -11,7 +11,7 @@ fn main() {
         .spawn(move || loop {
             let (kbytes, seconds) = receiver.print_message();
             println!(
-                "Message in {} sec\nKB/s {}",
+                "Message in {} sec\nKB/s {:.3}",
                 seconds,
                 kbytes as f64 / seconds
             );
