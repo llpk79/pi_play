@@ -84,7 +84,6 @@ impl Receiver {
 
     fn receive_message(&mut self) -> Vec<u32> {
         let mut data = Vec::new();
-        println!("\nAwaiting transmission...");
         loop {
             // Detect initiation sequence.
             while self.in_.read_value().expect("Error reading pin") == Low {
@@ -127,10 +126,10 @@ impl Receiver {
         data
     }
 
-    fn validate(&mut self, data: &Vec<u32>) -> (Vec<u32>, bool) {
+    fn validate(&mut self, data: &Vec<u32>) -> (Vec<u32>, bool, f32) {
         let data_len = data.len();
         if data.len() < 40 {
-            return (Vec::from([0]), false);
+            return (Vec::from([0]), false, 0.0);
         }
         let mut check: u32 = 0;
         let mut sum: u32 = 0;
@@ -153,18 +152,20 @@ impl Receiver {
         // VERY roughly estimate data fidelity.
         let min = min(sum, check) as f32;
         let max = max(sum, check) as f32;
-        (codes, min / max > 0.99)
+        let error = min / max;
+        (codes, error > 0.99, error)
     }
 
-    pub fn print_message(&mut self) -> (f32, f64) {
+    pub fn print_message(&mut self) -> (f32, f64, f32) {
         let start = chrono::Utc::now();
+        println!("\nAwaiting transmission...");
         let data = self.receive_message();
         println!("Message received. Validating...\n");
-        let (codes, valid) = self.validate(&data);
+        let (codes, valid, error) = self.validate(&data);
         let num_kbytes = codes.clone().len() as f32 / 1000.0;
         if !valid {
             println!("ERROR: Invalid data detected.\n\n");
-            return (num_kbytes, ((chrono::Utc::now() - start).num_milliseconds() / 1000) as f64);
+            return (num_kbytes, ((chrono::Utc::now() - start).num_milliseconds() / 1000) as f64, error);
         }
         let mut message: String = "".to_string();
         for code in codes {
@@ -177,6 +178,6 @@ impl Receiver {
         let end = chrono::Utc::now();
         let seconds = ((end - start).num_milliseconds() / 1000) as f64;
         println!("Validated message:\n\n{}\n\n", message);
-        (num_kbytes, seconds)
+        (num_kbytes, seconds, error)
     }
 }

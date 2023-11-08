@@ -9,11 +9,12 @@ fn main() {
     let receiver_thread = thread::Builder::new()
         .name("receiver".to_string())
         .spawn(move || loop {
-            let (kbytes, seconds) = receiver.print_message();
+            let (kbytes, seconds, error) = receiver.print_message();
             println!(
-                "Message in {} sec\nKB/s {:.3}",
+                "Message in {} sec\nKB/s {:.3}\n'Error' {}",
                 seconds,
-                kbytes as f64 / seconds
+                kbytes as f64 / seconds,
+                error,
             );
         });
     let laser_thread = thread::Builder::new()
