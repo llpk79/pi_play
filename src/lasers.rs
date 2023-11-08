@@ -58,7 +58,7 @@ impl Laser {
                 }
                 false => {
                     self.out.set_value(true).expect("Error setting pin");
-                    thread::sleep(Duration::from_micros(25));
+                    thread::sleep(Duration::from_micros(15));
                     self.out.set_value(false).expect("Error setting pin");
                 }
             }
