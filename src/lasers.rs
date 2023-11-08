@@ -96,6 +96,7 @@ impl Receiver {
             }
             let end = chrono::Utc::now();
             let initiation_time = (end - begin).num_microseconds().expect("micro");
+            println!("initiation time {}", initiation_time);
             if (1000 < initiation_time) && (initiation_time < 1400) {
                 break;
             }
