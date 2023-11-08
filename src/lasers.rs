@@ -113,8 +113,8 @@ impl Receiver {
                     i64::MIN..=-0_i64 => continue,
                     1..=250 => data.push(0),
                     251..=900 => data.push(1),
-                    901..=1100 => {data.clear(); continue},
-                    1101.. => break 'outer, // Termination sequence.
+                    901..=1500 => {data.clear(); continue},
+                    1501.. => break 'outer, // Termination sequence.
                 };
             }
         }
