@@ -22,7 +22,7 @@ fn main() {
         .name("laser".to_string())
         .spawn(move || loop {
             laser.send_message(
-                fs::read_to_string("./src/Traffic_Flow_Map_Volumes.csv").unwrap(),
+                fs::read_to_string("./src/lasers.rs").unwrap(),
                 // "Hello World ".to_string(),
             );
             thread::sleep(Duration::from_millis(250))
