@@ -1,8 +1,8 @@
 use gpio::GpioValue::{High, Low};
 use gpio::{GpioIn, GpioOut};
 use std::cmp::{max, min};
+use std::thread;
 use std::time::Duration;
-use std::{fs, thread};
 
 const LASER_PIN: u16 = 18;
 const RECEIVER_PIN: u16 = 23;
@@ -43,20 +43,21 @@ impl Laser {
         data
     }
 
-    /// Initiate message with 1000 us pulse.
+    /// Initiate message with 500 us pulse.
     ///
     /// Transmit message; long pulse = 1 short pulse = 0.
     ///
-    /// Terminate message with 1500 us pulse.
+    /// Terminate message with 1000 us pulse.
     pub fn send_message(&mut self, message: String) {
-        // Initiation sequence.
-        thread::sleep(Duration::from_micros(1000));
-        self.out.set_value(true).expect("Error setting pin");
-        thread::sleep(Duration::from_micros(1000));
-        self.out.set_value(false).expect("Error setting pin");
-        thread::sleep(Duration::from_micros(500));
-
         let encoded_message = self.encode_message(message);
+
+        // Initiation sequence.
+        self.out.set_value(false).expect("Error setting pin");
+        thread::sleep(Duration::from_micros(50));
+        self.out.set_value(true).expect("Error setting pin");
+        thread::sleep(Duration::from_micros(500));
+        self.out.set_value(false).expect("Error setting pin");
+        thread::sleep(Duration::from_micros(50));
 
         // Begin message transmission.
         for bit in encoded_message {
@@ -78,9 +79,8 @@ impl Laser {
 
         // Termination sequence.
         self.out.set_value(true).expect("Error setting pin");
-        thread::sleep(Duration::from_micros(1500));
+        thread::sleep(Duration::from_micros(1000));
         self.out.set_value(false).expect("Error setting pin");
-        thread::sleep(Duration::from_micros(100));
     }
 }
 
@@ -99,8 +99,8 @@ impl Receiver {
     /// Return data upon termination sequence
     fn receive_message(&mut self) -> Vec<u32> {
         let mut data = Vec::new();
+        // Detect initiation sequence.
         loop {
-            // Detect initiation sequence.
             while self.in_.read_value().expect("Error reading pin") == Low {
                 continue;
             }
@@ -111,7 +111,7 @@ impl Receiver {
             }
             let end = chrono::Utc::now();
             let initiation_time = (end - begin).num_microseconds().expect("micro");
-            if (900 < initiation_time) && (initiation_time < 1400) {
+            if (400 < initiation_time) && (initiation_time < 600) {
                 break;
             }
         }
@@ -132,28 +132,27 @@ impl Receiver {
             match bit_time {
                 i64::MIN..=-0_i64 => continue,
                 1..=95 => data.push(0),
-                96..=900 => data.push(1),
-                901..=1500 => {
-                    continue;
-                }
-                1501.. => break 'outer, // Termination sequence.
+                96..=200 => data.push(1),
+                201..=999 => continue,
+                1000.. => break 'outer, // Termination sequence.
             };
         }
-
         data
     }
 
     /// Decode binary into string and return.
     /// Add char codes and return boolean comparison with check_sum.
-    /// Return check_sum.
+    /// Return error.
     fn decode(&mut self, data: &Vec<u32>) -> (String, bool, f32) {
         let data_len = data.len();
+        // Min one byte message plus check sum.
         if data.len() < 40 {
             return ("".to_string(), false, 0.0);
         }
-        let mut check: u32 = 0;
         let mut sum: u32 = 0;
         let mut message = "".to_string();
+
+        // Get int from each byte, convert to char, append to message.
         for i in (0..data_len - 32).step_by(8) {
             let mut byte = 0;
             for j in 0..8 {
@@ -162,6 +161,9 @@ impl Receiver {
             sum += byte;
             message = message + &format!("{}", char::from_u32(byte).expect("Error decoding char"));
         }
+
+        // Get check sum.
+        let mut check: u32 = 0;
         for (i, bit) in data[data_len - 32..data_len].iter().enumerate() {
             check += *bit << i;
         }
@@ -175,26 +177,22 @@ impl Receiver {
     /// Call receive and decode methods.
     /// Char codes -> chars -> String.
     /// Print to stdout
-    /// Return num Kbytes, seconds and error
+    /// Return num kilobytes, seconds and error
     pub fn print_message(&mut self) -> (f32, f64, f32) {
         let start = chrono::Utc::now();
         println!("\nAwaiting transmission...");
-
         let data = self.receive_message();
-        println!("Message received. Validating...\n");
 
+        println!("Message received. Validating...\n");
         let (message, valid, error) = self.decode(&data);
+
         let num_kbytes = message.clone().len() as f32 / 1000.0;
-        if !valid {
-            println!("ERROR: Invalid data detected.\n\n");
-            return (
-                num_kbytes,
-                ((chrono::Utc::now() - start).num_milliseconds() as f64 / 1000.0f64),
-                error,
-            );
-        }
         let end = chrono::Utc::now();
         let seconds = (end - start).num_milliseconds() as f64 / 1000.0f64;
+        if !valid {
+            println!("ERROR: Invalid data detected.\n\n");
+            return (num_kbytes, seconds, error);
+        }
         println!("Validated message:\n\n{}\n\n", message);
         (num_kbytes, seconds, error)
     }
