@@ -119,7 +119,6 @@ impl Receiver {
         }
     }
 
-    /// Loop while checking for initiation sequence.
     /// Push 1 for long pulse, 0 for short.
     /// Return data upon termination sequence
     fn receive_message(&mut self) -> Vec<u32> {

@@ -5,6 +5,7 @@ use std::{fs, thread};
 fn main() {
     let mut laser = Laser::new();
     let mut receiver = Receiver::new();
+    let message = fs::read_to_string("./src/main.rs").expect("error opening file");
 
     let receiver_thread = thread::Builder::new()
         .name("receiver".to_string())
@@ -16,7 +17,7 @@ fn main() {
         .name("laser".to_string())
         .spawn(move || loop {
             laser.send_message(
-                fs::read_to_string("./src/main.rs").unwrap(),
+                message.clone(),
                 // "Hello World ".to_string(),
             );
             thread::sleep(Duration::from_millis(250))
