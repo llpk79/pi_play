@@ -17,7 +17,7 @@ fn main() {
         .name("laser".to_string())
         .spawn(move || loop {
             laser.send_message(message.clone());
-            thread::sleep(Duration::from_millis(250))
+            thread::sleep(Duration::from_millis(2500))
         });
 
     laser_thread.unwrap().join().unwrap();
