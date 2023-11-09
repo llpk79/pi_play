@@ -30,6 +30,8 @@ impl Laser {
     fn encode_message(&mut self, message: String) -> Vec<u8> {
         let mut data = Vec::new();
         let mut check_sum: i32 = 0;
+
+        // Add char code to checksum, push char data bitwise.
         for char in message.chars() {
             let code = char as u8;
             check_sum += code as i32;
@@ -37,6 +39,7 @@ impl Laser {
                 data.push(bit);
             }
         }
+        // Push checksum data bitwise.
         for bit in (0..32).map(|n| (check_sum >> n) & 1) {
             data.push(bit as u8);
         }
@@ -94,11 +97,8 @@ impl Receiver {
         Self { in_ }
     }
 
-    /// Loop while checking for initiation sequence.
-    /// Push 1 for long pulse, 0 for short.
-    /// Return data upon termination sequence
-    fn receive_message(&mut self) -> Vec<u32> {
-        let mut data = Vec::new();
+    /// Loop until initiation sequence is detected.
+    fn detect_message(&mut self) {
         // Detect initiation sequence.
         loop {
             while self.in_.read_value().expect("Error reading pin") == Low {
@@ -111,13 +111,21 @@ impl Receiver {
             }
             let end = chrono::Utc::now();
             let initiation_time = (end - begin).num_microseconds().expect("micro");
-            if (400 < initiation_time) && (initiation_time < 600) {
-                break;
+            match initiation_time {
+                i64::MIN..=400 => continue,
+                401..=900 => break,
+                901.. => continue,
             }
         }
-        println!("\nIncoming message detected...\n");
+    }
+
+    /// Loop while checking for initiation sequence.
+    /// Push 1 for long pulse, 0 for short.
+    /// Return data upon termination sequence
+    fn receive_message(&mut self) -> Vec<u32> {
+        let mut data = Vec::new();
         // Data reception
-        'outer: loop {
+        loop {
             while self.in_.read_value().expect("Error reading pin") == Low {
                 continue;
             }
@@ -130,22 +138,22 @@ impl Receiver {
             let bit_time = (end - start).num_microseconds().expect("micro");
             // println!("bit time {}", bit_time);
             match bit_time {
-                i64::MIN..=-0_i64 => continue,
+                i64::MIN..=-0 => continue,
                 1..=95 => data.push(0),
                 96..=200 => data.push(1),
                 201..=999 => continue,
-                1000.. => break 'outer, // Termination sequence.
+                1000.. => break, // Termination sequence.
             };
         }
         data
     }
 
     /// Decode binary into string and return.
-    /// Add char codes and return boolean comparison with check_sum.
+    /// Sum char codes and return boolean comparison with checksum.
     /// Return error.
     fn decode(&mut self, data: &Vec<u32>) -> (String, bool, f32) {
         let data_len = data.len();
-        // Min one byte message plus check sum.
+        // Min one byte message plus checksum.
         if data.len() < 40 {
             return ("".to_string(), false, 0.0);
         }
@@ -162,7 +170,7 @@ impl Receiver {
             message = message + &format!("{}", char::from_u32(byte).expect("Error decoding char"));
         }
 
-        // Get check sum.
+        // Get checksum.
         let mut check: u32 = 0;
         for (i, bit) in data[data_len - 32..data_len].iter().enumerate() {
             check += *bit << i;
@@ -175,25 +183,31 @@ impl Receiver {
     }
 
     /// Call receive and decode methods.
-    /// Char codes -> chars -> String.
     /// Print to stdout
-    /// Return num kilobytes, seconds and error
-    pub fn print_message(&mut self) -> (f32, f64, f32) {
+    pub fn print_message(&mut self) {
         let start = chrono::Utc::now();
         println!("\nAwaiting transmission...");
+        self.detect_message();
+
+        println!("\nIncoming message detected...\n");
         let data = self.receive_message();
+        let (message, valid, error) = self.decode(&data);
 
         println!("Message received. Validating...\n");
-        let (message, valid, error) = self.decode(&data);
+        match valid {
+            true => println!("Validated message:\n\n{}\n\n", message),
+            false => println!("ERROR: Invalid data detected.\n\n"),
+        }
 
         let num_kbytes = message.clone().len() as f32 / 1000.0;
         let end = chrono::Utc::now();
         let seconds = (end - start).num_milliseconds() as f64 / 1000.0f64;
-        if !valid {
-            println!("ERROR: Invalid data detected.\n\n");
-            return (num_kbytes, seconds, error);
-        }
-        println!("Validated message:\n\n{}\n\n", message);
-        (num_kbytes, seconds, error)
+
+        println!(
+            "Message in {:.3} sec\nKB/s {:.3}\n'Error' {:.3}",
+            seconds,
+            num_kbytes as f64 / seconds,
+            1.0 - error,
+        );
     }
 }
