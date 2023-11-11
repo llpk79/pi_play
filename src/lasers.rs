@@ -205,7 +205,7 @@ impl Receiver {
         let mut decompressed: Vec<u8> = Vec::new();
         let mut start_bit = compressed[0];
         let comp_length = compressed.len();
-        for i in (1..comp_length - 1).step_by(4) {
+        for i in (1..comp_length - 2).step_by(4) {
             let mut bit_run = 0;
             for j in 0..4 {
                 bit_run += compressed[i + j] << j;
