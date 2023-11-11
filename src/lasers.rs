@@ -52,8 +52,8 @@ impl Laser {
     /// Transmit message; long pulse = 1 short pulse = 0.
     ///
     /// Terminate message with 1000 us pulse.
-    pub fn send_message(&mut self, message: String) {
-        let encoded_message = self.encode_message(message);
+    pub fn send_message(&mut self, message: &Vec<u32>) {
+        // let encoded_message = self.encode_message(message);
 
         // Initiation sequence.
         self.out.set_value(false).expect("Error setting pin");
@@ -64,8 +64,8 @@ impl Laser {
         thread::sleep(Duration::from_micros(50));
 
         // Begin message transmission.
-        for bit in encoded_message {
-            match bit == 1 {
+        for bit in message {
+            match *bit == 1 {
                 true => {
                     self.out.set_value(true).expect("Error setting pin");
                     thread::sleep(Duration::from_micros(25));

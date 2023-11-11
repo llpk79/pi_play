@@ -29,7 +29,7 @@ fn main() {
     let laser_thread = thread::Builder::new()
         .name("laser".to_string())
         .spawn(move || loop {
-            laser.send_message(encoded_message.clone());
+            laser.send_message(&encoded_message);
             thread::sleep(Duration::from_millis(2500))
         });
 
