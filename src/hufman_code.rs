@@ -36,8 +36,8 @@ impl HuffTree {
         }
         node_vec.sort_by(|a, b| a.freq.cmp(&b.freq));
         while node_vec.len() > 1 {
-            let mut node1 = node_vec.remove(0);
-            let mut node2 = node_vec.remove(0);
+            let node1 = node_vec.remove(0);
+            let node2 = node_vec.remove(0);
             let mut new_node = Node::new(node1.freq + node2.freq, None);
             new_node.left = Some(Box::new(node1));
             new_node.right = Some(Box::new(node2));
