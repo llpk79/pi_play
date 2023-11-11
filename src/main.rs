@@ -8,7 +8,8 @@ fn main() {
     let mut receiver = Receiver::new();
     let message = fs::read_to_string("./src/temp_humid.rs").expect("error opening file");
     // let message = "Hello.".to_string();
-    // Create huffman encoding for message utilizing BinaryHeap.
+
+    // Encode message with Huffman coding.
     let mut heap = BinaryHeap::new();
     let mut freq_map = HashMap::new();
     for char in message.chars() {
@@ -23,33 +24,34 @@ fn main() {
         let (freq2, _) = heap.pop().unwrap();
         heap.push((freq1 + freq2, '%'));
     }
+    let mut code_map = HashMap::new();
+    let mut code = String::new();
 
-    // traverse tree to create encoding map.
+    // Recursively traverse Huffman tree to generate code map.
     fn traverse_tree(
         node: &mut BinaryHeap<(i32, char)>,
-        encoding_map: &mut HashMap<char, String>,
-        encoding: String,
+        code_map: &mut HashMap<char, String>,
+        code: &mut String,
     ) {
         if let Some((_, char)) = node.peek() {
-            if char != &'%' {
-                encoding_map.insert(*char, encoding.clone());
+            if *char != '%' {
+                code_map.insert(*char, code.clone());
             }
         }
         if let Some((_, char)) = node.pop() {
-            traverse_tree(node, encoding_map, encoding.clone() + "0");
-            traverse_tree(node, encoding_map, encoding + "1");
+            code.push('0');
+            traverse_tree(node, code_map, code);
+            code.pop();
+            code.push('1');
+            traverse_tree(node, code_map, code);
+            code.pop();
         }
     }
 
-    let mut encoding_map = HashMap::new();
-    traverse_tree(&mut heap, &mut encoding_map, "".to_string());
+    traverse_tree(&mut heap, &mut code_map, &mut code);
+    println!("{:?}", code_map);
 
-    // encode message.
-    let mut encoded_message = String::new();
-    for char in message.chars() {
-        encoded_message += &encoding_map[&char];
-    }
-    println!("encoded message {}", encoded_message);
+
 
     let receiver_thread = thread::Builder::new()
         .name("receiver".to_string())
