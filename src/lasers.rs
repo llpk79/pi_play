@@ -176,7 +176,7 @@ impl Receiver {
         let min = min(sum, check) as f32;
         let max = max(sum, check) as f32;
         let error = min / max;
-        (error > 0.99, error)
+        (error > 0.995, error)
     }
 
     /// Call receive and decode methods.
@@ -202,7 +202,7 @@ impl Receiver {
         let seconds = (end - start).num_milliseconds() as f64 / 1000.0f64;
 
         println!(
-            "Message in {:.3} sec\nKB/s {:.3}\n'Error' {:.3}",
+            "Message in {:.3} sec\nKB/s {:.3}\n'Error' {:.5}",
             seconds,
             num_kbytes as f64 / seconds,
             1.0 - error,
