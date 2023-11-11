@@ -46,6 +46,25 @@ impl Laser {
         data
     }
 
+    fn compress(&mut self, data: &Vec<u8>) -> Vec<u8> {
+        let mut compressed: Vec<u8> = Vec::new();
+        compressed.push(data[0]);
+        let mut bit_run = 0;
+        let mut current_bit = data[1];
+        for bit in data {
+            match *bit == current_bit {
+                true => bit_run += 1,
+                false => {
+                    for comp_bit in (0..4).map(|n| (bit_run >> n) & 1) {
+                        compressed.push(comp_bit);
+                    }
+                    current_bit = *bit
+                }
+            }
+        }
+        compressed
+    }
+
     /// Initiate message with 500 us pulse.
     ///
     /// Transmit message; long pulse = 1 short pulse = 0.
@@ -53,6 +72,7 @@ impl Laser {
     /// Terminate message with 1000 us pulse.
     pub fn send_message(&mut self, message: String) {
         let encoded_message = self.encode_message(message);
+        let compressed_message = self.compress(&encoded_message);
 
         // Initiation sequence.
         self.out.set_value(false).expect("Error setting pin");
@@ -63,7 +83,7 @@ impl Laser {
         thread::sleep(Duration::from_micros(50));
 
         // Begin message transmission.
-        for bit in encoded_message {
+        for bit in compressed_message {
             match bit == 1 {
                 true => {
                     self.out.set_value(true).expect("Error setting pin");
@@ -121,7 +141,7 @@ impl Receiver {
 
     /// Push 1 for long pulse, 0 for short.
     /// Return data upon termination sequence
-    fn receive_message(&mut self) -> Vec<u32> {
+    fn receive_message(&mut self) -> Vec<u8> {
         let mut data = Vec::new();
         // Data reception
         loop {
@@ -150,7 +170,7 @@ impl Receiver {
     /// Decode binary into string and return.
     /// Sum char codes and return boolean comparison with checksum.
     /// Return error.
-    fn decode(&mut self, data: &Vec<u32>) -> (String, bool, f32) {
+    fn decode(&mut self, data: &Vec<u8>) -> (String, bool, f32) {
         let data_len = data.len();
         // Min one byte message plus checksum.
         if data.len() < 40 {
@@ -161,9 +181,9 @@ impl Receiver {
 
         // Get int from each byte, convert to char, append to message.
         for i in (0..data_len - 32).step_by(8) {
-            let mut byte = 0;
+            let mut byte: u32 = 0;
             for j in 0..8 {
-                byte += data[i + j] << j as u32;
+                byte += (data[i + j] << j) as u32;
             }
             sum += byte;
             message = message + &format!("{}", char::from_u32(byte).expect("Error decoding char"));
@@ -172,13 +192,35 @@ impl Receiver {
         // Get checksum.
         let mut check: u32 = 0;
         for (i, bit) in data[data_len - 32..data_len].iter().enumerate() {
-            check += *bit << i;
+            check += (*bit << i) as u32;
         }
         // VERY roughly estimate data fidelity.
         let min = min(sum, check) as f32;
         let max = max(sum, check) as f32;
         let error = min / max;
         (message, error > 0.99, error)
+    }
+
+    fn decompress(&mut self, compressed: &Vec<u8>) -> Vec<u8> {
+        let mut decompressed: Vec<u8> = Vec::new();
+        let mut start_bit = compressed[0];
+        let comp_length = compressed.len();
+        for i in (1..comp_length - 1).step_by(4) {
+            let mut bit_run = 0;
+            for j in 0..4 {
+                bit_run += compressed[i + j] << j;
+            }
+            for _ in 0..bit_run {
+                decompressed.push(start_bit);
+                start_bit = match start_bit {
+                    0 => 1,
+                    1 => 0,
+                    _ => continue,
+                }
+            }
+        }
+
+        decompressed
     }
 
     /// Call receive and decode methods.
@@ -190,8 +232,8 @@ impl Receiver {
 
         println!("\nIncoming message detected...\n");
         let data = self.receive_message();
-        let (message, valid, error) = self.decode(&data);
-
+        let decompressed = self.decompress(&data);
+        let (message, valid, error) = self.decode(&decompressed);
         println!("Message received. Validating...\n");
         match valid {
             true => println!("Validated message:\n\n{}\n\n", message),
