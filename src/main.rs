@@ -9,7 +9,7 @@ fn main() {
     let mut laser = Laser::new();
     let mut receiver = Receiver::new();
     // let message = fs::read_to_string("./src/lib.rs").expect("error opening file");
-    let message = "Hello World.".to_string();
+    let mut message = "Hello World.".to_string();
     let mut freq_map = HashMap::new();
     for char in message.chars() {
         let cout = freq_map.entry(char).or_insert(0);
@@ -18,7 +18,7 @@ fn main() {
     println!("freq_map: {:?}", freq_map);
     let mut huff_tree = HuffTree::new();
     huff_tree.build_tree(freq_map);
-    let encoded_message = huff_tree.encode_string(message.clone());
+    let encoded_message = huff_tree.encode_string(&mut message);
 
     let receiver_thread = thread::Builder::new()
         .name("receiver".to_string())
