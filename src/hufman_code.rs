@@ -39,7 +39,7 @@ impl HuffTree {
                 Node::new_box(Node::new(*freq, Some(*char_)))
             }).collect()
         };
-        while node_vec.len() > 1 {
+        while node_vec.len() > 2 {
             node_vec.sort_by(|a, b| (&(b.freq)).cmp(&(a.freq)));
             let node1 = node_vec.pop().unwrap();
             let node2 = node_vec.pop().unwrap();
@@ -51,7 +51,7 @@ impl HuffTree {
         self.root = Some(node_vec.pop().unwrap());
     }
 
-    pub fn encode(&self, message: String) -> String {
+    pub fn encode(&mut self, message: String) -> String {
         let mut encoded_message = String::new();
         for char_ in message.chars() {
             encoded_message += &self.encode_char(char_);
@@ -59,7 +59,7 @@ impl HuffTree {
         encoded_message
     }
 
-    fn encode_char(&self, char_: char) -> String {
+    fn encode_char(&mut self, char_: char) -> String {
         let mut encoded_char = String::new();
         let mut node = self.root.as_ref().unwrap();
         while node.char_.is_none() {
@@ -74,17 +74,21 @@ impl HuffTree {
         encoded_char
     }
 
-    pub fn decode(&self, message: Vec<u32>) -> String {
+    pub fn decode(&mut self, message: Vec<u32>) -> String {
         let mut decoded_message = String::new();
         let mut node = self.root.as_ref().unwrap();
         for bit in message {
             if bit == 0 {
-                node = node.left.as_ref().unwrap();
+                if let Some(ref left) = &node.left {
+                    node = left;
+                }
             } else {
-                node = node.right.as_ref().unwrap();
+                if let Some(ref right) = &node.right {
+                    node = right;
+                }
             }
-            if node.char_.is_some() {
-                decoded_message += &node.char_.unwrap().to_string();
+            if let Some(ch) = node.char_ {
+                decoded_message.push(ch);
                 node = self.root.as_ref().unwrap();
             }
         }

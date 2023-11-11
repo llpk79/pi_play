@@ -11,11 +11,11 @@ fn main() {
     // let message = fs::read_to_string("./src/lib.rs").expect("error opening file");
     let message = "Hello World.".to_string();
     let mut freq_map = HashMap::new();
-    println!("freq_map: {:?}", freq_map);
     for char in message.chars() {
         let cout = freq_map.entry(char).or_insert(0);
         *cout += 1;
     }
+    println!("freq_map: {:?}", freq_map);
     let mut huff_tree = HuffTree::new();
     huff_tree.build_tree(freq_map);
     let encoded_message = huff_tree.encode(message.clone());
