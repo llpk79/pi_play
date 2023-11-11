@@ -58,7 +58,6 @@ impl HuffTree {
         let mut encoded_message = Vec::new();
         let mut code_map = HashMap::new();
         assign_codes(&self.root.as_ref().unwrap(), &mut code_map, "".to_string());
-        println!("code_map: {:?}", code_map);
         for char in string.chars() {
             let code = code_map.get(&char).unwrap();
             for bit in code.chars() {

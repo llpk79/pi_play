@@ -17,7 +17,6 @@ fn main() {
     let mut huff_tree = HuffTree::new();
     huff_tree.build_tree(freq_map);
     let encoded_message = huff_tree.encode_string(&mut message);
-    println!("message {}\nencoded {}\n", message.len() * 8, encoded_message.clone().len());
 
     let receiver_thread = thread::Builder::new()
         .name("receiver".to_string())
