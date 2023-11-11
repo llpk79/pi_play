@@ -43,7 +43,7 @@ impl Laser {
         for bit in (0..32).map(|n| (check_sum >> n) & 1) {
             data.push(bit as u8);
         }
-        println!("data\n{:?}", data);
+        println!("data\n{:?}", data.len());
         data
     }
 
@@ -66,7 +66,7 @@ impl Laser {
         for comp_bit in (0..4).map(|n| (bit_run >> n) & 1) {
             compressed.push(comp_bit);
         }
-        println!("out comp\n{:?}", compressed);
+        println!("out comp\n{:?}", compressed.len());
         compressed
     }
 
