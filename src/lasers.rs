@@ -121,7 +121,7 @@ impl Receiver {
 
     /// Push 1 for long pulse, 0 for short.
     /// Return data upon termination sequence
-    fn receive_message(&mut self) -> Vec<u8> {
+    fn receive_message(&mut self) -> Vec<u32> {
         let mut data = Vec::new();
         // Data reception
         loop {
@@ -150,7 +150,7 @@ impl Receiver {
     /// Decode binary into string and return.
     /// Sum char codes and return boolean comparison with checksum.
     /// Return error.
-    fn decode(&mut self, data: &Vec<u8>) -> (String, bool, f32) {
+    fn decode(&mut self, data: &Vec<u32>) -> (String, bool, f32) {
         let data_len = data.len();
         // Min one byte message plus checksum.
         if data.len() < 40 {
@@ -161,9 +161,9 @@ impl Receiver {
 
         // Get int from each byte, convert to char, append to message.
         for i in (0..data_len - 32).step_by(8) {
-            let mut byte: u32 = 0;
+            let mut byte = 0;
             for j in 0..8 {
-                byte += (data[i + j] << j) as u32;
+                byte += data[i + j] << j as u32;
             }
             sum += byte;
             message = message + &format!("{}", char::from_u32(byte).expect("Error decoding char"));
@@ -172,7 +172,7 @@ impl Receiver {
         // Get checksum.
         let mut check: u32 = 0;
         for (i, bit) in data[data_len - 32..data_len].iter().enumerate() {
-            check += (*bit << i) as u32;
+            check += *bit << i;
         }
         // VERY roughly estimate data fidelity.
         let min = min(sum, check) as f32;
