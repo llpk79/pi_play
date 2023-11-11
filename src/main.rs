@@ -1,9 +1,8 @@
-use pi_play_lib::lasers::{Laser, Receiver};
 use pi_play_lib::hufman_code::HuffTree;
+use pi_play_lib::lasers::{Laser, Receiver};
+use std::collections::HashMap;
 use std::time::Duration;
 use std::{fs, thread};
-use std::collections::HashMap;
-
 
 fn main() {
     let mut laser = Laser::new();

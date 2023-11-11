@@ -1,9 +1,9 @@
+use crate::hufman_code::HuffTree;
 use gpio::GpioValue::{High, Low};
 use gpio::{GpioIn, GpioOut};
-use std::cmp::{max, min};
+// use std::cmp::{max, min};
 use std::thread;
 use std::time::Duration;
-use crate::hufman_code::HuffTree;
 
 const LASER_PIN: u16 = 18;
 const RECEIVER_PIN: u16 = 23;
@@ -26,26 +26,26 @@ impl Laser {
         Self { out }
     }
 
-    /// String -> char code -> `[bits]`.
-    /// Sum char codes to 32 bit int and append to data as check_sum.
-    fn encode_message(&mut self, message: String) -> Vec<u32> {
-        let mut data: Vec<u32> = Vec::new();
-        let mut check_sum: i32 = 0;
-
-        // Add char code to checksum, push char data bitwise.
-        for char in message.chars() {
-            let code = char as u8;
-            check_sum += code as i32;
-            for bit in (0..8).map(|n| (code >> n) & 1) {
-                data.push(bit as u32);
-            }
-        }
-        // Push checksum data bitwise.
-        for bit in (0..32).map(|n| (check_sum >> n) & 1) {
-            data.push(bit as u32);
-        }
-        data
-    }
+    // /// String -> char code -> `[bits]`.
+    // /// Sum char codes to 32 bit int and append to data as check_sum.
+    // fn encode_message(&mut self, message: String) -> Vec<u32> {
+    //     let mut data: Vec<u32> = Vec::new();
+    //     let mut check_sum: i32 = 0;
+    //
+    //     // Add char code to checksum, push char data bitwise.
+    //     for char in message.chars() {
+    //         let code = char as u8;
+    //         check_sum += code as i32;
+    //         for bit in (0..8).map(|n| (code >> n) & 1) {
+    //             data.push(bit as u32);
+    //         }
+    //     }
+    //     // Push checksum data bitwise.
+    //     for bit in (0..32).map(|n| (check_sum >> n) & 1) {
+    //         data.push(bit as u32);
+    //     }
+    //     data
+    // }
 
     /// Initiate message with 500 us pulse.
     ///
@@ -148,39 +148,39 @@ impl Receiver {
         data
     }
 
-    /// Decode binary into string and return.
-    /// Sum char codes and return boolean comparison with checksum.
-    /// Return error.
-    fn decode(&mut self, data: &Vec<u32>) -> (String, bool, f32) {
-        let data_len = data.len();
-        // Min one byte message plus checksum.
-        if data.len() < 40 {
-            return ("".to_string(), false, 0.0);
-        }
-        let mut sum: u32 = 0;
-        let mut message = "".to_string();
-
-        // Get int from each byte, convert to char, append to message.
-        for i in (0..data_len - 32).step_by(8) {
-            let mut byte = 0;
-            for j in 0..8 {
-                byte += data[i + j] << j as u32;
-            }
-            sum += byte;
-            message = message + &format!("{}", char::from_u32(byte).expect("Error decoding char"));
-        }
-
-        // Get checksum.
-        let mut check: u32 = 0;
-        for (i, bit) in data[data_len - 32..data_len].iter().enumerate() {
-            check += *bit << i;
-        }
-        // VERY roughly estimate data fidelity.
-        let min = min(sum, check) as f32;
-        let max = max(sum, check) as f32;
-        let error = min / max;
-        (message, error > 0.99, error)
-    }
+    // /// Decode binary into string and return.
+    // /// Sum char codes and return boolean comparison with checksum.
+    // /// Return error.
+    // fn decode(&mut self, data: &Vec<u32>) -> (String, bool, f32) {
+    //     let data_len = data.len();
+    //     // Min one byte message plus checksum.
+    //     if data.len() < 40 {
+    //         return ("".to_string(), false, 0.0);
+    //     }
+    //     let mut sum: u32 = 0;
+    //     let mut message = "".to_string();
+    //
+    //     // Get int from each byte, convert to char, append to message.
+    //     for i in (0..data_len - 32).step_by(8) {
+    //         let mut byte = 0;
+    //         for j in 0..8 {
+    //             byte += data[i + j] << j as u32;
+    //         }
+    //         sum += byte;
+    //         message = message + &format!("{}", char::from_u32(byte).expect("Error decoding char"));
+    //     }
+    //
+    //     // Get checksum.
+    //     let mut check: u32 = 0;
+    //     for (i, bit) in data[data_len - 32..data_len].iter().enumerate() {
+    //         check += *bit << i;
+    //     }
+    //     // VERY roughly estimate data fidelity.
+    //     let min = min(sum, check) as f32;
+    //     let max = max(sum, check) as f32;
+    //     let error = min / max;
+    //     (message, error > 0.99, error)
+    // }
 
     /// Call receive and decode methods.
     /// Print to stdout

@@ -1,7 +1,8 @@
 // Huffman encoding and decoding.
 
-use::std::collections::HashMap;
+use ::std::collections::HashMap;
 
+#[derive(Debug, Clone)]
 pub struct Node {
     freq: i32,
     char_: Option<char>,
@@ -9,6 +10,7 @@ pub struct Node {
     left: Option<Box<Node>>,
 }
 
+#[derive(Debug, Clone)]
 pub struct HuffTree {
     root: Option<Box<Node>>,
 }
@@ -35,9 +37,10 @@ impl HuffTree {
 
     pub fn build_tree(&mut self, freq_map: HashMap<char, i32>) {
         let mut node_vec: Vec<Box<Node>> = {
-            freq_map.iter().map(|(char_, freq)| {
-                Node::new_box(Node::new(*freq, Some(*char_)))
-            }).collect()
+            freq_map
+                .iter()
+                .map(|(char_, freq)| Node::new_box(Node::new(*freq, Some(*char_))))
+                .collect()
         };
         while node_vec.len() > 1 {
             node_vec.sort_by(|a, b| (&(b.freq)).cmp(&(a.freq)));
@@ -51,34 +54,10 @@ impl HuffTree {
         self.root = Some(node_vec.pop().unwrap());
     }
 
-    pub fn code_map(&mut self, string: &mut String) -> HashMap<char, String> {
-        let mut code_map = HashMap::new();
-        let mut root = self.root.as_ref().unwrap();
-        for char in string.chars() {
-           'inner: loop {
-                let mut code = String::new();
-                if root.char_ == Some(char) {
-                    code_map.insert(char, code);
-                    break 'inner;
-                }
-                else {
-                    if let Some(ref left) = &root.left {
-                        code = code + "0";
-                        root = left;
-                    }
-                    if let Some(ref right) = &root.right {
-                        code = code + "1";
-                        root = right;
-                    }
-                }
-            }
-        }
-        code_map
-    }
-
     pub fn encode_string(&mut self, string: &mut String) -> Vec<u32> {
         let mut encoded_message = Vec::new();
-        let code_map = self.code_map(string);
+        let mut code_map = HashMap::new();
+        assign_codes(&self.root.as_ref().unwrap(), &mut code_map, string.clone());
         println!("code_map: {:?}", code_map);
         for char in string.chars() {
             let code = code_map.get(&char).unwrap();
@@ -88,7 +67,6 @@ impl HuffTree {
         }
         encoded_message
     }
-
 
     pub fn decode(&mut self, message: Vec<u32>) -> String {
         let mut decoded_message = String::new();
@@ -112,3 +90,15 @@ impl HuffTree {
     }
 }
 
+pub fn assign_codes(tree: &Box<Node>, code_map: &mut HashMap<char, String>, string: String) {
+    if let Some(ch) = tree.char_ {
+        code_map.insert(ch, string);
+    } else {
+        if let Some(l) = &tree.left {
+            assign_codes(l, code_map, (string.clone() + "0"));
+        }
+        if let Some(r) = &tree.right {
+            assign_codes(r, code_map, (string.clone() + "1"));
+        }
+    }
+}
