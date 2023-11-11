@@ -56,6 +56,7 @@ impl Laser {
             match *bit == current_bit {
                 true => bit_run += 1,
                 false => {
+                    println!("bit {}\ncur {}\nrun {}", bit, current_bit, bit_run);
                     for comp_bit in (0..4).map(|n| (bit_run >> n) & 1) {
                         compressed.push(comp_bit);
                     }
