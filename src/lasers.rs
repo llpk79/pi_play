@@ -47,29 +47,6 @@ impl Laser {
         data
     }
 
-    fn compress(&mut self, data: &Vec<u8>) -> Vec<u8> {
-        let mut compressed: Vec<u8> = Vec::new();
-        compressed.push(data[0]);
-        let mut bit_run = 1;
-        let data_len = data.len();
-        for i in 1..data_len - 1 {
-            match data[i] == data[i - 1] {
-                true => bit_run += 1,
-                false => {
-                    for comp_bit in (0..4).map(|n| (bit_run >> n) & 1) {
-                        compressed.push(comp_bit);
-                    }
-                    bit_run = 1;
-                }
-            }
-        }
-        for comp_bit in (0..4).map(|n| (bit_run >> n) & 1) {
-            compressed.push(comp_bit);
-        }
-        println!("out comp\n{:?}", compressed.len());
-        compressed
-    }
-
     /// Initiate message with 500 us pulse.
     ///
     /// Transmit message; long pulse = 1 short pulse = 0.
@@ -77,7 +54,6 @@ impl Laser {
     /// Terminate message with 1000 us pulse.
     pub fn send_message(&mut self, message: String) {
         let encoded_message = self.encode_message(message);
-        let compressed_message = self.compress(&encoded_message);
 
         // Initiation sequence.
         self.out.set_value(false).expect("Error setting pin");
@@ -88,7 +64,7 @@ impl Laser {
         thread::sleep(Duration::from_micros(100));
 
         // Begin message transmission.
-        for bit in compressed_message {
+        for bit in encoded_message {
             match bit == 1 {
                 true => {
                     self.out.set_value(true).expect("Error setting pin");
@@ -206,44 +182,6 @@ impl Receiver {
         (message, error > 0.99, error)
     }
 
-    fn decompress(&mut self, compressed: &mut Vec<u8>) -> Vec<u8> {
-        println!("comp\n{:?}", compressed);
-        let mut decompressed: Vec<u8> = Vec::new();
-        let comp_length = compressed.len();
-        if comp_length < 5 {
-            return Vec::new()
-        }
-        for _ in 0..(comp_length + 1 % 4) {
-            compressed.push(0)
-        }
-        let mut start_bit = compressed[0];
-        let mut bit_run = 0;
-        for i in (1..comp_length - 1).step_by(4) {
-            bit_run = 0;
-            for j in 0..4 {
-                bit_run += compressed[i + j] << j;
-            }
-            for _ in 0..bit_run {
-                decompressed.push(start_bit);
-            }
-            start_bit = match start_bit {
-                0 => 1,
-                1 => 0,
-                _ => continue,
-            }
-        };
-        start_bit = match start_bit {
-            0 => 1,
-            1 => 0,
-            _ => panic!()
-        };
-        for _ in 0..bit_run {
-            decompressed.push(start_bit);
-        }
-
-        decompressed
-    }
-
     /// Call receive and decode methods.
     /// Print to stdout
     pub fn print_message(&mut self) {
@@ -252,10 +190,8 @@ impl Receiver {
         self.detect_message();
 
         println!("\nIncoming message detected...\n");
-        let mut data = self.receive_message();
-        let decompressed = self.decompress(&mut data);
-        println!("decomp \n{:?}", decompressed);
-        let (message, valid, error) = self.decode(&decompressed);
+        let data = self.receive_message();
+        let (message, valid, error) = self.decode(&data);
         println!("Message received. Validating...\n");
         match valid {
             true => println!("Validated message:\n\n{}\n\n", message),
