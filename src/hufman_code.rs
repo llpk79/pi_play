@@ -65,7 +65,7 @@ impl HuffTree {
                     encoded_message.push('1');
                 }
             }
-            node = self.root.as_ref().unwrap();
+            // node = self.root.as_ref().unwrap();
         }
         encoded_message
     }
