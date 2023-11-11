@@ -9,15 +9,18 @@ fn main() {
     let mut receiver = Receiver::new();
     let mut message = fs::read_to_string("./src/lasers.rs").expect("error opening file");
     // let mut message = "Hello World.".to_string();
+
+    // Compress message with Huffman Coding.
     let mut freq_map = HashMap::new();
+    let mut huff_tree = HuffTree::new();
     for char in message.chars() {
         let cout = freq_map.entry(char).or_insert(0);
         *cout += 1;
     }
-    let mut huff_tree = HuffTree::new();
     huff_tree.build_tree(freq_map);
     let mut encoded_message = huff_tree.encode_string(&mut message);
 
+    // Start a thread each for the laser and receiver.
     let receiver_thread = thread::Builder::new()
         .name("receiver".to_string())
         .spawn(move || loop {

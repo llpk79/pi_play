@@ -2,7 +2,6 @@ use std::cmp::{max, min};
 use crate::huffman_code::HuffTree;
 use gpio::GpioValue::{High, Low};
 use gpio::{GpioIn, GpioOut};
-// use std::cmp::{max, min};
 use std::thread;
 use std::time::Duration;
 
@@ -51,9 +50,7 @@ impl Laser {
     }
 
     /// Initiate message with 500 us pulse.
-    ///
     /// Transmit message; long pulse = 1 short pulse = 0.
-    ///
     /// Terminate message with 1000 us pulse.
     pub fn send_message(&mut self, message: &mut Vec<u32>) {
         let message = self.add_checksum(message);
@@ -192,19 +189,19 @@ impl Receiver {
         println!("\nIncoming message detected...\n");
         let data = self.receive_message();
 
+        println!("Message received. Validating...\n");
         let (valid, error) = self.validate(&data);
         let sans_checksum = Vec::from(&data[0..(data.len() - 32)]);
         let message = huff_tree.decode(sans_checksum);
-        println!("Message received. Validating...\n");
+        let end = chrono::Utc::now();
         match valid {
             true => println!("Validated message:\n\n{}\n\n", message),
             false => println!("ERROR: Invalid data detected.\n\n"),
         }
 
+        // Calculate stats
         let num_kbytes = message.clone().len() as f32 / 1000.0;
-        let end = chrono::Utc::now();
         let seconds = (end - start).num_milliseconds() as f64 / 1000.0f64;
-
         println!(
             "Message in {:.3} sec\nKB/s {:.3}\n'Error' {:.5}",
             seconds,
