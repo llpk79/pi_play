@@ -3,6 +3,7 @@ use gpio::{GpioIn, GpioOut};
 use std::cmp::{max, min};
 use std::thread;
 use std::time::Duration;
+use crate::hufman_code::HuffTree;
 
 const LASER_PIN: u16 = 18;
 const RECEIVER_PIN: u16 = 23;
@@ -183,30 +184,31 @@ impl Receiver {
 
     /// Call receive and decode methods.
     /// Print to stdout
-    pub fn print_message(&mut self) {
-        let start = chrono::Utc::now();
+    pub fn print_message(&mut self, huff_tree: &mut HuffTree) {
+        // let start = chrono::Utc::now();
         println!("\nAwaiting transmission...");
         self.detect_message();
 
         println!("\nIncoming message detected...\n");
         let data = self.receive_message();
-        let (message, valid, error) = self.decode(&data);
-
+        // let (message, valid, error) = self.decode(&data);
+        let message = huff_tree.decode(data);
         println!("Message received. Validating...\n");
-        match valid {
-            true => println!("Validated message:\n\n{}\n\n", message),
-            false => println!("ERROR: Invalid data detected.\n\n"),
-        }
-
-        let num_kbytes = message.clone().len() as f32 / 1000.0;
-        let end = chrono::Utc::now();
-        let seconds = (end - start).num_milliseconds() as f64 / 1000.0f64;
-
-        println!(
-            "Message in {:.3} sec\nKB/s {:.3}\n'Error' {:.3}",
-            seconds,
-            num_kbytes as f64 / seconds,
-            1.0 - error,
-        );
+        println!("Validated message:\n\n{}\n\n", message)
+        // match valid {
+        //     true => println!("Validated message:\n\n{}\n\n", message),
+        //     false => println!("ERROR: Invalid data detected.\n\n"),
+        // }
+        //
+        // let num_kbytes = message.clone().len() as f32 / 1000.0;
+        // let end = chrono::Utc::now();
+        // let seconds = (end - start).num_milliseconds() as f64 / 1000.0f64;
+        //
+        // println!(
+        //     "Message in {:.3} sec\nKB/s {:.3}\n'Error' {:.3}",
+        //     seconds,
+        //     num_kbytes as f64 / seconds,
+        //     1.0 - error,
+        // );
     }
 }
