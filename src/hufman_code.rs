@@ -92,7 +92,7 @@ impl HuffTree {
 
 pub fn assign_codes(tree: &Box<Node>, code_map: &mut HashMap<char, String>, string: String) {
     if let Some(ch) = tree.char_ {
-        code_map.insert(ch, "".to_string());
+        code_map.insert(ch, string);
     } else {
         if let Some(l) = &tree.left {
             assign_codes(l, code_map, string.clone() + "0");
