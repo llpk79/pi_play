@@ -27,29 +27,39 @@ fn main() {
     let mut code_map = HashMap::new();
     let mut code = String::new();
 
-    // Recursively traverse Huffman tree to generate code map.
-    fn traverse_tree(
-        node: &mut BinaryHeap<(i32, char)>,
+    // Iterate through heap to create code map.
+    let (_, root) = heap.pop().unwrap();
+    fn create_code_map(
+        node: &BinaryHeap<(i32, char)>,
         code_map: &mut HashMap<char, String>,
         code: &mut String,
     ) {
-        if let Some((_, char)) = node.peek() {
-            if *char != '%' {
+        match node.peek() {
+            Some((_, '%')) => {
+                code_map.insert('%', code.clone());
+            }
+            Some((_, char)) => {
                 code_map.insert(*char, code.clone());
-            } else {
+            }
+            None => {}
+        }
+        match node.peek() {
+            Some((_, '%')) => {}
+            Some((_, _)) => {
                 code.push('0');
-                traverse_tree(node, code_map, code);
+                create_code_map(&node, code_map, code);
                 code.pop();
                 code.push('1');
-                traverse_tree(node, code_map, code);
+                create_code_map(&node, code_map, code);
                 code.pop();
             }
+            None => {}
         }
     }
+    create_code_map(&heap, &mut code_map, &mut code);
 
-    traverse_tree(&mut heap, &mut code_map, &mut code);
-    println!("{:?}", code_map);
-
+    // Print code map.
+    println!("Code map {:?}", code_map);
 
 
     let receiver_thread = thread::Builder::new()
