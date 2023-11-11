@@ -65,7 +65,7 @@ impl HuffTree {
         while !Some(&node.left).is_none() && !Some(&node.right).is_none() {
             if let Some(ch) = node.char_ {
                 if ch == char_ {
-                    break;
+                    return encoded_char;
                 }
             }
             else {
