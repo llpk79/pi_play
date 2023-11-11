@@ -1,7 +1,9 @@
+use std::cmp::{max, min};
+use crate::huffman_code::HuffTree;
 use gpio::GpioValue::{High, Low};
 use gpio::{GpioIn, GpioOut};
-use std::cmp::{max, min};
-use std::thread;
+use std::{fs, thread};
+use std::collections::HashMap;
 use std::time::Duration;
 
 const LASER_PIN: u16 = 18;
@@ -27,32 +29,32 @@ impl Laser {
 
     /// String -> char code -> `[bits]`.
     /// Sum char codes to 32 bit int and append to data as check_sum.
-    fn encode_message(&mut self, message: String) -> Vec<u8> {
-        let mut data = Vec::new();
-        let mut check_sum: i32 = 0;
-
+    fn add_checksum(&mut self, data: &mut Vec<u32>) -> Vec<u32> {
         // Add char code to checksum, push char data bitwise.
-        for char in message.chars() {
-            let code = char as u8;
-            check_sum += code as i32;
-            for bit in (0..8).map(|n| (code >> n) & 1) {
-                data.push(bit);
+        let mut check_sum = 0;
+        for i in (0..data.len() - 1).step_by(8) {
+            let mut byte = 0;
+            for j in 0..8 {
+                if i + j >= data.len() {
+                    break;
+                }
+                byte += data[i + j] << j;
             }
+            check_sum += byte as i32;
         }
         // Push checksum data bitwise.
+        let mut check_vec = Vec::new();
         for bit in (0..32).map(|n| (check_sum >> n) & 1) {
-            data.push(bit as u8);
+            check_vec.push(bit as u32);
         }
-        data
+        Vec::from([data.clone(), check_vec].concat())
     }
 
     /// Initiate message with 500 us pulse.
-    ///
     /// Transmit message; long pulse = 1 short pulse = 0.
-    ///
     /// Terminate message with 1000 us pulse.
-    pub fn send_message(&mut self, message: String) {
-        let encoded_message = self.encode_message(message);
+    pub fn send_message(&mut self, message: &mut Vec<u32>) {
+        let message = self.add_checksum(message);
 
         // Initiation sequence.
         self.out.set_value(false).expect("Error setting pin");
@@ -63,7 +65,7 @@ impl Laser {
         thread::sleep(Duration::from_micros(50));
 
         // Begin message transmission.
-        for bit in encoded_message {
+        for bit in message {
             match bit == 1 {
                 true => {
                     self.out.set_value(true).expect("Error setting pin");
@@ -147,17 +149,15 @@ impl Receiver {
         data
     }
 
-    /// Decode binary into string and return.
     /// Sum char codes and return boolean comparison with checksum.
     /// Return error.
-    fn decode(&mut self, data: &Vec<u32>) -> (String, bool, f32) {
+    fn validate(&mut self, data: &Vec<u32>) -> (bool, f32) {
         let data_len = data.len();
         // Min one byte message plus checksum.
-        if data.len() < 40 {
-            return ("".to_string(), false, 0.0);
+        if data_len < 40 {
+            return (false, 0.0);
         }
         let mut sum: u32 = 0;
-        let mut message = "".to_string();
 
         // Get int from each byte, convert to char, append to message.
         for i in (0..data_len - 32).step_by(8) {
@@ -166,7 +166,6 @@ impl Receiver {
                 byte += data[i + j] << j as u32;
             }
             sum += byte;
-            message = message + &format!("{}", char::from_u32(byte).expect("Error decoding char"));
         }
 
         // Get checksum.
@@ -178,35 +177,72 @@ impl Receiver {
         let min = min(sum, check) as f32;
         let max = max(sum, check) as f32;
         let error = min / max;
-        (message, error > 0.99, error)
+        (error > 0.995, error)
     }
 
     /// Call receive and decode methods.
     /// Print to stdout
-    pub fn print_message(&mut self) {
-        let start = chrono::Utc::now();
+    pub fn print_message(&mut self, huff_tree: &mut HuffTree) {
         println!("\nAwaiting transmission...");
         self.detect_message();
+        let start = chrono::Utc::now();
 
         println!("\nIncoming message detected...\n");
         let data = self.receive_message();
-        let (message, valid, error) = self.decode(&data);
 
         println!("Message received. Validating...\n");
+        let (valid, error) = self.validate(&data);
+        let sans_checksum = Vec::from(&data[0..(data.len() - 32)]);
+        let message = huff_tree.decode(sans_checksum);
+        let end = chrono::Utc::now();
         match valid {
             true => println!("Validated message:\n\n{}\n\n", message),
             false => println!("ERROR: Invalid data detected.\n\n"),
         }
 
+        // Calculate stats
         let num_kbytes = message.clone().len() as f32 / 1000.0;
-        let end = chrono::Utc::now();
         let seconds = (end - start).num_milliseconds() as f64 / 1000.0f64;
-
         println!(
-            "Message in {:.3} sec\nKB/s {:.3}\n'Error' {:.3}",
+            "Message in {:.3} sec\nKB/s {:.3}\n'Error' {:.5}",
             seconds,
             num_kbytes as f64 / seconds,
             1.0 - error,
         );
     }
+}
+
+pub fn do_lasers() {
+    let mut laser = Laser::new();
+    let mut receiver = Receiver::new();
+    let mut message = fs::read_to_string("./src/lasers.rs").expect("error opening file");
+    // let mut message = "Hello World.".to_string();
+
+    // Compress message with Huffman Coding.
+    let mut freq_map = HashMap::new();
+    let mut huff_tree = HuffTree::new();
+    for char in message.chars() {
+        let cout = freq_map.entry(char).or_insert(0);
+        *cout += 1;
+    }
+    huff_tree.build_tree(freq_map);
+    let mut encoded_message = huff_tree.encode_string(&mut message);
+
+    // Start a thread each for the laser and receiver.
+    let receiver_thread = thread::Builder::new()
+        .name("receiver".to_string())
+        .spawn(move || loop {
+            receiver.print_message(&mut huff_tree);
+        });
+
+    let laser_thread = thread::Builder::new()
+        .name("laser".to_string())
+        .spawn(move || loop {
+            laser.send_message(encoded_message.as_mut());
+            thread::sleep(Duration::from_millis(2500))
+        });
+
+    laser_thread.unwrap().join().unwrap();
+    receiver_thread.unwrap().join().unwrap();
+
 }
