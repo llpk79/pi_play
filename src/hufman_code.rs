@@ -51,23 +51,37 @@ impl HuffTree {
         self.root = Some(node_vec.pop().unwrap());
     }
 
-    pub fn encode_string(&self, message: String) -> String {
-        let mut encoded_message = String::new();
-        let mut node = self.root.as_ref().unwrap();
-        for char in message.chars() {
-            while !node.left.is_none() && !node.right.is_none() {
-                if node.char_ == Some(char) {
-                    break;
-                } else {
-                    if let Some(ref left) = &node.left {
-                        node = left;
-                        encoded_message.push('0');
+    pub fn code_map(&mut self, string: &mut String) -> HashMap<char, String> {
+        let mut code_map = HashMap::new();
+        let mut root = self.root.as_ref().unwrap();
+        for char in string.chars() {
+            while let Some(ch) = root.char_ {
+                let mut code = String::new();
+                if ch == char {
+                    code_map.insert(ch, code);
+                }
+                else {
+                    if let Some(ref left) = &root.left {
+                        code = code + "0";
+                        root = left;
                     }
-                    if let Some(ref right) = &node.right {
-                        node = right;
-                        encoded_message.push('1');
+                    if let Some(ref right) = &root.right {
+                        code = code + "1";
+                        root = right;
                     }
                 }
+            }
+        }
+        code_map
+    }
+
+    pub fn encode_string(&mut self, string: &mut String) -> Vec<u32> {
+        let mut encoded_message = Vec::new();
+        let code_map = self.code_map(string);
+        for char in string.chars() {
+            let code = code_map.get(&char).unwrap();
+            for bit in code.chars() {
+                encoded_message.push(bit.to_digit(10).unwrap());
             }
         }
         encoded_message
