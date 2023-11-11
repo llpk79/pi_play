@@ -168,6 +168,7 @@ impl Receiver {
                 1000.. => break, // Termination sequence.
             };
         }
+        println!("data {:?}", data);
         data
     }
 
@@ -212,7 +213,7 @@ impl Receiver {
         if comp_length < 5 {
             return Vec::new()
         }
-        for _ in 0..comp_length % 4 {
+        for _ in 0..(comp_length + 1 % 4) {
             compressed.push(0)
         }
         let mut start_bit = compressed[0];
