@@ -207,10 +207,13 @@ impl Receiver {
         (message, error > 0.99, error)
     }
 
-    fn decompress(&mut self, compressed: &Vec<u8>) -> Vec<u8> {
+    fn decompress(&mut self, compressed: &mut Vec<u8>) -> Vec<u8> {
         let mut decompressed: Vec<u8> = Vec::new();
         let mut start_bit = compressed[0];
         let comp_length = compressed.len();
+        for _ in 0..comp_length % 4 {
+            compressed.push(0)
+        }
         if comp_length < 5 {
             return Vec::new()
         }
