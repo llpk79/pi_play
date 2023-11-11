@@ -43,7 +43,7 @@ impl Laser {
         for bit in (0..32).map(|n| (check_sum >> n) & 1) {
             data.push(bit as u8);
         }
-        println!("data {:?}", data);
+        println!("data\n{:?}", data);
         data
     }
 
@@ -230,7 +230,12 @@ impl Receiver {
                 1 => 0,
                 _ => continue,
             }
-        }
+        };
+        start_bit = match start_bit {
+            0 => 1,
+            1 => 0,
+            _ => panic!()
+        };
         for _ in 0..bit_run {
             decompressed.push(start_bit);
         }
@@ -248,7 +253,7 @@ impl Receiver {
         println!("\nIncoming message detected...\n");
         let mut data = self.receive_message();
         let decompressed = self.decompress(&mut data);
-        println!("decomp {:?}", decompressed);
+        println!("decomp \n{:?}", decompressed);
         let (message, valid, error) = self.decode(&decompressed);
         println!("Message received. Validating...\n");
         match valid {
