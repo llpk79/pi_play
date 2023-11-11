@@ -23,27 +23,33 @@ fn main() {
         let (freq2, _) = heap.pop().unwrap();
         heap.push((freq1 + freq2, '%'));
     }
-    let mut encoding_map = HashMap::new();
 
     // traverse tree to create encoding map.
-    let heap_vec = heap.into_vec();
-    let mut tree = heap_vec[0].1.to_string();
-    let mut encoding = String::new();
-    while tree.len() > 0 {
-        let char = tree.remove(0);
-        if char == '%' {
-            encoding.pop();
-            let char = tree.remove(0);
-            encoding_map.insert(char, encoding.clone());
-            encoding.pop();
-        } else {
-            encoding.push('0');
-            tree.push(char);
-            tree.push('1');
+    fn traverse_tree(
+        node: &mut BinaryHeap<(i32, char)>,
+        encoding_map: &mut HashMap<char, String>,
+        encoding: String,
+    ) {
+        if let Some((_, char)) = node.peek() {
+            if char != &'%' {
+                encoding_map.insert(*char, encoding.clone());
+            }
+        }
+        if let Some((_, char)) = node.pop() {
+            traverse_tree(node, encoding_map, encoding.clone() + "0");
+            traverse_tree(node, encoding_map, encoding + "1");
         }
     }
-    println!("{:?}", encoding_map);
 
+    let mut encoding_map = HashMap::new();
+    traverse_tree(&mut heap, &mut encoding_map, "".to_string());
+
+    // encode message.
+    let mut encoded_message = String::new();
+    for char in message.chars() {
+        encoded_message += &encoding_map[&char];
+    }
+    println!("encoded message {}", encoded_message);
 
     let receiver_thread = thread::Builder::new()
         .name("receiver".to_string())
