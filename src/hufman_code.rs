@@ -62,7 +62,7 @@ impl HuffTree {
     fn encode_char(&mut self, char_: char) -> String {
         let mut encoded_char = String::new();
         let mut node = self.root.as_ref().unwrap();
-        while !Some(&node.left).is_none() && !Some(&node.right).is_none() {
+        while !Some(&node.left).is_none() || !Some(&node.right).is_none() {
             if let Some(ch) = node.char_ {
                 if ch == char_ {
                     return encoded_char;
