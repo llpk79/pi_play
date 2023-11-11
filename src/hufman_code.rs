@@ -58,14 +58,15 @@ impl HuffTree {
             while !node.left.is_none() && !node.right.is_none() {
                 if node.char_ == Some(char) {
                     break;
-                }
-                if let Some(ref left) = &node.left {
-                    node = left;
-                    encoded_message.push('0');
-                }
-                if let Some(ref right) = &node.right {
-                    node = right;
-                    encoded_message.push('1');
+                } else {
+                    if let Some(ref left) = &node.left {
+                        node = left;
+                        encoded_message.push('0');
+                    }
+                    if let Some(ref right) = &node.right {
+                        node = right;
+                        encoded_message.push('1');
+                    }
                 }
             }
         }
