@@ -63,6 +63,7 @@ impl Laser {
                 }
             }
         }
+        println!("comp {:?}", compressed);
         compressed
     }
 
