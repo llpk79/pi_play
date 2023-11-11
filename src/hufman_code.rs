@@ -39,7 +39,7 @@ impl HuffTree {
                 Node::new_box(Node::new(*freq, Some(*char_)))
             }).collect()
         };
-        while node_vec.len() > 2 {
+        while node_vec.len() > 1 {
             node_vec.sort_by(|a, b| (&(b.freq)).cmp(&(a.freq)));
             let node1 = node_vec.pop().unwrap();
             let node2 = node_vec.pop().unwrap();
@@ -55,7 +55,10 @@ impl HuffTree {
         let mut encoded_message = String::new();
         let mut node = self.root.as_ref().unwrap();
         for char in message.chars() {
-            while node.char_ != Some(char) {
+            while !node.left.is_none() && !node.right.is_none() {
+                if node.char_ == Some(char) {
+                    break;
+                }
                 if let Some(ref left) = &node.left {
                     node = left;
                     encoded_message.push('0');
@@ -65,7 +68,6 @@ impl HuffTree {
                     encoded_message.push('1');
                 }
             }
-            // node = self.root.as_ref().unwrap();
         }
         encoded_message
     }
