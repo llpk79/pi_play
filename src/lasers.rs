@@ -32,9 +32,9 @@ impl Laser {
     fn add_checksum(&mut self, data: Vec<u32>) -> Vec<u32> {
         // Add char code to checksum, push char data bitwise.
         let mut check_sum = 0;
-        for j in (0..data.len() - 1).step_by(8) {
+        for i in (0..data.len() - 1).step_by(8) {
             let mut byte = 0;
-            for i in 0..8 {
+            for j in 0..8 {
                 byte += data[i + j] << j;
             }
             check_sum += byte as i32;
