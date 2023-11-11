@@ -40,7 +40,7 @@ impl HuffTree {
             }).collect()
         };
         while node_vec.len() > 1 {
-            node_vec.sort_by(|a, b| (b.freq.cmp(&a.freq)));
+            node_vec.sort_by(|a, b| (&(b.freq)).cmp(&(a.freq)));
             let node1 = node_vec.pop().unwrap();
             let node2 = node_vec.pop().unwrap();
             let mut new_node = Node::new_box(Node::new(node1.freq + node2.freq, None));
