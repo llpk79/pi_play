@@ -50,7 +50,7 @@ impl Laser {
     fn compress(&mut self, data: &Vec<u8>) -> Vec<u8> {
         let mut compressed: Vec<u8> = Vec::new();
         compressed.push(data[0]);
-        let mut bit_run = 1;
+        let mut bit_run = 0;
         let mut current_bit = data[0];
         for bit in data {
             match *bit == current_bit {
