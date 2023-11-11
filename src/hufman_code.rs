@@ -55,10 +55,11 @@ impl HuffTree {
         let mut code_map = HashMap::new();
         let mut root = self.root.as_ref().unwrap();
         for char in string.chars() {
-            while let Some(ch) = root.char_ {
+           'inner: loop {
                 let mut code = String::new();
-                if ch == char {
-                    code_map.insert(ch, code);
+                if root.char_ == Some(char) {
+                    code_map.insert(char, code);
+                    break 'inner;
                 }
                 else {
                     if let Some(ref left) = &root.left {
