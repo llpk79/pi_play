@@ -51,36 +51,25 @@ impl HuffTree {
         self.root = Some(node_vec.pop().unwrap());
     }
 
-    pub fn encode(&mut self, message: String) -> String {
+    pub fn encode_string(&self, message: String) -> String {
         let mut encoded_message = String::new();
-        for char_ in message.chars() {
-            encoded_message += &self.encode_char(char_);
+        let mut node = self.root.as_ref().unwrap();
+        for char in message.chars() {
+            while node.char_ != Some(char) {
+                if let Some(ref left) = &node.left {
+                    node = left;
+                    encoded_message.push('0');
+                }
+                if let Some(ref right) = &node.right {
+                    node = right;
+                    encoded_message.push('1');
+                }
+            }
+            node = self.root.as_ref().unwrap();
         }
         encoded_message
     }
 
-    fn encode_char(&mut self, char_: char) -> String {
-        let mut encoded_char = String::new();
-        let mut node = self.root.as_ref().unwrap();
-        while !Some(&node.left).is_none() || !Some(&node.right).is_none() {
-            if let Some(ch) = node.char_ {
-                if ch == char_ {
-                    return encoded_char;
-                }
-            }
-            else {
-                if let Some(ref left) = &node.left {
-                    node = left;
-                    encoded_char.push('0');
-                }
-                if let Some(ref right) = &node.right {
-                    node = right;
-                    encoded_char.push('1');
-                }
-            }
-        }
-        encoded_char
-    }
 
     pub fn decode(&mut self, message: Vec<u32>) -> String {
         let mut decoded_message = String::new();
