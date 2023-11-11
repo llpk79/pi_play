@@ -78,6 +78,7 @@ impl HuffTree {
     pub fn encode_string(&mut self, string: &mut String) -> Vec<u32> {
         let mut encoded_message = Vec::new();
         let code_map = self.code_map(string);
+        println!("code_map: {:?}", code_map);
         for char in string.chars() {
             let code = code_map.get(&char).unwrap();
             for bit in code.chars() {
