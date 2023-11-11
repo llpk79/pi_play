@@ -67,7 +67,7 @@ impl Laser {
                     bit_run = 1;
                 }
             }
-            println!("bit {}\ncur {}\nrun {}\n", bit, prev_bit, bit_run);
+            println!("bit {}\nprev {}\nrun {}\ncomp {:?}", bit, prev_bit, bit_run, compressed);
         }
         println!("comp {:?}", compressed);
         compressed
