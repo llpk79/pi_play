@@ -65,6 +65,9 @@ impl Laser {
             println!("bit {}\nprev {}\nrun {}\ncomp {:?}", data[i], data[i - 1], bit_run, compressed);
         }
         println!("comp {:?}", compressed);
+        for comp_bit in (0..4).map(|n| (bit_run >> n) & 1) {
+            compressed.push(comp_bit);
+        }
         compressed
     }
 
