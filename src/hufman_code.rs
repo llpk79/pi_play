@@ -59,7 +59,7 @@ impl HuffTree {
         let mut encoded_char = String::new();
         let mut node = self.root.as_ref().unwrap();
         while node.char_.is_none() {
-            if node.left.as_ref().unwrap().char_.unwrap() == char_ {
+            if node.char_ == Some(char_) {
                 encoded_char += "0";
                 node = node.left.as_ref().unwrap();
             } else {
