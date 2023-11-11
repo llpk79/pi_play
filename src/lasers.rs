@@ -214,18 +214,18 @@ impl Receiver {
         if comp_length < 5 {
             return Vec::new()
         }
-        for i in (1..comp_length - 2).step_by(4) {
+        for i in (1..comp_length - 1).step_by(4) {
             let mut bit_run = 0;
             for j in 0..4 {
                 bit_run += compressed[i + j] << j;
             }
             for _ in 0..bit_run {
                 decompressed.push(start_bit);
-                start_bit = match start_bit {
-                    0 => 1,
-                    1 => 0,
-                    _ => continue,
-                }
+            }
+            start_bit = match start_bit {
+                0 => 1,
+                1 => 0,
+                _ => continue,
             }
         }
 
