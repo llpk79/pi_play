@@ -38,6 +38,7 @@ fn main() {
         huffman_vec.push((char1, "0".to_string() + &code1));
         huffman_vec.push((char2, "1".to_string() + &code2));
         huffman_vec.sort_by(|a, b| b.1.cmp(&a.1));
+        println!("{:?}", huffman_vec);
     }
     let mut huffman_code_map = HashMap::new();
     for (char, code) in huffman_vec {
