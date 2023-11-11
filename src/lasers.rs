@@ -191,8 +191,9 @@ impl Receiver {
         let data = self.receive_message();
 
         println!("Message received. Validating...\n");
+        let data_len = data.len();
         let (valid, error) = self.validate(&data);
-        let sans_checksum = Vec::from(&data[0..(data.len() - 32)]);
+        let sans_checksum = Vec::from(&data[0..(data_len - 32)]);
         let message = huff_tree.decode(sans_checksum);
         let end = chrono::Utc::now();
         match valid {
