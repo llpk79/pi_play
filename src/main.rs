@@ -36,15 +36,14 @@ fn main() {
         if let Some((_, char)) = node.peek() {
             if *char != '%' {
                 code_map.insert(*char, code.clone());
+            } else {
+                code.push('0');
+                traverse_tree(node, code_map, code);
+                code.pop();
+                code.push('1');
+                traverse_tree(node, code_map, code);
+                code.pop();
             }
-        }
-        if let Some((_, char)) = node.pop() {
-            code.push('0');
-            traverse_tree(node, code_map, code);
-            code.pop();
-            code.push('1');
-            traverse_tree(node, code_map, code);
-            code.pop();
         }
     }
 
