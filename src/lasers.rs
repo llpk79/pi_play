@@ -243,8 +243,8 @@ impl Receiver {
         self.detect_message();
 
         println!("\nIncoming message detected...\n");
-        let data = self.receive_message();
-        let decompressed = self.decompress(&data);
+        let mut data = self.receive_message();
+        let decompressed = self.decompress(&mut data);
         println!("decomp {:?}", decompressed);
         let (message, valid, error) = self.decode(&decompressed);
         println!("Message received. Validating...\n");
