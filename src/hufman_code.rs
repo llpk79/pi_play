@@ -57,7 +57,7 @@ impl HuffTree {
     pub fn encode_string(&mut self, string: &mut String) -> Vec<u32> {
         let mut encoded_message = Vec::new();
         let mut code_map = HashMap::new();
-        assign_codes(&self.root.as_ref().unwrap(), &mut code_map, string.clone());
+        assign_codes(&self.root.as_ref().unwrap(), &mut code_map, "".to_string());
         println!("code_map: {:?}", code_map);
         for char in string.chars() {
             let code = code_map.get(&char).unwrap();
@@ -95,10 +95,10 @@ pub fn assign_codes(tree: &Box<Node>, code_map: &mut HashMap<char, String>, stri
         code_map.insert(ch, "".to_string());
     } else {
         if let Some(l) = &tree.left {
-            assign_codes(l, code_map, (string.clone() + "0"));
+            assign_codes(l, code_map, string.clone() + "0");
         }
         if let Some(r) = &tree.right {
-            assign_codes(r, code_map, (string.clone() + "1"));
+            assign_codes(r, code_map, string.clone() + "1");
         }
     }
 }
