@@ -22,6 +22,10 @@ impl Node {
             left: None,
         }
     }
+
+    pub fn new_box(node: Node) -> Box<Node> {
+        Box::new(node)
+    }
 }
 
 impl HuffTree {
@@ -30,21 +34,21 @@ impl HuffTree {
     }
 
     pub fn build_tree(&mut self, freq_map: HashMap<char, i32>) {
-        let mut node_vec: Vec<Node> = Vec::new();
-        for (char_, freq) in freq_map {
-            node_vec.push(Node::new(freq, Some(char_)));
-        }
-        node_vec.sort_by(|a, b| a.freq.cmp(&b.freq));
+        let mut node_vec: Vec<Box<Node>> = {
+            freq_map.iter().map(|(char_, freq)| {
+                Node::new_box(Node::new(*freq, Some(*char_)))
+            }).collect()
+        };
         while node_vec.len() > 1 {
-            let node1 = node_vec.remove(0);
-            let node2 = node_vec.remove(0);
-            let mut new_node = Node::new(node1.freq + node2.freq, None);
-            new_node.left = Some(Box::new(node1));
-            new_node.right = Some(Box::new(node2));
+            node_vec.sort_by(|a, b| (b.freq.cmp(&a.freq)));
+            let node1 = node_vec.pop().unwrap();
+            let node2 = node_vec.pop().unwrap();
+            let mut new_node = Node::new_box(Node::new(node1.freq + node2.freq, None));
+            new_node.left = Some(node1);
+            new_node.right = Some(node2);
             node_vec.push(new_node);
-            node_vec.sort_by(|a, b| a.freq.cmp(&b.freq));
         }
-        self.root = Some(Box::new(node_vec.remove(0)));
+        self.root = Some(node_vec.pop().unwrap());
     }
 
     pub fn encode(&self, message: String) -> String {
