@@ -59,7 +59,8 @@ impl Laser {
                     for comp_bit in (0..4).map(|n| (bit_run >> n) & 1) {
                         compressed.push(comp_bit);
                     }
-                    current_bit = *bit
+                    current_bit = *bit;
+                    bit_run = 0;
                 }
             }
         }
