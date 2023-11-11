@@ -43,7 +43,7 @@ impl Laser {
         for bit in (0..32).map(|n| (check_sum >> n) & 1) {
             data.push(bit as u8);
         }
-        // println!("data {:?}", data);
+        println!("data {:?}", data);
         data
     }
 
@@ -168,7 +168,6 @@ impl Receiver {
                 1000.. => break, // Termination sequence.
             };
         }
-        println!("data {:?}", data);
         data
     }
 
