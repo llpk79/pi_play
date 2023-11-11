@@ -1,5 +1,5 @@
 pub mod distance;
-pub mod hufman_code;
+pub mod huffman_code;
 pub mod lasers;
 pub mod lcd;
 pub mod motor;

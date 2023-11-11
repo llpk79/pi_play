@@ -1,4 +1,5 @@
-use crate::hufman_code::HuffTree;
+use std::cmp::{max, min};
+use crate::huffman_code::HuffTree;
 use gpio::GpioValue::{High, Low};
 use gpio::{GpioIn, GpioOut};
 // use std::cmp::{max, min};
@@ -26,34 +27,33 @@ impl Laser {
         Self { out }
     }
 
-    // /// String -> char code -> `[bits]`.
-    // /// Sum char codes to 32 bit int and append to data as check_sum.
-    // fn encode_message(&mut self, message: String) -> Vec<u32> {
-    //     let mut data: Vec<u32> = Vec::new();
-    //     let mut check_sum: i32 = 0;
-    //
-    //     // Add char code to checksum, push char data bitwise.
-    //     for char in message.chars() {
-    //         let code = char as u8;
-    //         check_sum += code as i32;
-    //         for bit in (0..8).map(|n| (code >> n) & 1) {
-    //             data.push(bit as u32);
-    //         }
-    //     }
-    //     // Push checksum data bitwise.
-    //     for bit in (0..32).map(|n| (check_sum >> n) & 1) {
-    //         data.push(bit as u32);
-    //     }
-    //     data
-    // }
+    /// String -> char code -> `[bits]`.
+    /// Sum char codes to 32 bit int and append to data as check_sum.
+    fn add_checksum(&mut self, data: Vec<u32>) -> Vec<u32> {
+        // Add char code to checksum, push char data bitwise.
+        let mut check_sum = 0;
+        for j in (0..data.len() - 1).step_by(8) {
+            let mut byte = 0;
+            for i in 0..8 {
+                byte += data[i + j] << j;
+            }
+            check_sum += byte as i32;
+        }
+        // Push checksum data bitwise.
+        let mut check_vec = Vec::new();
+        for bit in (0..32).map(|n| (check_sum >> n) & 1) {
+            check_vec.push(bit as u32);
+        }
+        Vec::from([data, check_vec].concat())
+    }
 
     /// Initiate message with 500 us pulse.
     ///
     /// Transmit message; long pulse = 1 short pulse = 0.
     ///
     /// Terminate message with 1000 us pulse.
-    pub fn send_message(&mut self, message: &Vec<u32>) {
-        // let encoded_message = self.encode_message(message);
+    pub fn send_message(&mut self, message: Vec<u32>) {
+        let message = self.add_checksum(message);
 
         // Initiation sequence.
         self.out.set_value(false).expect("Error setting pin");
@@ -65,7 +65,7 @@ impl Laser {
 
         // Begin message transmission.
         for bit in message {
-            match *bit == 1 {
+            match bit == 1 {
                 true => {
                     self.out.set_value(true).expect("Error setting pin");
                     thread::sleep(Duration::from_micros(25));
@@ -148,67 +148,64 @@ impl Receiver {
         data
     }
 
-    // /// Decode binary into string and return.
-    // /// Sum char codes and return boolean comparison with checksum.
-    // /// Return error.
-    // fn decode(&mut self, data: &Vec<u32>) -> (String, bool, f32) {
-    //     let data_len = data.len();
-    //     // Min one byte message plus checksum.
-    //     if data.len() < 40 {
-    //         return ("".to_string(), false, 0.0);
-    //     }
-    //     let mut sum: u32 = 0;
-    //     let mut message = "".to_string();
-    //
-    //     // Get int from each byte, convert to char, append to message.
-    //     for i in (0..data_len - 32).step_by(8) {
-    //         let mut byte = 0;
-    //         for j in 0..8 {
-    //             byte += data[i + j] << j as u32;
-    //         }
-    //         sum += byte;
-    //         message = message + &format!("{}", char::from_u32(byte).expect("Error decoding char"));
-    //     }
-    //
-    //     // Get checksum.
-    //     let mut check: u32 = 0;
-    //     for (i, bit) in data[data_len - 32..data_len].iter().enumerate() {
-    //         check += *bit << i;
-    //     }
-    //     // VERY roughly estimate data fidelity.
-    //     let min = min(sum, check) as f32;
-    //     let max = max(sum, check) as f32;
-    //     let error = min / max;
-    //     (message, error > 0.99, error)
-    // }
+    /// Sum char codes and return boolean comparison with checksum.
+    /// Return error.
+    fn validate(&mut self, data: &Vec<u32>) -> (bool, f32) {
+        let data_len = data.len();
+        // Min one byte message plus checksum.
+        if data_len < 40 {
+            return (false, 0.0);
+        }
+        let mut sum: u32 = 0;
+
+        // Get int from each byte, convert to char, append to message.
+        for i in (0..data_len - 32).step_by(8) {
+            let mut byte = 0;
+            for j in 0..8 {
+                byte += data[i + j] << j as u32;
+            }
+            sum += byte;
+        }
+
+        // Get checksum.
+        let mut check: u32 = 0;
+        for (i, bit) in data[data_len - 32..data_len].iter().enumerate() {
+            check += *bit << i;
+        }
+        // VERY roughly estimate data fidelity.
+        let min = min(sum, check) as f32;
+        let max = max(sum, check) as f32;
+        let error = min / max;
+        (error > 0.99, error)
+    }
 
     /// Call receive and decode methods.
     /// Print to stdout
     pub fn print_message(&mut self, huff_tree: &mut HuffTree) {
-        // let start = chrono::Utc::now();
         println!("\nAwaiting transmission...");
         self.detect_message();
+        let start = chrono::Utc::now();
 
         println!("\nIncoming message detected...\n");
         let data = self.receive_message();
-        // let (message, valid, error) = self.decode(&data);
+
+        let (valid, error) = self.validate(&data);
         let message = huff_tree.decode(data);
         println!("Message received. Validating...\n");
-        println!("Validated message:\n\n{}\n\n", message)
-        // match valid {
-        //     true => println!("Validated message:\n\n{}\n\n", message),
-        //     false => println!("ERROR: Invalid data detected.\n\n"),
-        // }
-        //
-        // let num_kbytes = message.clone().len() as f32 / 1000.0;
-        // let end = chrono::Utc::now();
-        // let seconds = (end - start).num_milliseconds() as f64 / 1000.0f64;
-        //
-        // println!(
-        //     "Message in {:.3} sec\nKB/s {:.3}\n'Error' {:.3}",
-        //     seconds,
-        //     num_kbytes as f64 / seconds,
-        //     1.0 - error,
-        // );
+        match valid {
+            true => println!("Validated message:\n\n{}\n\n", message),
+            false => println!("ERROR: Invalid data detected.\n\n"),
+        }
+
+        let num_kbytes = message.clone().len() as f32 / 1000.0;
+        let end = chrono::Utc::now();
+        let seconds = (end - start).num_milliseconds() as f64 / 1000.0f64;
+
+        println!(
+            "Message in {:.3} sec\nKB/s {:.3}\n'Error' {:.3}",
+            seconds,
+            num_kbytes as f64 / seconds,
+            1.0 - error,
+        );
     }
 }

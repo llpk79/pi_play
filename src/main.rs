@@ -1,4 +1,4 @@
-use pi_play_lib::hufman_code::HuffTree;
+use pi_play_lib::huffman_code::HuffTree;
 use pi_play_lib::lasers::{Laser, Receiver};
 use std::collections::HashMap;
 use std::time::Duration;
@@ -17,7 +17,7 @@ fn main() {
     let mut huff_tree = HuffTree::new();
     huff_tree.build_tree(freq_map);
     let encoded_message = huff_tree.encode_string(&mut message);
-    println!("message {}\nencoded {}\n", message.len() * 8, encoded_message.len());
+    println!("message {}\nencoded {}\n", message.len() * 8, encoded_message.clone().len());
 
     let receiver_thread = thread::Builder::new()
         .name("receiver".to_string())
@@ -28,7 +28,7 @@ fn main() {
     let laser_thread = thread::Builder::new()
         .name("laser".to_string())
         .spawn(move || loop {
-            laser.send_message(&encoded_message);
+            laser.send_message(encoded_message.clone());
             thread::sleep(Duration::from_millis(2500))
         });
 
