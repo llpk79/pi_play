@@ -43,6 +43,7 @@ impl Laser {
         for bit in (0..32).map(|n| (check_sum >> n) & 1) {
             data.push(bit as u8);
         }
+        println!("data {:?}", data);
         data
     }
 
@@ -236,6 +237,7 @@ impl Receiver {
         println!("\nIncoming message detected...\n");
         let data = self.receive_message();
         let decompressed = self.decompress(&data);
+        println!("decomp {:?}", decompressed);
         let (message, valid, error) = self.decode(&decompressed);
         println!("Message received. Validating...\n");
         match valid {

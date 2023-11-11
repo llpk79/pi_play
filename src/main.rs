@@ -5,7 +5,8 @@ use std::{fs, thread};
 fn main() {
     let mut laser = Laser::new();
     let mut receiver = Receiver::new();
-    let message = fs::read_to_string("./src/temp_humid.rs").expect("error opening file");
+    // let message = fs::read_to_string("./src/temp_humid.rs").expect("error opening file");
+    let message = "Hello World".to_string();
 
     let receiver_thread = thread::Builder::new()
         .name("receiver".to_string())
