@@ -7,7 +7,7 @@ use std::{fs, thread};
 fn main() {
     let mut laser = Laser::new();
     let mut receiver = Receiver::new();
-    let mut message = fs::read_to_string("./src/lib.rs").expect("error opening file");
+    let mut message = fs::read_to_string("./src/lasers.rs").expect("error opening file");
     // let mut message = "Hello World.".to_string();
     let mut freq_map = HashMap::new();
     for char in message.chars() {
