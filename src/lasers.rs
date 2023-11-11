@@ -85,7 +85,7 @@ impl Laser {
         self.out.set_value(true).expect("Error setting pin");
         thread::sleep(Duration::from_micros(500));
         self.out.set_value(false).expect("Error setting pin");
-        thread::sleep(Duration::from_micros(50));
+        thread::sleep(Duration::from_micros(100));
 
         // Begin message transmission.
         for bit in compressed_message {
