@@ -216,8 +216,9 @@ impl Receiver {
             compressed.push(0)
         }
         let mut start_bit = compressed[0];
+        let mut bit_run = 0;
         for i in (1..comp_length - 1).step_by(4) {
-            let mut bit_run = 0;
+            bit_run = 0;
             for j in 0..4 {
                 bit_run += compressed[i + j] << j;
             }
@@ -229,6 +230,9 @@ impl Receiver {
                 1 => 0,
                 _ => continue,
             }
+        }
+        for _ in 0..bit_run {
+            decompressed.push(start_bit);
         }
 
         decompressed
