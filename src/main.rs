@@ -16,7 +16,7 @@ fn main() {
     }
     let mut huff_tree = HuffTree::new();
     huff_tree.build_tree(freq_map);
-    let encoded_message = huff_tree.encode_string(&mut message);
+    let mut encoded_message = huff_tree.encode_string(&mut message);
 
     let receiver_thread = thread::Builder::new()
         .name("receiver".to_string())
@@ -27,7 +27,7 @@ fn main() {
     let laser_thread = thread::Builder::new()
         .name("laser".to_string())
         .spawn(move || loop {
-            laser.send_message(encoded_message.clone());
+            laser.send_message(encoded_message.as_mut());
             thread::sleep(Duration::from_millis(2500))
         });
 

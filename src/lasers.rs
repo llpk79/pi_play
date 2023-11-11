@@ -29,9 +29,12 @@ impl Laser {
 
     /// String -> char code -> `[bits]`.
     /// Sum char codes to 32 bit int and append to data as check_sum.
-    fn add_checksum(&mut self, data: Vec<u32>) -> Vec<u32> {
+    fn add_checksum(&mut self, data: &mut Vec<u32>) -> Vec<u32> {
         // Add char code to checksum, push char data bitwise.
         let mut check_sum = 0;
+        for _ in 0..data.len() % 8 {
+            data.push(0);
+        }
         for i in (0..data.len() - 1).step_by(8) {
             let mut byte = 0;
             for j in 0..8 {
@@ -44,7 +47,7 @@ impl Laser {
         for bit in (0..32).map(|n| (check_sum >> n) & 1) {
             check_vec.push(bit as u32);
         }
-        Vec::from([data, check_vec].concat())
+        Vec::from([data.clone(), check_vec].concat())
     }
 
     /// Initiate message with 500 us pulse.
@@ -52,7 +55,7 @@ impl Laser {
     /// Transmit message; long pulse = 1 short pulse = 0.
     ///
     /// Terminate message with 1000 us pulse.
-    pub fn send_message(&mut self, message: Vec<u32>) {
+    pub fn send_message(&mut self, message: &mut Vec<u32>) {
         let message = self.add_checksum(message);
 
         // Initiation sequence.
