@@ -1,54 +1,59 @@
 use pi_play_lib::lasers::{Laser, Receiver};
 use std::time::Duration;
 use std::{fs, thread};
-use std::collections::HashMap;
+use std::collections::{BinaryHeap, HashMap};
 
 fn main() {
     let mut laser = Laser::new();
     let mut receiver = Receiver::new();
     let message = fs::read_to_string("./src/temp_humid.rs").expect("error opening file");
     // let message = "Hello.".to_string();
-    // Create huffman encoding for message.
-    let mut freq_map = HashMap::new();
+    // Create huffman encoding for message utilizing BinaryHeap.
+    // Produce a hashmap of codes to chars for decoding.
+    let mut heap = BinaryHeap::new();
+    let mut char_counts: HashMap<char, i32> = HashMap::new();
     for char in message.chars() {
-        let count = freq_map.entry(char).or_insert(0);
+        let count = char_counts.entry(char).or_insert(0);
         *count += 1;
     }
-    let mut freq_vec: Vec<(char, i32)> = Vec::new();
-    for (char, count) in freq_map {
-        freq_vec.push((char, count));
+    for (char, count) in char_counts {
+        heap.push((count, char));
     }
-    freq_vec.sort_by(|a, b| b.1.cmp(&a.1));
-    let mut huffman_map = HashMap::new();
-    let mut huffman_vec: Vec<(char, String)> = Vec::new();
-    for (char, count) in freq_vec {
-        huffman_map.insert(char, count);
-        huffman_vec.push((char, "".to_string()));
+    while heap.len() > 1 {
+        let (count1, char1) = heap.pop().unwrap();
+        let (count2, char2) = heap.pop().unwrap();
+        heap.push((count1 + count2, char1));
+        heap.push((count1 + count2, char2));
     }
-    while huffman_vec.len() > 1 {
-        let (char1, code1) = huffman_vec.pop().unwrap();
-        let (char2, code2) = huffman_vec.pop().unwrap();
-        for (char, code) in &mut huffman_vec {
-            if code1.contains(*char) {
-                *code = "0".to_string() + code;
-            } else if code2.contains(*char) {
-                *code = "1".to_string() + code;
-            }
+    let mut code_map: HashMap<char, String> = HashMap::new();
+    let mut code = String::new();
+    let mut code_stack: Vec<(i32, char)> = Vec::new();
+    let mut code_stack2: Vec<(i32, char)> = Vec::new();
+
+    while let Some((count, char)) = heap.pop() {
+        code_stack.push((count, char));
+    }
+    while let Some((count, char)) = code_stack.pop() {
+        code_stack2.push((count, char));
+    }
+    while let Some((count, char)) = code_stack2.pop() {
+        if char.is_alphanumeric() {
+            code_map.insert(char, code.clone());
         }
-        huffman_vec.push((char1, "0".to_string() + &code1));
-        huffman_vec.push((char2, "1".to_string() + &code2));
-        huffman_vec.sort_by(|a, b| b.1.cmp(&a.1));
-        println!("{:?}", huffman_vec);
+        code.push('0');
+        if count < 0 {
+            code.pop();
+            code.push('1');
+        }
     }
-    let mut huffman_code_map = HashMap::new();
-    for (char, code) in huffman_vec {
-        huffman_code_map.insert(char, code);
-    }
-    println!("huff {:?}", huffman_code_map);
+    println!("{:?}", code_map);
+    // Send message.
     let mut encoded_message = String::new();
     for char in message.chars() {
-        encoded_message = encoded_message + &huffman_code_map[&char];
+        encoded_message.push_str(&code_map[&char]);
     }
+    println!("{}", encoded_message);
+
 
     let receiver_thread = thread::Builder::new()
         .name("receiver".to_string())
