@@ -8,7 +8,7 @@ use std::collections::HashMap;
 fn main() {
     let mut laser = Laser::new();
     let mut receiver = Receiver::new();
-    let message = fs::read_to_string("./src/lib.rs.rs").expect("error opening file");
+    let message = fs::read_to_string("./src/lib.rs").expect("error opening file");
     // let message = "Hello.".to_string();
     let mut freq_map = HashMap::new();
     for char in message.chars() {
