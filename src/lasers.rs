@@ -63,9 +63,9 @@ impl Laser {
                 }
             }
         }
-        for comp_bit in (0..5).map(|n| (bit_run >> n) & 1) {
-            compressed.push(comp_bit);
-        }
+        // for comp_bit in (0..5).map(|n| (bit_run >> n) & 1) {
+        //     compressed.push(comp_bit);
+        // }
         println!("out comp\n{:?}", compressed);
         compressed
     }
@@ -207,7 +207,7 @@ impl Receiver {
     }
 
     fn decompress(&mut self, compressed: &mut Vec<u8>) -> Vec<u8> {
-        println!("comp {:?}", compressed);
+        println!("comp\n{:?}", compressed);
         let mut decompressed: Vec<u8> = Vec::new();
         let comp_length = compressed.len();
         if comp_length < 6 {
