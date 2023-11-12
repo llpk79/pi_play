@@ -67,7 +67,7 @@ impl HuffTree {
         let mut code_map = HashMap::new();
         assign_codes(&self.root.as_ref().unwrap(), &mut code_map, "".to_string());
         let mut checksum = 0_u32;
-        let mut byte_index = 0_u8;
+        let mut byte_index = 1_u8;
         for char in string.chars() {
             let code = code_map.get(&char).unwrap();
             for bit in code.chars() {
@@ -75,7 +75,7 @@ impl HuffTree {
                 checksum += bit << byte_index;
                 encoded_message.push(bit);
                 match byte_index {
-                    7 => byte_index = 0,
+                    8 => byte_index = 1,
                     _ => byte_index += 1,
                 }
             }
@@ -116,7 +116,7 @@ impl HuffTree {
 /// Recurse to leaf nodes where characters reside.
 /// Append path to char as the code.
 /// A move to the left appends a '0', to the right a '1'.
-pub fn assign_codes(tree: &Box<Node>, code_map: &mut HashMap<char, String>, string: String) {
+fn assign_codes(tree: &Box<Node>, code_map: &mut HashMap<char, String>, string: String) {
     if let Some(ch) = tree.char_ {
         code_map.insert(ch, string);
     } else {

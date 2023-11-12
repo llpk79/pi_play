@@ -201,8 +201,8 @@ pub fn do_lasers() {
     let mut freq_map = HashMap::new();
     let mut huff_tree = HuffTree::new();
     for char in message.chars() {
-        let cout = freq_map.entry(char).or_insert(0);
-        *cout += 1;
+        let count = freq_map.entry(char).or_insert(0);
+        *count += 1;
     }
     huff_tree.build_tree(freq_map);
     let mut encoded_message = huff_tree.encode_string(&mut message);
