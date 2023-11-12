@@ -191,18 +191,21 @@ impl Receiver {
         let data = self.receive_message();
 
         println!("Message received. Validating...\n");
-        let data_len = data.len();
-        let sans_checksum = Vec::from(&data[0..(data_len - 32)]);
         let (valid, error) = self.validate(&data);
-        let message = huff_tree.decode(sans_checksum);
         let end = chrono::Utc::now();
+        let mut num_kbytes = 0.0;
         match valid {
-            true => println!("Validated message:\n\n{}\n\n", message),
+            true => {
+                let data_len = data.len();
+                let sans_checksum = Vec::from(&data[0..(data_len - 32)]);
+                let message = huff_tree.decode(sans_checksum);
+                num_kbytes = message.clone().len() as f32 / 1000.0;
+                println!("Validated message:\n\n{}\n\n", message)
+            },
             false => println!("ERROR: Invalid data detected.\n\n"),
         }
 
         // Calculate stats
-        let num_kbytes = message.clone().len() as f32 / 1000.0;
         let seconds = (end - start).num_milliseconds() as f64 / 1000.0f64;
         println!(
             "Message in {:.3} sec\nKB/s {:.3}\n'Error' {:.5}",
