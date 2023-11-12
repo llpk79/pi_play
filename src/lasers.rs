@@ -137,7 +137,7 @@ impl Receiver {
         // Get int from each byte.
         for i in (0..data_len - 32).step_by(8) {
             let mut byte = 0;
-            for j in 0..8 {
+            for j in 1..=8 {
                 byte += data[i + j] << j as u32;
             }
             sum += byte;
