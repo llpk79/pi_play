@@ -27,34 +27,34 @@ impl Laser {
         Self { out }
     }
 
-    /// String -> char code -> `[bits]`.
-    /// Sum char codes to 32 bit int and append to data as check_sum.
-    fn add_checksum(&mut self, data: &mut Vec<u32>) -> Vec<u32> {
-        // Add char code to checksum, push char data bitwise.
-        let mut check_sum = 0;
-        for i in (0..data.len() - 1).step_by(8) {
-            let mut byte = 0;
-            for j in 0..8 {
-                if i + j >= data.len() {
-                    break;
-                }
-                byte += data[i + j] << j;
-            }
-            check_sum += byte as i32;
-        }
-        // Push checksum data bitwise.
-        let mut check_vec = Vec::new();
-        for bit in (0..32).map(|n| (check_sum >> n) & 1) {
-            check_vec.push(bit as u32);
-        }
-        Vec::from([data.clone(), check_vec].concat())
-    }
+    // /// String -> char code -> `[bits]`.
+    // /// Sum char codes to 32 bit int and append to data as check_sum.
+    // fn add_checksum(&mut self, data: &mut Vec<u32>) -> Vec<u32> {
+    //     // Add char code to checksum, push char data bitwise.
+    //     let mut check_sum = 0;
+    //     for i in (0..data.len() - 1).step_by(8) {
+    //         let mut byte = 0;
+    //         for j in 0..8 {
+    //             if i + j >= data.len() {
+    //                 break;
+    //             }
+    //             byte += data[i + j] << j;
+    //         }
+    //         check_sum += byte as i32;
+    //     }
+    //     // Push checksum data bitwise.
+    //     let mut check_vec = Vec::new();
+    //     for bit in (0..32).map(|n| (check_sum >> n) & 1) {
+    //         check_vec.push(bit as u32);
+    //     }
+    //     Vec::from([data.clone(), check_vec].concat())
+    // }
 
     /// Initiate message with 500 us pulse.
     /// Transmit message; long pulse = 1 short pulse = 0.
     /// Terminate message with 1000 us pulse.
     pub fn send_message(&mut self, message: &mut Vec<u32>) {
-        let message = self.add_checksum(message);
+        // let message = self.add_checksum(message);
 
         // Initiation sequence.
         self.out.set_value(false).expect("Error setting pin");
@@ -66,7 +66,7 @@ impl Laser {
 
         // Begin message transmission.
         for bit in message {
-            match bit == 1 {
+            match *bit == 1 {
                 true => {
                     self.out.set_value(true).expect("Error setting pin");
                     thread::sleep(Duration::from_micros(25));

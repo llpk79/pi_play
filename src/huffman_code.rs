@@ -66,13 +66,25 @@ impl HuffTree {
         let mut encoded_message = Vec::new();
         let mut code_map = HashMap::new();
         assign_codes(&self.root.as_ref().unwrap(), &mut code_map, "".to_string());
+        let mut checksum = 0_u32;
+        let mut byte_index = 0_u8;
         for char in string.chars() {
             let code = code_map.get(&char).unwrap();
             for bit in code.chars() {
-                encoded_message.push(bit.to_digit(10).unwrap());
+                let bit = bit.to_digit(10).expect("not a digit");
+                checksum += bit << byte_index;
+                encoded_message.push(bit);
+                match byte_index { 
+                    7 => byte_index = 0,
+                    _ => byte_index += 1
+                }
             }
         }
-        encoded_message
+        let mut check_vec = Vec::new();
+        for bit in (0..32).map(|n| (checksum >> n) & 1) {
+            check_vec.push(bit as u32);
+        }
+        Vec::from([encoded_message, check_vec].concat())
     }
 
     /// Use code to traverse tree to find characters.
