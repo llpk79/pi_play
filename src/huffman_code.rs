@@ -81,7 +81,7 @@ impl HuffTree {
             }
         }
         let mut check_vec = Vec::new();
-        for bit in (0..32).map(|n| (checksum >> n) & 1) {
+        for bit in (1..=32).map(|n| (checksum >> n) & 1) {
             check_vec.push(bit as u32);
         }
         Vec::from([encoded_message, check_vec].concat())

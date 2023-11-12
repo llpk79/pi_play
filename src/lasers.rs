@@ -146,7 +146,7 @@ impl Receiver {
         // Get checksum.
         let mut check: u32 = 0;
         for (i, bit) in data[data_len - 32..data_len].iter().enumerate() {
-            check += *bit << i;
+            check += *bit << (i + 1);
         }
         // VERY roughly estimate data fidelity.
         let min = min(sum, check) as f32;
