@@ -74,9 +74,9 @@ impl HuffTree {
                 let bit = bit.to_digit(10).expect("not a digit");
                 checksum += bit << byte_index;
                 encoded_message.push(bit);
-                match byte_index { 
+                match byte_index {
                     7 => byte_index = 0,
-                    _ => byte_index += 1
+                    _ => byte_index += 1,
                 }
             }
         }

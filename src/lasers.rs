@@ -1,10 +1,10 @@
-use std::cmp::{max, min};
 use crate::huffman_code::HuffTree;
 use gpio::GpioValue::{High, Low};
 use gpio::{GpioIn, GpioOut};
-use std::{fs, thread};
+use std::cmp::{max, min};
 use std::collections::HashMap;
 use std::time::Duration;
+use std::{fs, thread};
 
 const LASER_PIN: u16 = 18;
 const RECEIVER_PIN: u16 = 23;
@@ -27,35 +27,10 @@ impl Laser {
         Self { out }
     }
 
-    // /// String -> char code -> `[bits]`.
-    // /// Sum char codes to 32 bit int and append to data as check_sum.
-    // fn add_checksum(&mut self, data: &mut Vec<u32>) -> Vec<u32> {
-    //     // Add char code to checksum, push char data bitwise.
-    //     let mut check_sum = 0;
-    //     for i in (0..data.len() - 1).step_by(8) {
-    //         let mut byte = 0;
-    //         for j in 0..8 {
-    //             if i + j >= data.len() {
-    //                 break;
-    //             }
-    //             byte += data[i + j] << j;
-    //         }
-    //         check_sum += byte as i32;
-    //     }
-    //     // Push checksum data bitwise.
-    //     let mut check_vec = Vec::new();
-    //     for bit in (0..32).map(|n| (check_sum >> n) & 1) {
-    //         check_vec.push(bit as u32);
-    //     }
-    //     Vec::from([data.clone(), check_vec].concat())
-    // }
-
     /// Initiate message with 500 us pulse.
     /// Transmit message; long pulse = 1 short pulse = 0.
     /// Terminate message with 1000 us pulse.
     pub fn send_message(&mut self, message: &mut Vec<u32>) {
-        // let message = self.add_checksum(message);
-
         // Initiation sequence.
         self.out.set_value(false).expect("Error setting pin");
         thread::sleep(Duration::from_micros(50));
@@ -159,7 +134,7 @@ impl Receiver {
         }
         let mut sum: u32 = 0;
 
-        // Get int from each byte, convert to char, append to message.
+        // Get int from each byte.
         for i in (0..data_len - 32).step_by(8) {
             let mut byte = 0;
             for j in 0..8 {
@@ -201,7 +176,7 @@ impl Receiver {
                 let message = huff_tree.decode(sans_checksum);
                 num_kbytes = message.clone().len() as f32 / 1000.0;
                 println!("Validated message:\n\n{}\n\n", message)
-            },
+            }
             false => println!("ERROR: Invalid data detected.\n\n"),
         }
 
@@ -248,5 +223,4 @@ pub fn do_lasers() {
 
     laser_thread.unwrap().join().unwrap();
     receiver_thread.unwrap().join().unwrap();
-
 }
