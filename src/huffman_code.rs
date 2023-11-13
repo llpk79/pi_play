@@ -62,6 +62,7 @@ impl HuffTree {
     }
 
     /// Use code_map created by assign_codes to map characters to binary codes.
+    /// Create checksum as vec is built. Append 32 bit sum to vec.
     pub fn encode_string(&mut self, string: &mut String) -> Vec<u32> {
         let mut encoded_message = Vec::new();
         let mut code_map = HashMap::new();
@@ -72,8 +73,8 @@ impl HuffTree {
             let code = code_map.get(&char).unwrap();
             for bit in code.chars() {
                 let bit = bit.to_digit(10).expect("not a digit");
-                checksum += bit << byte_index;
                 encoded_message.push(bit);
+                checksum += bit << byte_index;
                 match byte_index {
                     8 => byte_index = 1,
                     _ => byte_index += 1,

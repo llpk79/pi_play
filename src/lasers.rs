@@ -124,8 +124,9 @@ impl Receiver {
         data
     }
 
-    /// Sum char codes and return boolean comparison with checksum.
-    /// Return error.
+    /// Last 32 bits contain checksum.
+    /// Sum each 8 bit word in message anc compare to checksum.
+    /// Return comparison and error.
     fn validate(&mut self, data: &Vec<u32>) -> (bool, f32) {
         let data_len = data.len();
         // Min one byte message plus checksum.
@@ -158,7 +159,7 @@ impl Receiver {
     /// Call receive and decode methods.
     /// Print to stdout
     pub fn print_message(&mut self, huff_tree: &mut HuffTree) {
-        println!("\nAwaiting transmission...");
+        println!("\n\nAwaiting transmission...");
         self.detect_message();
         let start = chrono::Utc::now();
 
@@ -175,15 +176,15 @@ impl Receiver {
                 let sans_checksum = Vec::from(&data[0..(data_len - 32)]);
                 let message = huff_tree.decode(sans_checksum);
                 num_kbytes = message.clone().len() as f32 / 1000.0;
-                println!("Validated message:\n\n{}\n\n", message)
+                println!("Validated message:\n\n{}\n", message)
             }
-            false => println!("ERROR: Invalid data detected.\n\n"),
+            false => println!("ERROR: Invalid data detected.\n"),
         }
 
         // Calculate stats
         let seconds = (end - start).num_milliseconds() as f64 / 1000.0f64;
         println!(
-            "Message in {:.3} sec\nKB/s {:.3}\n'Error' {:.5}",
+            "Message in {:.3} sec\nKB/s {:.3}\n'Error' {:.5}\n",
             seconds,
             num_kbytes as f64 / seconds,
             1.0 - error,
