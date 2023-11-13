@@ -9,7 +9,6 @@ edition = "2021"
 gpio = "0.4.1"
 chrono = "0.4"
 i2c-linux = "0.1.2"
-huffman-coding = "0.1.2"
 
 [[bin]]
 name = "pi_play"
