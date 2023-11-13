@@ -51,28 +51,46 @@ impl HuffTree {
         // Keep doing this until len is 1, this is the root of sorted HuffTree.
         while node_vec.len() > 1 {
             node_vec.sort_by(|a, b| (&(b.freq)).cmp(&(a.freq)));
-            let node1 = node_vec.pop().unwrap();
-            let node2 = node_vec.pop().unwrap();
+            let node1 = node_vec.pop().expect("Vec has elements.");
+            let node2 = node_vec.pop().expect("Vec has elements.");
             let mut new_node = Node::new_box(Node::new(node1.freq + node2.freq, None));
             new_node.left = Some(node1);
             new_node.right = Some(node2);
             node_vec.push(new_node);
         }
-        self.root = Some(node_vec.pop().unwrap());
+        node_vec.sort_by(|a, b| (&(b.freq)).cmp(&(a.freq)));
+        self.root = Some(node_vec.pop().expect("Tree must have root."));
     }
 
     /// Use code_map created by assign_codes to map characters to binary codes.
+    /// Create checksum as vec is built. Append 32 bit sum to vec.
     pub fn encode_string(&mut self, string: &mut String) -> Vec<u32> {
         let mut encoded_message = Vec::new();
         let mut code_map = HashMap::new();
-        assign_codes(&self.root.as_ref().unwrap(), &mut code_map, "".to_string());
+        assign_codes(
+            &self.root.as_ref().expect("Tree must have root."),
+            &mut code_map,
+            "".to_string(),
+        );
+        let mut checksum = 0_u32;
+        let mut byte_index = 1_u8;
         for char in string.chars() {
-            let code = code_map.get(&char).unwrap();
+            let code = code_map.get(&char).expect("All message chars in map.");
             for bit in code.chars() {
-                encoded_message.push(bit.to_digit(10).unwrap());
+                let bit = bit.to_digit(10).expect("Bits must be digits");
+                encoded_message.push(bit);
+                checksum += bit << byte_index;
+                match byte_index {
+                    8 => byte_index = 1,
+                    _ => byte_index += 1,
+                }
             }
         }
-        encoded_message
+        let mut check_vec = Vec::new();
+        for bit in (1..=32).map(|n| (checksum >> n) & 1) {
+            check_vec.push(bit as u32);
+        }
+        Vec::from([encoded_message, check_vec].concat())
     }
 
     /// Use code to traverse tree to find characters.
@@ -80,7 +98,7 @@ impl HuffTree {
     /// Only leaf nodes have characters so if we found one that's it.
     pub fn decode(&mut self, message: Vec<u32>) -> String {
         let mut decoded_message = String::new();
-        let mut node = self.root.as_ref().unwrap();
+        let mut node = self.root.as_ref().expect("Tree must have root.");
         for bit in message {
             if bit == 0 {
                 if let Some(ref left) = &node.left {
@@ -93,7 +111,7 @@ impl HuffTree {
             }
             if let Some(ch) = node.char_ {
                 decoded_message.push(ch);
-                node = self.root.as_ref().unwrap();
+                node = self.root.as_ref().expect("Tree must have root.");
             }
         }
         decoded_message
@@ -104,15 +122,15 @@ impl HuffTree {
 /// Recurse to leaf nodes where characters reside.
 /// Append path to char as the code.
 /// A move to the left appends a '0', to the right a '1'.
-pub fn assign_codes(tree: &Box<Node>, code_map: &mut HashMap<char, String>, string: String) {
-    if let Some(ch) = tree.char_ {
-        code_map.insert(ch, string);
+fn assign_codes(tree: &Box<Node>, code_map: &mut HashMap<char, String>, string: String) {
+    if let Some(char) = tree.char_ {
+        code_map.insert(char, string);
     } else {
-        if let Some(l) = &tree.left {
-            assign_codes(l, code_map, string.clone() + "0");
+        if let Some(left) = &tree.left {
+            assign_codes(left, code_map, string.clone() + "0");
         }
-        if let Some(r) = &tree.right {
-            assign_codes(r, code_map, string.clone() + "1");
+        if let Some(right) = &tree.right {
+            assign_codes(right, code_map, string.clone() + "1");
         }
     }
 }

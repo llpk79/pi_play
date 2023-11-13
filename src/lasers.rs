@@ -1,10 +1,10 @@
-use std::cmp::{max, min};
 use crate::huffman_code::HuffTree;
 use gpio::GpioValue::{High, Low};
 use gpio::{GpioIn, GpioOut};
-use std::{fs, thread};
+use std::cmp::{max, min};
 use std::collections::HashMap;
 use std::time::Duration;
+use std::{fs, thread};
 
 const LASER_PIN: u16 = 18;
 const RECEIVER_PIN: u16 = 23;
@@ -27,35 +27,10 @@ impl Laser {
         Self { out }
     }
 
-    /// String -> char code -> `[bits]`.
-    /// Sum char codes to 32 bit int and append to data as check_sum.
-    fn add_checksum(&mut self, data: &mut Vec<u32>) -> Vec<u32> {
-        // Add char code to checksum, push char data bitwise.
-        let mut check_sum = 0;
-        for i in (0..data.len() - 1).step_by(8) {
-            let mut byte = 0;
-            for j in 0..8 {
-                if i + j >= data.len() {
-                    break;
-                }
-                byte += data[i + j] << j;
-            }
-            check_sum += byte as i32;
-        }
-        // Push checksum data bitwise.
-        let mut check_vec = Vec::new();
-        for bit in (0..32).map(|n| (check_sum >> n) & 1) {
-            check_vec.push(bit as u32);
-        }
-        Vec::from([data.clone(), check_vec].concat())
-    }
-
     /// Initiate message with 500 us pulse.
     /// Transmit message; long pulse = 1 short pulse = 0.
     /// Terminate message with 1000 us pulse.
     pub fn send_message(&mut self, message: &mut Vec<u32>) {
-        let message = self.add_checksum(message);
-
         // Initiation sequence.
         self.out.set_value(false).expect("Error setting pin");
         thread::sleep(Duration::from_micros(50));
@@ -66,7 +41,7 @@ impl Laser {
 
         // Begin message transmission.
         for bit in message {
-            match bit == 1 {
+            match *bit == 1 {
                 true => {
                     self.out.set_value(true).expect("Error setting pin");
                     thread::sleep(Duration::from_micros(25));
@@ -149,8 +124,9 @@ impl Receiver {
         data
     }
 
-    /// Sum char codes and return boolean comparison with checksum.
-    /// Return error.
+    /// Last 32 bits contain checksum.
+    /// Sum each 8 bit word in message anc compare to checksum.
+    /// Return comparison and error.
     fn validate(&mut self, data: &Vec<u32>) -> (bool, f32) {
         let data_len = data.len();
         // Min one byte message plus checksum.
@@ -159,10 +135,10 @@ impl Receiver {
         }
         let mut sum: u32 = 0;
 
-        // Get int from each byte, convert to char, append to message.
+        // Get int from each byte.
         for i in (0..data_len - 32).step_by(8) {
             let mut byte = 0;
-            for j in 0..8 {
+            for j in 1..=8 {
                 byte += data[i + j] << j as u32;
             }
             sum += byte;
@@ -171,19 +147,19 @@ impl Receiver {
         // Get checksum.
         let mut check: u32 = 0;
         for (i, bit) in data[data_len - 32..data_len].iter().enumerate() {
-            check += *bit << i;
+            check += *bit << (i + 1);
         }
         // VERY roughly estimate data fidelity.
         let min = min(sum, check) as f32;
         let max = max(sum, check) as f32;
         let error = min / max;
-        (error > 0.995, error)
+        (error > 0.99, error)
     }
 
     /// Call receive and decode methods.
     /// Print to stdout
     pub fn print_message(&mut self, huff_tree: &mut HuffTree) {
-        println!("\nAwaiting transmission...");
+        println!("\n\nAwaiting transmission...");
         self.detect_message();
         let start = chrono::Utc::now();
 
@@ -192,19 +168,23 @@ impl Receiver {
 
         println!("Message received. Validating...\n");
         let (valid, error) = self.validate(&data);
-        let sans_checksum = Vec::from(&data[0..(data.len() - 32)]);
-        let message = huff_tree.decode(sans_checksum);
         let end = chrono::Utc::now();
+        let mut num_kbytes = 0.0;
         match valid {
-            true => println!("Validated message:\n\n{}\n\n", message),
-            false => println!("ERROR: Invalid data detected.\n\n"),
+            true => {
+                let data_len = data.len();
+                let sans_checksum = Vec::from(&data[0..(data_len - 32)]);
+                let message = huff_tree.decode(sans_checksum);
+                num_kbytes = message.clone().len() as f32 / 1000.0;
+                println!("Validated message:\n\n{}\n", message)
+            }
+            false => println!("ERROR: Invalid data detected.\n"),
         }
 
         // Calculate stats
-        let num_kbytes = message.clone().len() as f32 / 1000.0;
         let seconds = (end - start).num_milliseconds() as f64 / 1000.0f64;
         println!(
-            "Message in {:.3} sec\nKB/s {:.3}\n'Error' {:.5}",
+            "Message in {:.3} sec\nKB/s {:.3}\n'Error' {:.5}\n",
             seconds,
             num_kbytes as f64 / seconds,
             1.0 - error,
@@ -215,15 +195,15 @@ impl Receiver {
 pub fn do_lasers() {
     let mut laser = Laser::new();
     let mut receiver = Receiver::new();
-    let mut message = fs::read_to_string("./src/lasers.rs").expect("error opening file");
+    let mut message = fs::read_to_string("./src/huffman_code.rs").expect("error opening file");
     // let mut message = "Hello World.".to_string();
 
     // Compress message with Huffman Coding.
     let mut freq_map = HashMap::new();
     let mut huff_tree = HuffTree::new();
     for char in message.chars() {
-        let cout = freq_map.entry(char).or_insert(0);
-        *cout += 1;
+        let count = freq_map.entry(char).or_insert(0);
+        *count += 1;
     }
     huff_tree.build_tree(freq_map);
     let mut encoded_message = huff_tree.encode_string(&mut message);
@@ -239,10 +219,15 @@ pub fn do_lasers() {
         .name("laser".to_string())
         .spawn(move || loop {
             laser.send_message(encoded_message.as_mut());
-            thread::sleep(Duration::from_millis(2500))
+            thread::sleep(Duration::from_millis(500))
         });
 
-    laser_thread.unwrap().join().unwrap();
-    receiver_thread.unwrap().join().unwrap();
-
+    laser_thread
+        .expect("Thread created")
+        .join()
+        .expect("Thread closed");
+    receiver_thread
+        .expect("Thread created")
+        .join()
+        .expect("Thread closed");
 }
