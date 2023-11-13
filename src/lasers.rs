@@ -222,6 +222,6 @@ pub fn do_lasers() {
             thread::sleep(Duration::from_millis(500))
         });
 
-    laser_thread.unwrap().join().unwrap();
-    receiver_thread.unwrap().join().unwrap();
+    laser_thread.expect("Thread created").join().expect("Thread closed");
+    receiver_thread.expect("Thread created").join().expect("Thread closed");
 }
