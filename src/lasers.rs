@@ -195,7 +195,7 @@ impl Receiver {
 pub fn do_lasers() {
     let mut laser = Laser::new();
     let mut receiver = Receiver::new();
-    let mut message = fs::read_to_string("./src/lasers.rs").expect("error opening file");
+    let mut message = fs::read_to_string("./src/huffman_code.rs").expect("error opening file");
     // let mut message = "Hello World.".to_string();
 
     // Compress message with Huffman Coding.
