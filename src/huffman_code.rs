@@ -53,9 +53,7 @@ impl HuffTree {
             node_vec.sort_by(|a, b| (&(b.freq)).cmp(&(a.freq)));
             let node1 = node_vec.pop().expect("Vec has elements.");
             let node2 = node_vec.pop().expect("Vec has elements.");
-            let mut new_node = Node::new_box(
-                Node::new(node1.freq + node2.freq, None)
-            );
+            let mut new_node = Node::new_box(Node::new(node1.freq + node2.freq, None));
             new_node.left = Some(node1);
             new_node.right = Some(node2);
             node_vec.push(new_node);
@@ -69,7 +67,11 @@ impl HuffTree {
     pub fn encode_string(&mut self, string: &mut String) -> Vec<u32> {
         let mut encoded_message = Vec::new();
         let mut code_map = HashMap::new();
-        assign_codes(&self.root.as_ref().expect("Tree must have root."), &mut code_map, "".to_string());
+        assign_codes(
+            &self.root.as_ref().expect("Tree must have root."),
+            &mut code_map,
+            "".to_string(),
+        );
         let mut checksum = 0_u32;
         let mut byte_index = 1_u8;
         for char in string.chars() {

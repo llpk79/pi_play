@@ -222,6 +222,12 @@ pub fn do_lasers() {
             thread::sleep(Duration::from_millis(500))
         });
 
-    laser_thread.expect("Thread created").join().expect("Thread closed");
-    receiver_thread.expect("Thread created").join().expect("Thread closed");
+    laser_thread
+        .expect("Thread created")
+        .join()
+        .expect("Thread closed");
+    receiver_thread
+        .expect("Thread created")
+        .join()
+        .expect("Thread closed");
 }
