@@ -50,7 +50,7 @@ impl HuffTree {
         // Assign the larger popped node as the new node's left, the smaller as right.
         // Keep doing this until len is 1, this is the root of sorted HuffTree.
         while node_vec.len() > 1 {
-            node_vec.sort_by(|a, b| (&(b.freq)).cmp(&(a.freq)));
+            node_vec.sort_by(|a, b| (&b.freq).cmp(&a.freq));
             let node1 = node_vec.pop().expect("Vec has elements.");
             let node2 = node_vec.pop().expect("Vec has elements.");
             let mut new_node = Node::new_box(Node::new(node1.freq + node2.freq, None));
@@ -58,7 +58,7 @@ impl HuffTree {
             new_node.right = Some(node2);
             node_vec.push(new_node);
         }
-        node_vec.sort_by(|a, b| (&(b.freq)).cmp(&(a.freq)));
+        node_vec.sort_by(|a, b| (&b.freq).cmp(&a.freq));
         self.root = Some(node_vec.pop().expect("Tree must have root."));
     }
 
@@ -78,6 +78,7 @@ impl HuffTree {
             }
         }
     }
+
     /// Use code_map created by assign_codes to map characters to binary codes.
     /// Create checksum as vec is built. Append 32 bit sum to vec.
     pub fn encode_string(&mut self, string: &mut String) -> Vec<u32> {
@@ -103,8 +104,8 @@ impl HuffTree {
             }
         }
         let mut check_vec = Vec::new();
-        for bit in (1..=32).map(|n| (checksum >> n) & 1) {
-            check_vec.push(bit as u32);
+        for bit in (0..32).map(|n| (checksum >> n) & 1) {
+            check_vec.push(bit);
         }
         Vec::from([encoded_message, check_vec].concat())
     }
