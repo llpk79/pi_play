@@ -125,7 +125,7 @@ impl Receiver {
     }
 
     /// Last 32 bits contain checksum.
-    /// Sum each 8 bit word in message anc compare to checksum.
+    /// Sum each 8 bit word in message and compare to checksum.
     /// Return comparison and error.
     fn validate(&mut self, data: &Vec<u32>) -> (bool, f32) {
         let data_len = data.len();
@@ -138,8 +138,8 @@ impl Receiver {
         // Get int from each byte.
         for i in (0..data_len - 32).step_by(8) {
             let mut byte = 0;
-            for j in 1..=8 {
-                byte += data[i + j] << j as u32;
+            for bit in (1..=8).map(|j| data[i + j] << j) {
+                byte += bit
             }
             sum += byte;
         }
@@ -169,24 +169,24 @@ impl Receiver {
         println!("Message received. Validating...\n");
         let (valid, error) = self.validate(&data);
         let end = chrono::Utc::now();
-        let mut num_kbytes = 0.0;
+        let mut num_kbytes = 0.0_f64;
         match valid {
             true => {
                 let data_len = data.len();
                 let sans_checksum = Vec::from(&data[0..(data_len - 32)]);
                 let message = huff_tree.decode(sans_checksum);
-                num_kbytes = message.clone().len() as f32 / 1000.0;
+                num_kbytes = message.clone().len() as f64 / 1000.0;
                 println!("Validated message:\n\n{}\n", message)
             }
             false => println!("ERROR: Invalid data detected.\n"),
         }
 
         // Calculate stats
-        let seconds = (end - start).num_milliseconds() as f64 / 1000.0f64;
+        let seconds = (end - start).num_milliseconds() as f64 / 1000.0_f64;
         println!(
             "Message in {:.3} sec\nKB/s {:.3}\n'Error' {:.5}\n",
             seconds,
-            num_kbytes as f64 / seconds,
+            num_kbytes / seconds,
             1.0 - error,
         );
     }
@@ -200,11 +200,11 @@ pub fn do_lasers() {
 
     // Compress message with Huffman Coding.
     let mut freq_map = HashMap::new();
-    let mut huff_tree = HuffTree::new();
     for char in message.chars() {
         let count = freq_map.entry(char).or_insert(0);
         *count += 1;
     }
+    let mut huff_tree = HuffTree::new();
     huff_tree.build_tree(freq_map);
     let mut encoded_message = huff_tree.encode_string(&mut message);
 

@@ -62,13 +62,29 @@ impl HuffTree {
         self.root = Some(node_vec.pop().expect("Tree must have root."));
     }
 
+    /// Map characters to their codes by traversing HuffTree.
+    /// Recurse to leaf nodes where characters reside.
+    /// Append path to char as the code.
+    /// A move to the left appends a '0', to the right a '1'.
+    fn assign_codes(&mut self, tree: &Box<Node>, code_map: &mut HashMap<char, String>, string: String) {
+        if let Some(char) = &tree.char_ {
+            code_map.insert(*char, string);
+        } else {
+            if let Some(left) = &tree.left {
+                self.assign_codes(left, code_map, string.clone() + "0");
+            }
+            if let Some(right) = &tree.right {
+                self.assign_codes(right, code_map, string.clone() + "1");
+            }
+        }
+    }
     /// Use code_map created by assign_codes to map characters to binary codes.
     /// Create checksum as vec is built. Append 32 bit sum to vec.
     pub fn encode_string(&mut self, string: &mut String) -> Vec<u32> {
         let mut encoded_message = Vec::new();
         let mut code_map = HashMap::new();
-        assign_codes(
-            &self.root.as_ref().expect("Tree must have root."),
+        self.assign_codes(
+            &self.root.clone().expect("tree exists"),
             &mut code_map,
             "".to_string(),
         );
@@ -118,19 +134,3 @@ impl HuffTree {
     }
 }
 
-/// Map characters to their codes by traversing HuffTree.
-/// Recurse to leaf nodes where characters reside.
-/// Append path to char as the code.
-/// A move to the left appends a '0', to the right a '1'.
-fn assign_codes(tree: &Box<Node>, code_map: &mut HashMap<char, String>, string: String) {
-    if let Some(char) = tree.char_ {
-        code_map.insert(char, string);
-    } else {
-        if let Some(left) = &tree.left {
-            assign_codes(left, code_map, string.clone() + "0");
-        }
-        if let Some(right) = &tree.right {
-            assign_codes(right, code_map, string.clone() + "1");
-        }
-    }
-}
