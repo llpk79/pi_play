@@ -151,7 +151,7 @@ impl Receiver {
         let min = min(sum, check) as f32;
         let max = max(sum, check) as f32;
         let error = min / max;
-        (error > 0.99, error)
+        (error > 0.995, error)
     }
 
     /// Call detect, receive and decode methods.
@@ -194,7 +194,7 @@ impl Receiver {
 pub fn do_lasers() {
     let mut laser = Laser::new();
     let mut receiver = Receiver::new();
-    let message = fs::read_to_string("./src/huffman_code.rs").expect("File should exist");
+    let message = fs::read_to_string("./src/lasers.rs").expect("File should exist");
     // let mut message = "Hello World.".to_string();
 
     // Compress message with Huffman Coding.
