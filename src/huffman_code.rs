@@ -58,13 +58,12 @@ impl HuffTree {
             new_node.right = Some(node2);
             node_vec.push(new_node);
         }
-        node_vec.sort_by(|a, b| (&b.freq).cmp(&a.freq));
         self.root = Some(node_vec.pop().expect("Tree must have root."));
     }
 
     /// Map characters to their codes by traversing HuffTree.
     /// Recurse to leaf nodes where characters reside.
-    /// Append path to char as the code.
+    /// Append to string each step down the path to the char.
     /// A move to the left appends a '0', to the right a '1'.
     fn assign_codes(&self, tree: &Box<Node>, code_map: &mut HashMap<char, String>, string: String) {
         if let Some(char) = &tree.char_ {
@@ -81,7 +80,7 @@ impl HuffTree {
 
     /// Use code_map created by assign_codes to map characters to binary codes.
     /// Create checksum as vec is built. Append 32 bit sum to vec.
-    pub fn encode_string(&self, string: &String) -> Vec<u32> {
+    pub fn encode_string(&self, string: String) -> Vec<u32> {
         let mut encoded_message = Vec::new();
         let mut code_map = HashMap::new();
         self.assign_codes(

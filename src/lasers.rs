@@ -86,8 +86,7 @@ impl Receiver {
             while self.in_.read_value().expect("Pin should be active") == High {
                 continue;
             }
-            let end = chrono::Utc::now();
-            let initiation_time = (end - begin).num_microseconds().expect("Some time should have passed");
+            let initiation_time = (chrono::Utc::now() - begin).num_microseconds().expect("Some time should have passed");
             match initiation_time {
                 i64::MIN..=400 => continue,
                 401..=900 => break,
@@ -110,8 +109,7 @@ impl Receiver {
             while self.in_.read_value().expect("Pin should be active") == High {
                 continue;
             }
-            let end = chrono::Utc::now();
-            let bit_time = (end - start).num_microseconds().expect("Some time should have passed");
+            let bit_time = (chrono::Utc::now() - start).num_microseconds().expect("Some time should have passed");
             // println!("bit time {}", bit_time);
             match bit_time {
                 i64::MIN..=-0 => continue,
@@ -146,7 +144,7 @@ impl Receiver {
 
         // Get checksum.
         let mut check: u32 = 0;
-        for (i, bit) in data[data_len - 32..data_len].iter().enumerate() {
+        for (i, bit) in data[data_len - 32.. ].iter().enumerate() {
             check += *bit << (i + 1);
         }
         // VERY roughly estimate data fidelity.
@@ -169,17 +167,18 @@ impl Receiver {
         println!("Message received. Validating...\n");
         let (valid, error) = self.validate(&data);
         let end = chrono::Utc::now();
-        let mut num_kbytes = 0.0_f64;
-        match valid {
+        let num_kbytes= match valid {
             true => {
-                let data_len = data.len();
-                let sans_checksum = Vec::from(&data[0..(data_len - 32)]);
-                let message: String = huff_tree.decode(sans_checksum);
-                num_kbytes = message.len() as f64 / 1000.0;
-                println!("Validated message:\n\n{}\n", message)
+                let sans_checksum = Vec::from(&data[0..(data.len() - 32)]);
+                let message = huff_tree.decode(sans_checksum);
+                println!("Validated message:\n\n{}\n", message);
+                message.len() as f64 / 1000.0
             }
-            false => println!("ERROR: Invalid data detected.\n"),
-        }
+            false => {
+                println!("ERROR: Invalid data detected.\n");
+                0.0
+            },
+        };
 
         // Calculate stats
         let seconds = (end - start).num_milliseconds() as f64 / 1000.0_f64;
@@ -206,13 +205,13 @@ pub fn do_lasers() {
     }
     let mut huff_tree = HuffTree::new();
     huff_tree.build_tree(freq_map);
-    let encoded_message = huff_tree.encode_string(&message);
+    let encoded_message = huff_tree.encode_string(message);
 
     // Start a thread each for the laser and receiver.
     let receiver_thread = thread::Builder::new()
         .name("receiver".to_string())
         .spawn(move || loop {
-            receiver.print_message(&mut huff_tree);
+            receiver.print_message(&huff_tree);
         });
 
     let laser_thread = thread::Builder::new()
