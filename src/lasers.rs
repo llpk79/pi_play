@@ -136,7 +136,7 @@ impl Receiver {
         // Get int from each byte.
         for i in (0..data_len - 32).step_by(8) {
             let mut byte = 0;
-            for bit in (1..=8).map(|j| data[i + j] << j) {
+            for bit in (0..8).map(|j| data[i + j] << j) {
                 byte += bit
             }
             sum += byte;
@@ -145,7 +145,7 @@ impl Receiver {
         // Get checksum.
         let mut check: u32 = 0;
         for (i, bit) in data[data_len - 32.. ].iter().enumerate() {
-            check += *bit << (i + 1);
+            check += *bit << i;
         }
         // VERY roughly estimate data fidelity.
         let min = min(sum, check) as f32;

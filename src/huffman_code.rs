@@ -89,7 +89,7 @@ impl HuffTree {
             "".to_string(),
         );
         let mut checksum = 0_u32;
-        let mut byte_index = 1_u8;
+        let mut byte_index = 0_u8;
         for char in string.chars() {
             let code = code_map.get(&char).expect("All message chars in map.");
             for bit in code.chars() {
@@ -97,13 +97,13 @@ impl HuffTree {
                 encoded_message.push(bit);
                 checksum += bit << byte_index;
                 match byte_index {
-                    8 => byte_index = 1,
+                    7 => byte_index = 0,
                     _ => byte_index += 1,
                 }
             }
         }
         let mut check_vec = Vec::new();
-        for bit in (1..=32).map(|n| (checksum >> n) & 1) {
+        for bit in (0..32).map(|n| (checksum >> n) & 1) {
             check_vec.push(bit);
         }
         Vec::from([encoded_message, check_vec].concat())
