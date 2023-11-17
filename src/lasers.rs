@@ -86,7 +86,9 @@ impl Receiver {
             while self.in_.read_value().expect("Pin should be active") == High {
                 continue;
             }
-            let initiation_time = (chrono::Utc::now() - begin).num_microseconds().expect("Some time should have passed");
+            let initiation_time = (chrono::Utc::now() - begin)
+                .num_microseconds()
+                .expect("Some time should have passed");
             match initiation_time {
                 i64::MIN..=400 => continue,
                 401..=900 => break,
@@ -109,7 +111,9 @@ impl Receiver {
             while self.in_.read_value().expect("Pin should be active") == High {
                 continue;
             }
-            let bit_time = (chrono::Utc::now() - start).num_microseconds().expect("Some time should have passed");
+            let bit_time = (chrono::Utc::now() - start)
+                .num_microseconds()
+                .expect("Some time should have passed");
             // println!("bit time {}", bit_time);
             match bit_time {
                 i64::MIN..=-0 => continue,
@@ -144,7 +148,7 @@ impl Receiver {
 
         // Get checksum.
         let mut check: u32 = 0;
-        for (i, bit) in data[data_len - 32.. ].iter().enumerate() {
+        for (i, bit) in data[data_len - 32..].iter().enumerate() {
             check += *bit << i;
         }
         // VERY roughly estimate data fidelity.
@@ -167,7 +171,7 @@ impl Receiver {
         println!("Message received. Validating...\n");
         let (valid, error) = self.validate(&data);
         let end = chrono::Utc::now();
-        let num_kbytes= match valid {
+        let num_kbytes = match valid {
             true => {
                 let sans_checksum = Vec::from(&data[0..(data.len() - 32)]);
                 let message = huff_tree.decode(sans_checksum);
@@ -177,7 +181,7 @@ impl Receiver {
             false => {
                 println!("ERROR: Invalid data detected.\n");
                 0.0
-            },
+            }
         };
 
         // Calculate stats
@@ -195,7 +199,7 @@ pub fn do_lasers() {
     let mut laser = Laser::new();
     let mut receiver = Receiver::new();
     let message = fs::read_to_string("./src/lasers.rs").expect("File should exist");
-    // let mut message = "Hello World.".to_string();
+    // let message = "Hello World.".to_string();
 
     // Compress message with Huffman Coding.
     let mut freq_map = HashMap::new();
@@ -224,7 +228,7 @@ pub fn do_lasers() {
     laser_thread
         .expect("Thread should exist")
         .join()
-        .expect("Thread should clos");
+        .expect("Thread should close");
     receiver_thread
         .expect("Thread should exist")
         .join()
