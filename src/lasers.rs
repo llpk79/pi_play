@@ -30,27 +30,27 @@ impl Laser {
     /// Initiate message with 500 us pulse.
     /// Transmit message; long pulse = 1 short pulse = 0.
     /// Terminate message with 1000 us pulse.
-    pub fn send_message(&mut self, message: &mut Vec<u32>) {
+    pub fn send_message(&mut self, message: &Vec<u32>) {
         // Initiation sequence.
-        self.out.set_value(false).expect("Error setting pin");
+        self.out.set_value(false).expect("Pin should be active");
         thread::sleep(Duration::from_micros(50));
-        self.out.set_value(true).expect("Error setting pin");
+        self.out.set_value(true).expect("Pin should be active");
         thread::sleep(Duration::from_micros(500));
-        self.out.set_value(false).expect("Error setting pin");
+        self.out.set_value(false).expect("Pin should be active");
         thread::sleep(Duration::from_micros(50));
 
         // Begin message transmission.
         for bit in message {
             match *bit == 1 {
                 true => {
-                    self.out.set_value(true).expect("Error setting pin");
+                    self.out.set_value(true).expect("Pin should be active");
                     thread::sleep(Duration::from_micros(25));
-                    self.out.set_value(false).expect("Error setting pin");
+                    self.out.set_value(false).expect("Pin should be active");
                 }
                 false => {
-                    self.out.set_value(true).expect("Error setting pin");
+                    self.out.set_value(true).expect("Pin should be active");
                     thread::sleep(Duration::from_micros(10));
-                    self.out.set_value(false).expect("Error setting pin");
+                    self.out.set_value(false).expect("Pin should be active");
                 }
             }
             // Bit resolution.
@@ -58,9 +58,9 @@ impl Laser {
         }
 
         // Termination sequence.
-        self.out.set_value(true).expect("Error setting pin");
+        self.out.set_value(true).expect("Pin should be active");
         thread::sleep(Duration::from_micros(1000));
-        self.out.set_value(false).expect("Error setting pin");
+        self.out.set_value(false).expect("Pin should be active");
     }
 }
 
@@ -78,16 +78,16 @@ impl Receiver {
     fn detect_message(&mut self) {
         // Detect initiation sequence.
         loop {
-            while self.in_.read_value().expect("Error reading pin") == Low {
+            while self.in_.read_value().expect("Pin should be active") == Low {
                 continue;
             }
             // Get the amount of time the laser is on.
             let begin = chrono::Utc::now();
-            while self.in_.read_value().expect("Error reading pin") == High {
+            while self.in_.read_value().expect("Pin should be active") == High {
                 continue;
             }
             let end = chrono::Utc::now();
-            let initiation_time = (end - begin).num_microseconds().expect("micro");
+            let initiation_time = (end - begin).num_microseconds().expect("Some time should have passed");
             match initiation_time {
                 i64::MIN..=400 => continue,
                 401..=900 => break,
@@ -102,16 +102,16 @@ impl Receiver {
         let mut data = Vec::new();
         // Data reception
         loop {
-            while self.in_.read_value().expect("Error reading pin") == Low {
+            while self.in_.read_value().expect("Pin should be active") == Low {
                 continue;
             }
             // Get the amount of time the laser is on.
             let start = chrono::Utc::now();
-            while self.in_.read_value().expect("Error reading pin") == High {
+            while self.in_.read_value().expect("Pin should be active") == High {
                 continue;
             }
             let end = chrono::Utc::now();
-            let bit_time = (end - start).num_microseconds().expect("micro");
+            let bit_time = (end - start).num_microseconds().expect("Some time should have passed");
             // println!("bit time {}", bit_time);
             match bit_time {
                 i64::MIN..=-0 => continue,
@@ -158,7 +158,7 @@ impl Receiver {
 
     /// Call detect, receive and decode methods.
     /// Print to stdout
-    pub fn print_message(&mut self, huff_tree: &mut HuffTree) {
+    pub fn print_message(&mut self, huff_tree: &HuffTree) {
         println!("\n\nAwaiting transmission...");
         self.detect_message();
         let start = chrono::Utc::now();
@@ -195,7 +195,7 @@ impl Receiver {
 pub fn do_lasers() {
     let mut laser = Laser::new();
     let mut receiver = Receiver::new();
-    let mut message = fs::read_to_string("./src/huffman_code.rs").expect("error opening file");
+    let message = fs::read_to_string("./src/huffman_code.rs").expect("File should exist");
     // let mut message = "Hello World.".to_string();
 
     // Compress message with Huffman Coding.
@@ -206,7 +206,7 @@ pub fn do_lasers() {
     }
     let mut huff_tree = HuffTree::new();
     huff_tree.build_tree(freq_map);
-    let mut encoded_message = huff_tree.encode_string(&mut message);
+    let encoded_message = huff_tree.encode_string(&message);
 
     // Start a thread each for the laser and receiver.
     let receiver_thread = thread::Builder::new()
@@ -218,16 +218,16 @@ pub fn do_lasers() {
     let laser_thread = thread::Builder::new()
         .name("laser".to_string())
         .spawn(move || loop {
-            laser.send_message(encoded_message.as_mut());
+            laser.send_message(&encoded_message);
             thread::sleep(Duration::from_millis(500))
         });
 
     laser_thread
-        .expect("Thread created")
+        .expect("Thread should exist")
         .join()
-        .expect("Thread closed");
+        .expect("Thread should clos");
     receiver_thread
-        .expect("Thread created")
+        .expect("Thread should exist")
         .join()
-        .expect("Thread closed");
+        .expect("Thread should close");
 }

@@ -51,8 +51,8 @@ impl HuffTree {
         // Keep doing this until len is 1, this is the root of sorted HuffTree.
         while node_vec.len() > 1 {
             node_vec.sort_by(|a, b| (&b.freq).cmp(&a.freq));
-            let node1 = node_vec.pop().expect("Vec has elements.");
-            let node2 = node_vec.pop().expect("Vec has elements.");
+            let node1 = node_vec.pop().expect("Vec should have elements.");
+            let node2 = node_vec.pop().expect("Vec should have elements.");
             let mut new_node = Node::new_box(Node::new(node1.freq + node2.freq, None));
             new_node.left = Some(node1);
             new_node.right = Some(node2);
@@ -81,7 +81,7 @@ impl HuffTree {
 
     /// Use code_map created by assign_codes to map characters to binary codes.
     /// Create checksum as vec is built. Append 32 bit sum to vec.
-    pub fn encode_string(&self, string: &mut String) -> Vec<u32> {
+    pub fn encode_string(&self, string: &String) -> Vec<u32> {
         let mut encoded_message = Vec::new();
         let mut code_map = HashMap::new();
         self.assign_codes(
