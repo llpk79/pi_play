@@ -194,8 +194,8 @@ impl Receiver {
 pub fn do_lasers() {
     let mut laser = Laser::new();
     let mut receiver = Receiver::new();
-    let message = fs::read_to_string("./src/lasers.rs").expect("File should exist");
-    // let mut message = "Hello World.".to_string();
+    // let message = fs::read_to_string("./src/lasers.rs").expect("File should exist");
+    let message = "Hello World.".to_string();
 
     // Compress message with Huffman Coding.
     let mut freq_map = HashMap::new();
@@ -224,7 +224,7 @@ pub fn do_lasers() {
     laser_thread
         .expect("Thread should exist")
         .join()
-        .expect("Thread should clos");
+        .expect("Thread should close");
     receiver_thread
         .expect("Thread should exist")
         .join()
