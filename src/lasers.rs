@@ -127,7 +127,7 @@ impl Receiver {
     /// Last 32 bits contain checksum.
     /// Sum each 8 bit word in message and compare to checksum.
     /// Return comparison and error.
-    fn validate(&mut self, data: &Vec<u32>) -> (bool, f32) {
+    fn validate(&self, data: &Vec<u32>) -> (bool, f32) {
         let data_len = data.len();
         // Min one byte message plus checksum.
         if data_len < 40 {
@@ -156,7 +156,7 @@ impl Receiver {
         (error > 0.99, error)
     }
 
-    /// Call receive and decode methods.
+    /// Call detect, receive and decode methods.
     /// Print to stdout
     pub fn print_message(&mut self, huff_tree: &mut HuffTree) {
         println!("\n\nAwaiting transmission...");
@@ -174,8 +174,8 @@ impl Receiver {
             true => {
                 let data_len = data.len();
                 let sans_checksum = Vec::from(&data[0..(data_len - 32)]);
-                let message = huff_tree.decode(sans_checksum);
-                num_kbytes = message.clone().len() as f64 / 1000.0;
+                let message: String = huff_tree.decode(sans_checksum);
+                num_kbytes = message.len() as f64 / 1000.0;
                 println!("Validated message:\n\n{}\n", message)
             }
             false => println!("ERROR: Invalid data detected.\n"),

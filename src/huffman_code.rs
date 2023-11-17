@@ -3,7 +3,7 @@
 
 use ::std::collections::HashMap;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Node {
     freq: i32,
     char_: Option<char>,
@@ -11,7 +11,7 @@ pub struct Node {
     left: Option<Box<Node>>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct HuffTree {
     root: Option<Box<Node>>,
 }
@@ -74,7 +74,7 @@ impl HuffTree {
                 self.assign_codes(left, code_map, string.clone() + "0");
             }
             if let Some(right) = &tree.right {
-                self.assign_codes(right, code_map, string.clone() + "1");
+                self.assign_codes(right, code_map, string + "1");
             }
         }
     }
@@ -134,4 +134,3 @@ impl HuffTree {
         decoded_message
     }
 }
-
