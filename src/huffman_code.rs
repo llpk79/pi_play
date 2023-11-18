@@ -3,7 +3,7 @@
 
 use ::std::collections::HashMap;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Node {
     freq: i32,
     char_: Option<char>,
@@ -11,7 +11,7 @@ pub struct Node {
     left: Option<Box<Node>>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct HuffTree {
     root: Option<Box<Node>>,
 }
@@ -38,7 +38,7 @@ impl HuffTree {
 
     /// Create HuffmanTree to code characters with greater frequency with a shorter code
     /// longer codes for infrequent characters.
-    pub fn build_tree(mut self, freq_map: HashMap<char, i32>) {
+    pub fn build_tree(&mut self, freq_map: HashMap<char, i32>) {
         // Build a vec of single node HuffTrees from the frequency map.
         let mut node_vec: Vec<Box<Node>> = {
             freq_map
@@ -65,12 +65,12 @@ impl HuffTree {
     /// Recurse to leaf nodes where characters reside.
     /// Append to string each step down the path to the char.
     /// A move to the left appends a '0', to the right a '1'.
-    fn assign_codes(self, tree: &Box<Node>, mut code_map: HashMap<char, String>, string: String) {
+    fn assign_codes(&self, tree: &Box<Node>, code_map: &mut HashMap<char, String>, string: String) {
         if let Some(char) = &tree.char_ {
             code_map.insert(*char, string);
         } else {
             if let Some(left) = &tree.left {
-                self.assign_codes(left, code_map.clone(), string.clone() + "0");
+                self.assign_codes(left, code_map, string.clone() + "0");
             }
             if let Some(right) = &tree.right {
                 self.assign_codes(right, code_map, string + "1");
@@ -80,12 +80,12 @@ impl HuffTree {
 
     /// Use code_map created by assign_codes to map characters to binary codes.
     /// Create checksum as vec is built. Append 32 bit sum to vec.
-    pub fn encode_string(self, string: String) -> Vec<u32> {
+    pub fn encode_string(&self, string: String) -> Vec<u32> {
         let mut encoded_message = Vec::new();
         let mut code_map = HashMap::new();
         self.assign_codes(
             &self.root.as_ref().expect("tree exists"),
-            code_map,
+            code_map.as_mut(),
             "".to_string(),
         );
         let mut checksum = 0_u32;
@@ -112,7 +112,7 @@ impl HuffTree {
     /// Use code to traverse tree to find characters.
     /// A '0' moves down the tree to the left, '1' to the right.
     /// Only leaf nodes have characters so if we found one that's it.
-    pub fn decode(self, message: Vec<u32>) -> String {
+    pub fn decode(&self, message: Vec<u32>) -> String {
         let mut decoded_message = String::new();
         let mut node = self.root.as_ref().expect("Tree must have root.");
         for bit in message {
