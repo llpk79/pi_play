@@ -195,7 +195,8 @@ impl Receiver {
 
         // Calculate stats
         let seconds = (end - start).num_milliseconds() as f64 / 1000.0_f64;
-        let decode_time = (chrono::Utc::now() - end).num_microseconds().unwrap() as f64 / 1000_000.0_f64;
+        let decode_time =
+            (chrono::Utc::now() - end).num_microseconds().unwrap() as f64 / 1000_000.0_f64;
         println!(
             "Message in {:.4} sec\nDecode in {:.6} sec\nKB/s {:.3}\n'Error' {:.6}\n",
             seconds,
