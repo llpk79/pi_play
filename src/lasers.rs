@@ -43,7 +43,7 @@ impl Laser {
 
         // Begin message transmission.
         for bit in self.encoded_message {
-            match *bit == 1 {
+            match bit == 1 {
                 true => {
                     self.out.set_value(true).expect("Pin should be active");
                     thread::sleep(Duration::from_micros(25));
@@ -210,7 +210,7 @@ pub fn do_lasers() {
     let mut huff_tree = HuffTree::new();
     huff_tree.build_tree(freq_map);
     let encoded_message = huff_tree.encode_string(message);
-    
+
     let mut laser = Laser::new(encoded_message);
     let mut receiver = Receiver::new(huff_tree);
 
