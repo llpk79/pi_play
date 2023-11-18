@@ -19,7 +19,7 @@ pub struct Receiver {
     huff_tree: HuffTree,
 }
 
-impl Laser {
+impl Laser<'_> {
     /// Open port for laser pin.
     pub fn new(encoded_message: &Vec<u32>) -> Laser {
         let out = match gpio::sysfs::SysFsGpioOutput::open(LASER_PIN) {
@@ -43,7 +43,7 @@ impl Laser {
 
         // Begin message transmission.
         for bit in self.encoded_message {
-            match bit == 1 {
+            match *bit == 1 {
                 true => {
                     self.out.set_value(true).expect("Pin should be active");
                     thread::sleep(Duration::from_micros(25));
