@@ -2,7 +2,6 @@ use crate::huffman_code::HuffTree;
 use gpio::GpioValue::{High, Low};
 use gpio::{GpioIn, GpioOut};
 use std::cmp::{max, min};
-use std::collections::HashMap;
 use std::time::Duration;
 use std::{fs, thread};
 
@@ -202,17 +201,11 @@ pub fn do_lasers() {
     // let message = "Hello World.".to_string();
 
     // Compress message with Huffman Coding.
-    let mut freq_map = HashMap::new();
-    for char in message.chars() {
-        let count = freq_map.entry(char).or_insert(0);
-        *count += 1;
-    }
-    let mut huff_tree = HuffTree::new();
-    huff_tree.build_tree(freq_map);
-    let encoded_message = huff_tree.encode_string(message);
+    let mut huff_tree = HuffTree::new(message);
+    let encoded_message = huff_tree.encode();
 
-    let mut laser = Laser::new(encoded_message);
     let mut receiver = Receiver::new(huff_tree);
+    let mut laser = Laser::new(encoded_message);
 
     // Start a thread each for the laser and receiver.
     let receiver_thread = thread::Builder::new()
@@ -228,11 +221,11 @@ pub fn do_lasers() {
             thread::sleep(Duration::from_millis(500))
         });
 
-    laser_thread
+    receiver_thread
         .expect("Thread should exist")
         .join()
         .expect("Thread should close");
-    receiver_thread
+    laser_thread
         .expect("Thread should exist")
         .join()
         .expect("Thread should close");

@@ -14,6 +14,9 @@ pub struct Node {
 #[derive(Debug, Clone)]
 pub struct HuffTree {
     root: Option<Box<Node>>,
+    message: String,
+    frequency_map: HashMap<char, i32>,
+    char_code_map: HashMap<char, String>
 }
 
 impl Node {
@@ -32,16 +35,37 @@ impl Node {
 }
 
 impl HuffTree {
-    pub fn new() -> HuffTree {
-        HuffTree { root: None }
+    pub fn new(message: String) -> HuffTree {
+        HuffTree {
+            root: None,
+            message,
+            frequency_map: HashMap::new(),
+            char_code_map: HashMap::new()
+        }
     }
+
+    pub fn encode(&mut self) -> Vec<u32> {
+        self.build_tree();
+        self.encode_string()
+    }
+
+    fn create_frequency_map(&mut self) -> HashMap<char, i32> {
+        let mut frequency_map = HashMap::new();
+        for char in self.message.chars() {
+            let count = frequency_map.entry(char).or_insert(0);
+            *count += 1;
+        }
+        frequency_map
+        }
+
 
     /// Create HuffmanTree to code characters with greater frequency with a shorter code
     /// longer codes for infrequent characters.
-    pub fn build_tree(&mut self, freq_map: HashMap<char, i32>) {
+    fn build_tree(&mut self) {
         // Build a vec of single node HuffTrees from the frequency map.
+        self.frequency_map = self.create_frequency_map();
         let mut node_vec: Vec<Box<Node>> = {
-            freq_map
+            self.frequency_map
                 .iter()
                 .map(|(char_, freq)| Node::new_box(Node::new(*freq, Some(*char_))))
                 .collect()
@@ -80,18 +104,17 @@ impl HuffTree {
 
     /// Use code_map created by assign_codes to map characters to binary codes.
     /// Create checksum as vec is built. Append 32 bit sum to vec.
-    pub fn encode_string(&self, string: String) -> Vec<u32> {
+    fn encode_string(&mut self) -> Vec<u32> {
         let mut encoded_message = Vec::new();
-        let mut code_map = HashMap::new();
         self.assign_codes(
             &self.root.as_ref().expect("tree exists"),
-            &mut code_map,
+            &mut self.char_code_map,
             "".to_string(),
         );
         let mut checksum = 0_u32;
         let mut byte_index = 0_u8;
-        for char in string.chars() {
-            let code = code_map.get(&char).expect("All message chars in map.");
+        for char in self.message.chars() {
+            let code = self.char_code_map.get(&char).expect("All message chars in map.");
             for bit in code.chars() {
                 let bit = bit.to_digit(10).expect("Bits must be digits");
                 encoded_message.push(bit);
