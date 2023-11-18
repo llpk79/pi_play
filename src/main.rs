@@ -24,7 +24,7 @@ pub fn do_laser(message: String) {
         .name("laser".to_string())
         .spawn(move || loop {
             laser.send_message();
-            thread::sleep(Duration::from_millis(500))
+            thread::sleep(Duration::from_millis(2000))
         });
 
     receiver_thread
