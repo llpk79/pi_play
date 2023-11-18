@@ -85,7 +85,7 @@ impl HuffTree {
         let mut code_map = HashMap::new();
         self.assign_codes(
             &self.root.as_ref().expect("tree exists"),
-            code_map.as_mut(),
+            &mut code_map,
             "".to_string(),
         );
         let mut checksum = 0_u32;
