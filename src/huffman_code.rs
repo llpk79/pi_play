@@ -3,7 +3,7 @@
 
 use ::std::collections::HashMap;
 
-pub struct Node {
+struct Node {
     freq: i32,
     char_: Option<char>,
     right: Option<Box<Node>>,
@@ -15,7 +15,7 @@ pub struct HuffTree {
 }
 
 impl Node {
-    pub fn new(freq: i32, char_: Option<char>) -> Node {
+    fn new(freq: i32, char_: Option<char>) -> Node {
         Node {
             freq,
             char_,
@@ -24,7 +24,7 @@ impl Node {
         }
     }
 
-    pub fn new_box(node: Node) -> Box<Node> {
+    fn new_box(node: Node) -> Box<Node> {
         Box::new(node)
     }
 }

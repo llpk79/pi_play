@@ -4,7 +4,7 @@ use std::time::Duration;
 use std::{fs, thread};
 
 /// Send a message with a laser!
-pub fn do_laser(message: String) {
+fn do_laser(message: String) {
     // Compress message with Huffman Coding.
     let mut huff_tree = HuffTree::new();
     let encoded_message = huff_tree.encode(message);
