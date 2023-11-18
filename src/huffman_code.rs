@@ -3,21 +3,19 @@
 
 use ::std::collections::HashMap;
 
-#[derive(Debug)]
-pub struct Node {
+struct Node {
     freq: i32,
     char_: Option<char>,
     right: Option<Box<Node>>,
     left: Option<Box<Node>>,
 }
 
-#[derive(Debug)]
 pub struct HuffTree {
     root: Option<Box<Node>>,
 }
 
 impl Node {
-    pub fn new(freq: i32, char_: Option<char>) -> Node {
+    fn new(freq: i32, char_: Option<char>) -> Node {
         Node {
             freq,
             char_,
@@ -26,7 +24,7 @@ impl Node {
         }
     }
 
-    pub fn new_box(node: Node) -> Box<Node> {
+    fn new_box(node: Node) -> Box<Node> {
         Box::new(node)
     }
 }
@@ -36,19 +34,30 @@ impl HuffTree {
         HuffTree { root: None }
     }
 
-    /// Create HuffmanTree to code characters with greater frequency with a shorter code
-    /// longer codes for infrequent characters.
-    pub fn build_tree(&mut self, freq_map: HashMap<char, i32>) {
+    /// Map characters in message to their frequency in message.
+    fn create_frequency_map(&mut self, message: &String) -> HashMap<char, i32> {
+        let mut frequency_map = HashMap::new();
+        for char in message.chars() {
+            let count = frequency_map.entry(char).or_insert(0);
+            *count += 1;
+        }
+        frequency_map
+    }
+
+    /// Create HuffmanTree to code characters with greater frequency with a short codes and
+    /// infrequent characters with long codes.
+    fn build_tree(&mut self, message: &String) {
         // Build a vec of single node HuffTrees from the frequency map.
+        let frequency_map = self.create_frequency_map(message);
         let mut node_vec: Vec<Box<Node>> = {
-            freq_map
+            frequency_map
                 .iter()
                 .map(|(char_, freq)| Node::new_box(Node::new(*freq, Some(*char_))))
                 .collect()
         };
         // Pop the top two nodes, combine their frequencies to create a new Node with char = None.
         // Assign the larger popped node as the new node's left, the smaller as right.
-        // Keep doing this until len is 1, this is the root of sorted HuffTree.
+        // Keep doing this until len is 1. This is the root of the sorted HuffTree.
         while node_vec.len() > 1 {
             node_vec.sort_by(|a, b| (&b.freq).cmp(&a.freq));
             let node1 = node_vec.pop().expect("Vec should have elements.");
@@ -62,8 +71,11 @@ impl HuffTree {
     }
 
     /// Map characters to their codes by traversing HuffTree.
+    ///
     /// Recurse to leaf nodes where characters reside.
+    ///
     /// Append to string each step down the path to the char.
+    ///
     /// A move to the left appends a '0', to the right a '1'.
     fn assign_codes(&self, tree: &Box<Node>, code_map: &mut HashMap<char, String>, string: String) {
         if let Some(char) = &tree.char_ {
@@ -78,20 +90,21 @@ impl HuffTree {
         }
     }
 
-    /// Use code_map created by assign_codes to map characters to binary codes.
-    /// Create checksum as vec is built. Append 32 bit sum to vec.
-    pub fn encode_string(&self, string: String) -> Vec<u32> {
+    /// Use char_code_map populated by assign_codes to map characters their to binary codes.
+    ///
+    /// Create checksum as vec is built. Append 32 bit checksum to message vec.
+    fn encode_string(&mut self, message: &String) -> Vec<u32> {
         let mut encoded_message = Vec::new();
-        let mut code_map = HashMap::new();
+        let mut char_code_map = HashMap::new();
         self.assign_codes(
             &self.root.as_ref().expect("tree exists"),
-            &mut code_map,
+            &mut char_code_map,
             "".to_string(),
         );
         let mut checksum = 0_u32;
         let mut byte_index = 0_u8;
-        for char in string.chars() {
-            let code = code_map.get(&char).expect("All message chars in map.");
+        for char in message.chars() {
+            let code = char_code_map.get(&char).expect("All message chars in map.");
             for bit in code.chars() {
                 let bit = bit.to_digit(10).expect("Bits must be digits");
                 encoded_message.push(bit);
@@ -109,13 +122,21 @@ impl HuffTree {
         Vec::from([encoded_message, check_vec].concat())
     }
 
-    /// Use code to traverse tree to find characters.
+    /// Build the tree and encode the message.
+    pub fn encode(&mut self, message: String) -> Vec<u32> {
+        self.build_tree(&message);
+        self.encode_string(&message)
+    }
+
+    /// Use encoded message to traverse tree and find characters.
+    ///
     /// A '0' moves down the tree to the left, '1' to the right.
+    ///
     /// Only leaf nodes have characters so if we found one that's it.
-    pub fn decode(&self, message: Vec<u32>) -> String {
+    pub fn decode(&self, encoded_message: Vec<u32>) -> String {
         let mut decoded_message = String::new();
         let mut node = self.root.as_ref().expect("Tree must have root.");
-        for bit in message {
+        for bit in encoded_message {
             if bit == 0 {
                 if let Some(ref left) = &node.left {
                     node = left;
