@@ -3,7 +3,7 @@
 
 use ::std::collections::HashMap;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct Node {
     freq: i32,
     char_: Option<char>,
@@ -11,7 +11,7 @@ pub struct Node {
     left: Option<Box<Node>>,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone)]
 pub struct HuffTree {
     root: Option<Box<Node>>,
 }
