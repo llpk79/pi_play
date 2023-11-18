@@ -32,7 +32,9 @@ impl Laser {
     }
 
     /// Initiate message with 500 microsecond pulse.
+    ///
     /// Transmit message; long pulse = 1 short pulse = 0.
+    ///
     /// Terminate message with 1000 microsecond pulse.
     pub fn send_message(&mut self) {
         // Initiation sequence.
@@ -101,7 +103,8 @@ impl Receiver {
     }
 
     /// Push 1 for long pulse, 0 for short.
-    /// Return data upon termination sequence
+    ///
+    /// Return data upon termination sequence.
     fn receive_message(&mut self) -> Vec<u32> {
         let mut data = Vec::new();
         loop {
@@ -129,7 +132,9 @@ impl Receiver {
     }
 
     /// Last 32 bits contain checksum.
+    ///
     /// Sum each 8 bit word in message and compare to checksum.
+    ///
     /// Return comparison and error.
     fn validate(&self, data: &Vec<u32>) -> (bool, f32) {
         let data_len = data.len();
@@ -161,7 +166,8 @@ impl Receiver {
     }
 
     /// Call detect, receive and decode methods.
-    /// Print to stdout
+    ///
+    /// Print to stdout.
     pub fn print_message(&mut self) {
         println!("\n\nAwaiting transmission...");
         self.detect_message();
