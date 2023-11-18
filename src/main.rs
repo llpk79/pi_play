@@ -38,8 +38,6 @@ pub fn do_laser(message: String) {
 }
 
 fn main() {
-    // let message = fs::read_to_string("./src/lasers.rs").expect("File should exist");
-    let message = "Hello World. It's nice to meet you.".to_string();
-
+    let message = fs::read_to_string("./src/huffman_code.rs").expect("File should exist");
     do_laser(message)
 }
