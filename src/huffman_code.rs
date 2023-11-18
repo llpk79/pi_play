@@ -83,7 +83,7 @@ impl HuffTree {
     /// Recurse to leaf nodes where characters reside.
     /// Append to string each step down the path to the char.
     /// A move to the left appends a '0', to the right a '1'.
-    fn assign_codes(&mut self, tree: &Box<Node>, mut code_map: &HashMap<char, String>, string: String) {
+    fn assign_codes(&self, tree: &Box<Node>, code_map: &mut HashMap<char, String>, string: String) {
         if let Some(char) = &tree.char_ {
             code_map.insert(*char, string);
         } else {
@@ -103,7 +103,7 @@ impl HuffTree {
         let mut char_code_map = HashMap::new();
         self.assign_codes(
             &self.root.as_ref().expect("tree exists"),
-            &char_code_map,
+            &mut char_code_map,
             "".to_string(),
         );
         let mut checksum = 0_u32;
