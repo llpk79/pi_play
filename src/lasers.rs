@@ -11,26 +11,28 @@ const RECEIVER_PIN: u16 = 23;
 
 pub struct Laser {
     out: gpio::sysfs::SysFsGpioOutput,
+    encoded_message: Vec<u32>,
 }
 
 pub struct Receiver {
     in_: gpio::sysfs::SysFsGpioInput,
+    huff_tree: HuffTree,
 }
 
 impl Laser {
     /// Open port for laser pin.
-    pub fn new() -> Laser {
+    pub fn new(encoded_message: Vec<u32>) -> Laser {
         let out = match gpio::sysfs::SysFsGpioOutput::open(LASER_PIN) {
             Ok(out) => out,
             Err(_e) => panic!(),
         };
-        Self { out }
+        Self { out, encoded_message }
     }
 
     /// Initiate message with 500 us pulse.
     /// Transmit message; long pulse = 1 short pulse = 0.
     /// Terminate message with 1000 us pulse.
-    pub fn send_message(&mut self, message: &Vec<u32>) {
+    pub fn send_message(mut self) {
         // Initiation sequence.
         self.out.set_value(false).expect("Pin should be active");
         thread::sleep(Duration::from_micros(50));
@@ -40,7 +42,7 @@ impl Laser {
         thread::sleep(Duration::from_micros(50));
 
         // Begin message transmission.
-        for bit in message {
+        for bit in self.encoded_message {
             match *bit == 1 {
                 true => {
                     self.out.set_value(true).expect("Pin should be active");
@@ -66,16 +68,16 @@ impl Laser {
 
 impl Receiver {
     /// Open port for receiver pin.
-    pub fn new() -> Receiver {
+    pub fn new(huff_tree: HuffTree) -> Receiver {
         let in_ = match gpio::sysfs::SysFsGpioInput::open(RECEIVER_PIN) {
             Ok(in_) => in_,
             Err(_e) => panic!(),
         };
-        Self { in_ }
+        Self { in_ , huff_tree}
     }
 
     /// Loop until initiation sequence is detected.
-    fn detect_message(&mut self) {
+    fn detect_message(mut self) {
         // Detect initiation sequence.
         loop {
             while self.in_.read_value().expect("Pin should be active") == Low {
@@ -99,7 +101,7 @@ impl Receiver {
 
     /// Push 1 for long pulse, 0 for short.
     /// Return data upon termination sequence
-    fn receive_message(&mut self) -> Vec<u32> {
+    fn receive_message(mut self) -> Vec<u32> {
         let mut data = Vec::new();
         // Data reception
         loop {
@@ -129,7 +131,7 @@ impl Receiver {
     /// Last 32 bits contain checksum.
     /// Sum each 8 bit word in message and compare to checksum.
     /// Return comparison and error.
-    fn validate(&self, data: &Vec<u32>) -> (bool, f32) {
+    fn validate(self, data: &Vec<u32>) -> (bool, f32) {
         let data_len = data.len();
         // Min one byte message plus checksum.
         if data_len < 40 {
@@ -160,7 +162,7 @@ impl Receiver {
 
     /// Call detect, receive and decode methods.
     /// Print to stdout
-    pub fn print_message(&mut self, huff_tree: &HuffTree) {
+    pub fn print_message(mut self) {
         println!("\n\nAwaiting transmission...");
         self.detect_message();
         let start = chrono::Utc::now();
@@ -174,7 +176,7 @@ impl Receiver {
         let num_kbytes = match valid {
             true => {
                 let sans_checksum = Vec::from(&data[0..(data.len() - 32)]);
-                let message = huff_tree.decode(sans_checksum);
+                let message = self.huff_tree.decode(sans_checksum);
                 println!("Validated message:\n\n{}\n", message);
                 message.len() as f64 / 1000.0
             }
@@ -196,8 +198,6 @@ impl Receiver {
 }
 
 pub fn do_lasers() {
-    let mut laser = Laser::new();
-    let mut receiver = Receiver::new();
     let message = fs::read_to_string("./src/lasers.rs").expect("File should exist");
     // let message = "Hello World.".to_string();
 
@@ -210,18 +210,21 @@ pub fn do_lasers() {
     let mut huff_tree = HuffTree::new();
     huff_tree.build_tree(freq_map);
     let encoded_message = huff_tree.encode_string(message);
+    
+    let mut laser = Laser::new(encoded_message);
+    let mut receiver = Receiver::new(huff_tree);
 
     // Start a thread each for the laser and receiver.
     let receiver_thread = thread::Builder::new()
         .name("receiver".to_string())
         .spawn(move || loop {
-            receiver.print_message(&huff_tree);
+            receiver.print_message();
         });
 
     let laser_thread = thread::Builder::new()
         .name("laser".to_string())
         .spawn(move || loop {
-            laser.send_message(&encoded_message);
+            laser.send_message();
             thread::sleep(Duration::from_millis(500))
         });
 
