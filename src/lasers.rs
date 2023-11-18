@@ -201,8 +201,8 @@ pub fn do_lasers() {
     // let message = "Hello World.".to_string();
 
     // Compress message with Huffman Coding.
-    let mut huff_tree = HuffTree::new(message);
-    let encoded_message = huff_tree.encode();
+    let mut huff_tree = HuffTree::new();
+    let encoded_message = huff_tree.encode(message);
 
     let mut receiver = Receiver::new(huff_tree);
     let mut laser = Laser::new(encoded_message);
