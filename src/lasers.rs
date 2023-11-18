@@ -194,9 +194,9 @@ impl Receiver {
         println!(
             "Message in {:.3} sec\nDecode time {:.3} sec\nKB/s {:.3}\n'Error' {:.5}\n",
             seconds,
+            decode_time,
             num_kbytes / seconds,
             1.0 - error,
-            decode_time,
         );
     }
 }
