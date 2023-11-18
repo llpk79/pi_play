@@ -9,9 +9,9 @@ use std::{fs, thread};
 const LASER_PIN: u16 = 18;
 const RECEIVER_PIN: u16 = 23;
 
-pub struct Laser {
+pub struct Laser<'a> {
     out: gpio::sysfs::SysFsGpioOutput,
-    encoded_message: Vec<u32>,
+    encoded_message: &'a Vec<u32>,
 }
 
 pub struct Receiver {
@@ -21,7 +21,7 @@ pub struct Receiver {
 
 impl Laser {
     /// Open port for laser pin.
-    pub fn new(encoded_message: Vec<u32>) -> Laser {
+    pub fn new(encoded_message: &Vec<u32>) -> Laser {
         let out = match gpio::sysfs::SysFsGpioOutput::open(LASER_PIN) {
             Ok(out) => out,
             Err(_e) => panic!(),
@@ -77,7 +77,7 @@ impl Receiver {
     }
 
     /// Loop until initiation sequence is detected.
-    fn detect_message(mut self) {
+    fn detect_message(&mut self) {
         // Detect initiation sequence.
         loop {
             while self.in_.read_value().expect("Pin should be active") == Low {
@@ -211,7 +211,7 @@ pub fn do_lasers() {
     huff_tree.build_tree(freq_map);
     let encoded_message = huff_tree.encode_string(message);
 
-    let mut laser = Laser::new(encoded_message);
+    let mut laser = Laser::new(&encoded_message);
     let mut receiver = Receiver::new(huff_tree);
 
     // Start a thread each for the laser and receiver.
