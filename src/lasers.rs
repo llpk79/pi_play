@@ -173,7 +173,6 @@ impl Receiver {
         println!("Message received. Validating...\n");
         let (valid, error) = self.validate(&data);
 
-        // Perhaps not entirely fair to stop the clock here(?), but all the info has been sent :)
         let end = chrono::Utc::now();
         let num_kbytes = match valid {
             true => {
@@ -190,7 +189,7 @@ impl Receiver {
 
         // Calculate stats
         let seconds = (end - start).num_milliseconds() as f64 / 1000.0_f64;
-        let decode_time = (chrono::Utc::now() - end).num_microseconds().expect("some time has passed") as f64 / 1000.0_f64;
+        let decode_time = (chrono::Utc::now() - end).num_milliseconds() as f64 / 1000.0_f64;
         println!(
             "Message in {:.3} sec\nDecode time {:.3} sec\nKB/s {:.3}\n'Error' {:.5}\n",
             seconds,
