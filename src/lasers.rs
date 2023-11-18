@@ -2,8 +2,8 @@ use crate::huffman_code::HuffTree;
 use gpio::GpioValue::{High, Low};
 use gpio::{GpioIn, GpioOut};
 use std::cmp::{max, min};
+use std::thread;
 use std::time::Duration;
-use std::{fs, thread};
 
 const LASER_PIN: u16 = 18;
 const RECEIVER_PIN: u16 = 23;
@@ -19,18 +19,21 @@ pub struct Receiver {
 }
 
 impl Laser {
-    /// Open port for laser pin.
     pub fn new(encoded_message: Vec<u32>) -> Laser {
+        // Open port for laser pin.
         let out = match gpio::sysfs::SysFsGpioOutput::open(LASER_PIN) {
             Ok(out) => out,
             Err(_e) => panic!(),
         };
-        Self { out, encoded_message }
+        Self {
+            out,
+            encoded_message,
+        }
     }
 
-    /// Initiate message with 500 us pulse.
+    /// Initiate message with 500 microsecond pulse.
     /// Transmit message; long pulse = 1 short pulse = 0.
-    /// Terminate message with 1000 us pulse.
+    /// Terminate message with 1000 microsecond pulse.
     pub fn send_message(&mut self) {
         // Initiation sequence.
         self.out.set_value(false).expect("Pin should be active");
@@ -54,7 +57,7 @@ impl Laser {
                     self.out.set_value(false).expect("Pin should be active");
                 }
             }
-            // Bit resolution.
+            // Bit resolution. Gets sloppy below 50 microseconds.
             thread::sleep(Duration::from_micros(50))
         }
 
@@ -66,18 +69,17 @@ impl Laser {
 }
 
 impl Receiver {
-    /// Open port for receiver pin.
     pub fn new(huff_tree: HuffTree) -> Receiver {
+        // Open port for receiver pin.
         let in_ = match gpio::sysfs::SysFsGpioInput::open(RECEIVER_PIN) {
             Ok(in_) => in_,
             Err(_e) => panic!(),
         };
-        Self { in_ , huff_tree}
+        Self { in_, huff_tree }
     }
 
     /// Loop until initiation sequence is detected.
     fn detect_message(&mut self) {
-        // Detect initiation sequence.
         loop {
             while self.in_.read_value().expect("Pin should be active") == Low {
                 continue;
@@ -102,7 +104,6 @@ impl Receiver {
     /// Return data upon termination sequence
     fn receive_message(&mut self) -> Vec<u32> {
         let mut data = Vec::new();
-        // Data reception
         loop {
             while self.in_.read_value().expect("Pin should be active") == Low {
                 continue;
@@ -120,8 +121,8 @@ impl Receiver {
                 i64::MIN..=-0 => continue,
                 1..=95 => data.push(0),
                 96..=200 => data.push(1),
-                201..=999 => continue,
-                1000.. => break, // Termination sequence.
+                201..=999 => continue, // Bad data, we could guess, I guess?
+                1000.. => break,       // Termination sequence.
             };
         }
         data
@@ -171,6 +172,8 @@ impl Receiver {
 
         println!("Message received. Validating...\n");
         let (valid, error) = self.validate(&data);
+
+        // Perhaps not entirely fair to stop the clock here(?), but all the info has been sent :)
         let end = chrono::Utc::now();
         let num_kbytes = match valid {
             true => {
@@ -194,39 +197,4 @@ impl Receiver {
             1.0 - error,
         );
     }
-}
-
-pub fn do_lasers() {
-    let message = fs::read_to_string("./src/lasers.rs").expect("File should exist");
-    // let message = "Hello World.".to_string();
-
-    // Compress message with Huffman Coding.
-    let mut huff_tree = HuffTree::new();
-    let encoded_message = huff_tree.encode(message);
-
-    let mut receiver = Receiver::new(huff_tree);
-    let mut laser = Laser::new(encoded_message);
-
-    // Start a thread each for the laser and receiver.
-    let receiver_thread = thread::Builder::new()
-        .name("receiver".to_string())
-        .spawn(move || loop {
-            receiver.print_message();
-        });
-
-    let laser_thread = thread::Builder::new()
-        .name("laser".to_string())
-        .spawn(move || loop {
-            laser.send_message();
-            thread::sleep(Duration::from_millis(500))
-        });
-
-    receiver_thread
-        .expect("Thread should exist")
-        .join()
-        .expect("Thread should close");
-    laser_thread
-        .expect("Thread should exist")
-        .join()
-        .expect("Thread should close");
 }

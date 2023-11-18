@@ -33,9 +33,7 @@ impl Node {
 
 impl HuffTree {
     pub fn new() -> HuffTree {
-        HuffTree {
-            root: None,
-        }
+        HuffTree { root: None }
     }
 
     pub fn encode(&mut self, message: String) -> Vec<u32> {
@@ -50,8 +48,7 @@ impl HuffTree {
             *count += 1;
         }
         frequency_map
-        }
-
+    }
 
     /// Create HuffmanTree to code characters with greater frequency with a shorter code
     /// longer codes for infrequent characters.
@@ -96,7 +93,7 @@ impl HuffTree {
         }
     }
 
-    /// Use code_map created by assign_codes to map characters to binary codes.
+    /// Use char_code_map populated by assign_codes to map characters to binary codes.
     /// Create checksum as vec is built. Append 32 bit sum to vec.
     fn encode_string(&mut self, message: &String) -> Vec<u32> {
         let mut encoded_message = Vec::new();
