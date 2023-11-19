@@ -35,7 +35,7 @@ fn do_laser() {
         .spawn(move || loop {
             let celsius = read_temp(false);
             let fahrenheit = read_temp(true);
-            let message = format!("C: {}\n        F: {}        ", celsius, fahrenheit);
+            let message = format!("C: {}       \nF: {}        ", celsius, fahrenheit);
             laser.send_message(message);
             thread::sleep(Duration::from_millis(1000))
         });
