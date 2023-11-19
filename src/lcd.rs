@@ -36,10 +36,6 @@ impl LCD {
         }
     }
 
-    pub fn set_slave_address(&mut self) {
-        self.i2c.smbus_set_slave_address(self.addr, false).unwrap();
-    }
-
     fn write_byte_data(&mut self, data: u8) {
         self.i2c
             .smbus_write_byte_data(0u8, data | self.data_mask)
@@ -95,6 +91,7 @@ impl LCD {
     }
 
     pub fn display_init(&mut self) {
+        self.i2c.smbus_set_slave_address(self.addr, false).unwrap();
         thread::sleep(Duration::from_micros(10000));
         self.write_4_bits(0x30);
         thread::sleep(Duration::from_micros(45000));

@@ -17,7 +17,6 @@ fn do_laser() {
     let mut receiver = Receiver::new(huff_tree.clone());
     let mut laser = Laser::new(huff_tree);
     let mut lcd = LCD::new();
-    lcd.set_slave_address();
     lcd.backlight_off();
     lcd.display_init();
     lcd.backlight_on();
