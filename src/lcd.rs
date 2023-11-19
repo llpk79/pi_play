@@ -72,7 +72,7 @@ impl LCD {
         self.send(char_code, self.rs_mask);
     }
 
-    pub fn print_line(&mut self, line: &String) {
+    fn print_line(&mut self, line: &String) {
         if line.len() > self.columns as usize {
             line[0..self.columns as usize].to_string();
         }
@@ -81,7 +81,7 @@ impl LCD {
         }
     }
 
-    pub fn cursor_to(&mut self, row: u8, col: u8) {
+    fn cursor_to(&mut self, row: u8, col: u8) {
         let offsets: [u8; 4] = [0x00, 0x40, 0x14, 0x54];
         self.command(0x80 | (offsets[row as usize] + col), 50u64);
     }
