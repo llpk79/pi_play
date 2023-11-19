@@ -120,7 +120,7 @@ impl Receiver {
             let bit_time = (chrono::Utc::now() - start)
                 .num_milliseconds();
                 // .expect("Some time should have passed");
-            println!("bit time {}", bit_time);
+            // println!("bit time {}", bit_time);
             match bit_time {
                 i64::MIN..=-0 => continue,
                 1..=2 => data.push(0),
@@ -163,7 +163,7 @@ impl Receiver {
         let min = min(sum, check) as f32;
         let max = max(sum, check) as f32;
         let error = min / max;
-        (error > 0.9, error)
+        (error > 0.95, error)
     }
 
     /// Call detect, receive and decode methods.
@@ -186,7 +186,8 @@ impl Receiver {
                 let sans_checksum = Vec::from(&data[0..(data.len() - 32)]);
                 let message = self.huff_tree.decode(sans_checksum);
                 let pre_lcd_message: Vec<&str> = message.split("\n").collect();
-                let lcd_message = pre_lcd_message.iter().map(|s| s.to_string()).collect();
+                let lcd_message: Vec<String> = pre_lcd_message.iter().map(|s| s.to_string()).collect();
+
                 // Calculate stats
                 let seconds = (end - start).num_milliseconds() as f64 / 1000.0_f64;
                 let decode_time =
@@ -195,16 +196,15 @@ impl Receiver {
                     "Message in {:.4} sec\nDecode in {:.6} sec\nKB/s {:.3}\n'Error' {:.6}\n",
                     seconds,
                     decode_time,
-                    message.len() as f64 / seconds,
+                    lcd_message.len() as f64 / seconds,
                     1.0 - error,
                 );
+
                 lcd_message
-                // println!("Validated message:\n\n{}\n", message);
-                // message.len() as f64 / 1000.0
             }
             false => {
                 println!("ERROR: Invalid data detected.\n");
-                // 0.0
+
                 Vec::from(["".to_string()])
             }
         };

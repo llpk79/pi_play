@@ -106,7 +106,6 @@ impl HuffTree {
         let mut checksum = 0_u32;
         let mut byte_index = 0_u8;
         for char in message.chars() {
-            println!("char {}", char);
             let code = char_code_map.get(&char).expect("All message chars in map.");
             for bit in code.chars() {
                 let bit = bit.to_digit(10).expect("Bits must be digits");
