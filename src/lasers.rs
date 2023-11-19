@@ -163,7 +163,7 @@ impl Receiver {
         let min = min(sum, check) as f32;
         let max = max(sum, check) as f32;
         let error = min / max;
-        (error > 0.995, error)
+        (error > 0.9, error)
     }
 
     /// Call detect, receive and decode methods.
