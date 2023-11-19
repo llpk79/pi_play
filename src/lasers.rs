@@ -61,7 +61,7 @@ impl Laser {
                 }
             }
             // Bit resolution. Gets sloppy below 50 microseconds.
-            thread::sleep(Duration::from_micros(50))
+            thread::sleep(Duration::from_micros(150))
         }
 
         // Termination sequence.
