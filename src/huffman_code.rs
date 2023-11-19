@@ -46,7 +46,7 @@ impl HuffTree {
 
     /// Create HuffmanTree to code characters with greater frequency with a short codes and
     /// infrequent characters with long codes.
-    fn build_tree(&mut self, message: &String) {
+    pub fn build_tree(&mut self, message: &String) {
         // Build a vec of single node HuffTrees from the frequency map.
         let frequency_map = self.create_frequency_map(message);
         let mut node_vec: Vec<Box<Node>> = {
@@ -93,7 +93,7 @@ impl HuffTree {
     /// Use char_code_map populated by assign_codes to map characters their to binary codes.
     ///
     /// Create checksum as vec is built. Append 32 bit checksum to message vec.
-    fn encode_string(&mut self, message: &String) -> Vec<u32> {
+    pub fn encode(&mut self, message: &String) -> Vec<u32> {
         let mut encoded_message = Vec::new();
         let mut char_code_map = HashMap::new();
         self.assign_codes(
@@ -123,9 +123,9 @@ impl HuffTree {
     }
 
     /// Build the tree and encode the message.
-    pub fn encode(&mut self, message: String) -> Vec<u32> {
+    pub fn build_encode(&mut self, message: String) -> Vec<u32> {
         self.build_tree(&message);
-        self.encode_string(&message)
+        self.encode(&message)
     }
 
     /// Use encoded message to traverse tree and find characters.

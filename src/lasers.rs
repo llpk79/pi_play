@@ -10,7 +10,6 @@ const RECEIVER_PIN: u16 = 23;
 
 pub struct Laser {
     out: gpio::sysfs::SysFsGpioOutput,
-    encoded_message: Vec<u32>,
 }
 
 pub struct Receiver {
@@ -19,7 +18,7 @@ pub struct Receiver {
 }
 
 impl Laser {
-    pub fn new(encoded_message: Vec<u32>) -> Laser {
+    pub fn new() -> Laser {
         // Open port for laser pin.
         let out = match gpio::sysfs::SysFsGpioOutput::open(LASER_PIN) {
             Ok(out) => out,
@@ -27,7 +26,6 @@ impl Laser {
         };
         Self {
             out,
-            encoded_message,
         }
     }
 
@@ -36,7 +34,7 @@ impl Laser {
     /// Transmit message; long pulse = 1 short pulse = 0.
     ///
     /// Terminate message with 1000 microsecond pulse.
-    pub fn send_message(&mut self) {
+    pub fn send_message(&mut self, encoded_message: Vec<u32>) {
         // Initiation sequence.
         self.out.set_value(false).expect("Pin should be active");
         thread::sleep(Duration::from_micros(50));
@@ -46,8 +44,8 @@ impl Laser {
         thread::sleep(Duration::from_micros(50));
 
         // Begin message transmission.
-        for bit in &self.encoded_message {
-            match *bit == 1 {
+        for bit in encoded_message {
+            match bit == 1 {
                 true => {
                     self.out.set_value(true).expect("Pin should be active");
                     thread::sleep(Duration::from_micros(25));
@@ -105,7 +103,7 @@ impl Receiver {
     /// Push 1 for long pulse, 0 for short.
     ///
     /// Return data upon termination sequence.
-    fn receive_message(&mut self) -> Vec<u32> {
+    fn receive(&mut self) -> Vec<u32> {
         let mut data = Vec::new();
         loop {
             while self.in_.read_value().expect("Pin should be active") == Low {
@@ -168,41 +166,45 @@ impl Receiver {
     /// Call detect, receive and decode methods.
     ///
     /// Print to stdout.
-    pub fn print_message(&mut self) {
+    pub fn receive_message(&mut self) -> Vec<String> {
         println!("\n\nAwaiting transmission...");
         self.detect_message();
         let start = chrono::Utc::now();
 
         println!("\nIncoming message detected...\n");
-        let data = self.receive_message();
+        let data = self.receive();
 
         println!("Message received. Validating...\n");
         let (valid, error) = self.validate(&data);
 
         let end = chrono::Utc::now();
-        let num_kbytes = match valid {
+        return match valid {
             true => {
                 let sans_checksum = Vec::from(&data[0..(data.len() - 32)]);
                 let message = self.huff_tree.decode(sans_checksum);
-                println!("Validated message:\n\n{}\n", message);
-                message.len() as f64 / 1000.0
+                let pre_lcd_message: Vec<&str> = message.split("\n").collect();
+                let lcd_message = pre_lcd_message.iter().map(|s| s.to_string()).collect();
+                // Calculate stats
+                let seconds = (end - start).num_milliseconds() as f64 / 1000.0_f64;
+                let decode_time =
+                    (chrono::Utc::now() - end).num_microseconds().unwrap() as f64 / 1000_000.0_f64;
+                println!(
+                    "Message in {:.4} sec\nDecode in {:.6} sec\nKB/s {:.3}\n'Error' {:.6}\n",
+                    seconds,
+                    decode_time,
+                    message.len() as f64 / seconds,
+                    1.0 - error,
+                );
+                lcd_message
+                // println!("Validated message:\n\n{}\n", message);
+                // message.len() as f64 / 1000.0
             }
             false => {
                 println!("ERROR: Invalid data detected.\n");
-                0.0
+                // 0.0
+                Vec::from(["".to_string()])
             }
         };
 
-        // Calculate stats
-        let seconds = (end - start).num_milliseconds() as f64 / 1000.0_f64;
-        let decode_time =
-            (chrono::Utc::now() - end).num_microseconds().unwrap() as f64 / 1000_000.0_f64;
-        println!(
-            "Message in {:.4} sec\nDecode in {:.6} sec\nKB/s {:.3}\n'Error' {:.6}\n",
-            seconds,
-            decode_time,
-            num_kbytes / seconds,
-            1.0 - error,
-        );
     }
 }
