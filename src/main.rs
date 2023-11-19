@@ -17,9 +17,7 @@ fn do_laser() {
     let mut receiver = Receiver::new(huff_tree.clone());
     let mut laser = Laser::new(huff_tree);
     let mut lcd = LCD::new();
-    lcd.backlight_off();
     lcd.display_init();
-    lcd.backlight_on();
 
     // Start a thread each for the laser and receiver.
     let receiver_thread = thread::Builder::new()

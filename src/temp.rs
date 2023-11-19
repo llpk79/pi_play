@@ -1,3 +1,10 @@
+// Use  gpio 04
+// vim /boot/config.txt -> dtoverlay=w1-gpio
+// sudo reboot
+// sudo modprobe w1-gpio
+// sudo modprobe w1-therm
+// ls /sys/bus/w1/device -> 28-00000355d573 w1_bus_master
+
 use std::fs::read_to_string;
 use std::str::FromStr;
 

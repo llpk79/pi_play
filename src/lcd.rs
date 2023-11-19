@@ -99,6 +99,7 @@ impl LCD {
 
     pub fn display_init(&mut self) {
         self.i2c.smbus_set_slave_address(self.addr, false).unwrap();
+        self.backlight_off();
         thread::sleep(Duration::from_micros(10000));
         self.write_4_bits(0x30);
         thread::sleep(Duration::from_micros(45000));
@@ -112,6 +113,7 @@ impl LCD {
         self.clear();
         self.command(0x04 | 0x02, 50u64);
         thread::sleep(Duration::from_micros(300000));
+        self.backlight_on();
     }
 
     pub fn backlight_on(&mut self) {
