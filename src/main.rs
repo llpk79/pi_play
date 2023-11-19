@@ -8,7 +8,7 @@ use std::{thread};
 /// Send a message with a laser!
 fn do_laser() {
     // Dummy message to encode temperature stuff.
-    let message = "FC::1234567890..        ".to_string();
+    let message = "FC::1234567890..        \n".to_string();
     // Compress message with Huffman Coding.
     let mut huff_tree = HuffTree::new();
     huff_tree.build_tree(&message);
