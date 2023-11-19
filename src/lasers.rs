@@ -10,6 +10,7 @@ const RECEIVER_PIN: u16 = 23;
 
 pub struct Laser {
     out: gpio::sysfs::SysFsGpioOutput,
+    huff_tree: HuffTree,
 }
 
 pub struct Receiver {
@@ -18,7 +19,7 @@ pub struct Receiver {
 }
 
 impl Laser {
-    pub fn new() -> Laser {
+    pub fn new(huff_tree: HuffTree) -> Laser {
         // Open port for laser pin.
         let out = match gpio::sysfs::SysFsGpioOutput::open(LASER_PIN) {
             Ok(out) => out,
@@ -26,6 +27,7 @@ impl Laser {
         };
         Self {
             out,
+            huff_tree,
         }
     }
 
@@ -34,7 +36,8 @@ impl Laser {
     /// Transmit message; long pulse = 1 short pulse = 0.
     ///
     /// Terminate message with 1000 microsecond pulse.
-    pub fn send_message(&mut self, encoded_message: Vec<u32>) {
+    pub fn send_message(&mut self, message: String) {
+        let encoded_message = self.huff_tree.encode(&message);
         // Initiation sequence.
         self.out.set_value(false).expect("Pin should be active");
         thread::sleep(Duration::from_micros(50));

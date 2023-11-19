@@ -3,7 +3,7 @@ use pi_play_lib::lasers::{Laser, Receiver};
 use pi_play_lib::lcd::LCD;
 use pi_play_lib::temp::read_temp;
 use std::time::Duration;
-use std::{fs, thread};
+use std::{thread};
 
 /// Send a message with a laser!
 fn do_laser() {
@@ -14,8 +14,8 @@ fn do_laser() {
     huff_tree.build_tree(&message);
 
     // Pass huff_tree to receiver to decode message.
-    let mut receiver = Receiver::new(huff_tree);
-    let mut laser = Laser::new();
+    let mut receiver = Receiver::new(huff_tree.clone());
+    let mut laser = Laser::new(huff_tree);
     let mut lcd = LCD::new();
 
     // Start a thread each for the laser and receiver.
@@ -32,8 +32,7 @@ fn do_laser() {
             let celsius = read_temp(false);
             let fahrenheit = read_temp(true);
             let message = format!("C: {celsius}\nF: {fahrenheit}");
-            let encoded_message = huff_tree.encode(&message);
-            laser.send_message(encoded_message);
+            laser.send_message(message);
             thread::sleep(Duration::from_millis(1000))
         });
 
@@ -48,6 +47,6 @@ fn do_laser() {
 }
 
 fn main() {
-    let message = fs::read_to_string("./src/huffman_code.rs").expect("File should exist");
-    do_laser(message)
+    // let message = fs::read_to_string("./src/huffman_code.rs").expect("File should exist");
+    do_laser()
 }

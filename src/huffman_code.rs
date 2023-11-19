@@ -3,12 +3,14 @@
 
 use ::std::collections::HashMap;
 
+#[derive(Debug, Clone)]
 struct Node {
     freq: i32,
     char_: Option<char>,
     right: Option<Box<Node>>,
     left: Option<Box<Node>>,
 }
+#[derive(Debug, Clone)]
 
 pub struct HuffTree {
     root: Option<Box<Node>>,
@@ -93,7 +95,7 @@ impl HuffTree {
     /// Use char_code_map populated by assign_codes to map characters their to binary codes.
     ///
     /// Create checksum as vec is built. Append 32 bit checksum to message vec.
-    pub fn encode(&mut self, message: &String) -> Vec<u32> {
+    pub fn encode(&self, message: &String) -> Vec<u32> {
         let mut encoded_message = Vec::new();
         let mut char_code_map = HashMap::new();
         self.assign_codes(
