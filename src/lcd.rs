@@ -1,3 +1,10 @@
+// To use the lcd:
+// let mut lcd = LCD::new();
+// lcd.backlight_off();
+// lcd.display_init();
+// lcd.backlight_on();
+// lcd.display_data(data);
+
 extern crate i2c_linux;
 
 use i2c_linux::I2c;

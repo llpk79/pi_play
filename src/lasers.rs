@@ -196,7 +196,7 @@ impl Receiver {
                     "Message in {:.4} sec\nDecode in {:.6} sec\nKB/s {:.3}\n'Error' {:.6}\n",
                     seconds,
                     decode_time,
-                    lcd_message.len() as f64 / seconds,
+                    (lcd_message.len() / 1000) as f64 / seconds,
                     1.0 - error,
                 );
 
