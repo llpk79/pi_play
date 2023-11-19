@@ -21,7 +21,7 @@ fn do_laser() {
     lcd.backlight_off();
     lcd.display_init();
     lcd.backlight_on();
-    
+
     // Start a thread each for the laser and receiver.
     let receiver_thread = thread::Builder::new()
         .name("receiver".to_string())
@@ -35,7 +35,7 @@ fn do_laser() {
         .spawn(move || loop {
             let celsius = read_temp(false);
             let fahrenheit = read_temp(true);
-            let message = format!("C: {celsius}\nF: {fahrenheit}");
+            let message = format!("C: {}\n        F: {}        ", celsius, fahrenheit);
             laser.send_message(message);
             thread::sleep(Duration::from_millis(1000))
         });
