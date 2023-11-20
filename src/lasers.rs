@@ -146,10 +146,12 @@ impl Receiver {
         let mut sum: u32 = 0;
         let mut message_data = Vec::from(&data[0..data_len - 32]);
         let checksum_data = &data[data_len - 32..];
+        println!("message len {}", &message_data.len());
         // Pad message with 0's.
         for _ in 0..(message_data.len() % 8) {
             message_data.push(0);
         }
+        println!("message len post{}", &message_data.len());
 
         // Get int from each byte.
         for i in (0.. message_data.len() - 1).step_by(8) {
