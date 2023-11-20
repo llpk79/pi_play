@@ -51,7 +51,7 @@ impl Laser {
             match bit == 1 {
                 true => {
                     self.out.set_value(true).expect("Pin should be active");
-                    thread::sleep(Duration::from_millis(3));
+                    thread::sleep(Duration::from_millis(2));
                     self.out.set_value(false).expect("Pin should be active");
                 }
                 false => {
@@ -122,10 +122,10 @@ impl Receiver {
                 // .expect("Some time should have passed");
             // println!("bit time {}", bit_time);
             match bit_time {
-                i64::MIN..=-0 => continue,
-                1..=2 => data.push(0),
-                3..=4 => data.push(1),
-                5..=10 => continue, // Bad data, we could guess, I guess?
+                i64::MIN..=-1 => continue,
+                0..=1 => data.push(0),
+                2..=3 => data.push(1),
+                4..=10 => continue, // Bad data, we could guess, I guess?
                 11.. => break,       // Termination sequence.
             };
         }
