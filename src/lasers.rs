@@ -148,7 +148,7 @@ impl Receiver {
         let checksum_data = &data[data_len - 32..];
         println!("message len {}", &message_data.len());
         // Pad message with 0's.
-        for _ in 0..(message_data.len() % 8) {
+        for _ in 0..(8 - (message_data.len() % 8)) {
             message_data.push(0);
         }
         println!("message len post{}", &message_data.len());
