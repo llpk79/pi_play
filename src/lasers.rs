@@ -152,7 +152,7 @@ impl Receiver {
         }
 
         // Get int from each byte.
-        for i in (0..data_len - 32).step_by(8) {
+        for i in (0.. message_data.len()).step_by(8) {
             let mut byte = 0;
             for bit in (0..8).map(|j| message_data[i + j] << j) {
                 byte += bit
