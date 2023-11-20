@@ -22,9 +22,4 @@ pub fn read_temp(fahrenheit: bool) -> f32 {
         temp = (temp * 9.0 / 5.0) + 32.0;
     }
     temp
-    // temp_str = temp.to_string();
-    // if !temp_str.contains(".") {
-    //     temp_str = temp_str + ".0"
-    // }
-    // temp_str
 }

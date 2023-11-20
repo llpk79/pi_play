@@ -2,6 +2,7 @@ use pi_play_lib::huffman_code::HuffTree;
 use pi_play_lib::lasers::{Laser, Receiver};
 use pi_play_lib::lcd::LCD;
 use pi_play_lib::temp::read_temp;
+use pi_play_lib::barometer::{Mode, Barometer};
 use std::time::Duration;
 use std::{thread};
 
@@ -16,8 +17,12 @@ fn do_laser() {
     // Pass huff_tree to receiver to decode message.
     let mut receiver = Receiver::new(huff_tree.clone());
     let mut laser = Laser::new(huff_tree);
+
     let mut lcd = LCD::new();
     lcd.display_init();
+
+    let mut barometer = Barometer::new();
+    barometer.init();
 
     // Start a thread each for the laser and receiver.
     let receiver_thread = thread::Builder::new()
@@ -32,7 +37,9 @@ fn do_laser() {
         .spawn(move || loop {
             let celsius = read_temp(false);
             let fahrenheit = read_temp(true);
-            let message = format!("C: {:.2}       \nF: {:.2}        ", celsius, fahrenheit);
+            let other_c = barometer.read_temperature();
+            let baro = barometer.read_pressure(&Mode::Standard);
+            let message = format!("C: {:.2} F: {:.2}  \nC: {} B: {}      ", celsius, fahrenheit, other_c, baro);
             laser.send_message(message);
             thread::sleep(Duration::from_millis(1000))
         });
