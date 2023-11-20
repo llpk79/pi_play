@@ -137,58 +137,37 @@ impl Barometer {
 
     fn read_u16(&mut self, command: u8) -> u16 {
         let data: u16 = match self.i2c.smbus_read_word_data(command) {
-            Ok(data) => data & 0xFFFF_u16,
+            Ok(data) => {
+                let data = data & 0xFFFF_u16;
+                ((data << 8) & 0xFF00) + (data >> 8)
+            },
             Err(_e) => panic!()
         };
         data
     }
 
+    fn read_s16(&mut self, command: u8) -> i16 {
+        let raw_read = self.read_u16(command);
+        return match raw_read {
+            u16::MIN..=32767 => raw_read as i16,
+            _ => (raw_read as i32 - 65536_i32) as i16
+        };
+    }
+
     pub fn init(&mut self) {
         self.i2c.smbus_set_slave_address(self.addr,false).expect("Slave addr should be set");
-        self.ac1 = match self.i2c.smbus_read_word_data(self.cal_ac1) {
-            Ok(data) => data as i16,
-            Err(_e) => panic!()
-        };
-        self.ac2 = match self.i2c.smbus_read_word_data(self.cal_ac2) {
-            Ok(data) => data as i16,
-            Err(_e) => panic!()
-        };
-        self.ac3 = match self.i2c.smbus_read_word_data(self.cal_ac3) {
-            Ok(data) => data as i16,
-            Err(_e) => panic!()
-        };
-        self.ac4 = match self.i2c.smbus_read_word_data(self.cal_ac4) {
-            Ok(data) => data,
-            Err(_e) => panic!()
-        };
-        self.ac5 = match self.i2c.smbus_read_word_data(self.cal_ac5) {
-            Ok(data) => data,
-            Err(_e) => panic!()
-        };
-        self.ac6 = match self.i2c.smbus_read_word_data(self.cal_ac6) {
-            Ok(data) => data,
-            Err(_e) => panic!()
-        };
-        self.b1 = match self.i2c.smbus_read_word_data(self.cal_b1) {
-            Ok(data) => data as i16,
-            Err(_e) => panic!()
-        };
-        self.b2 = match self.i2c.smbus_read_word_data(self.cal_b2) {
-            Ok(data) => data as i16,
-            Err(_e) => panic!()
-        };
-        self.mb = match self.i2c.smbus_read_word_data(self.cal_mb) {
-            Ok(data) => data as i16,
-            Err(_e) => panic!()
-        };
-        self.mc = match self.i2c.smbus_read_word_data(self.cal_mc) {
-            Ok(data) => data as i16,
-            Err(_e) => panic!()
-        };
-        self.md = match self.i2c.smbus_read_word_data(self.cal_md) {
-            Ok(data) => data as i16,
-            Err(_e) => panic!()
-        };
+        // Calibration
+        self.ac1 = self.read_s16(self.cal_ac1);
+        self.ac2 = self.read_s16(self.cal_ac2);
+        self.ac3 = self.read_s16(self.cal_ac3);
+        self.ac4 = self.read_u16(self.cal_ac4);
+        self.ac5 = self.read_u16(self.cal_ac5);
+        self.ac6 = self.read_u16(self.cal_ac6);
+        self.b1 = self.read_s16(self.cal_b1);
+        self.b2 = self.read_s16(self.cal_b2);
+        self.mb = self.read_s16(self.cal_mb);
+        self.mc = self.read_s16(self.cal_mc);
+        self.md =self.read_s16(self.cal_md);
     }
 
     fn read_raw_temp(&mut self) -> u16 {
