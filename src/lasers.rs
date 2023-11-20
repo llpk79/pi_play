@@ -147,7 +147,7 @@ impl Receiver {
         let mut message_data = Vec::from(&data[0..data_len - 32]);
         let checksum_data = &data[data_len - 32..];
         // Pad message with 0's.
-        for _ in 0..(message_data.len() % 8) {
+        for _ in 0..(message_data.len() % 8) + 1 {
             message_data.push(0);
         }
 
