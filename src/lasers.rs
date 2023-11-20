@@ -120,7 +120,7 @@ impl Receiver {
             let bit_time = (chrono::Utc::now() - start)
                 .num_milliseconds();
                 // .expect("Some time should have passed");
-            // println!("bit time {}", bit_time);
+            println!("bit time {}", bit_time);
             match bit_time {
                 i64::MIN..=-0 => continue,
                 1..=2 => data.push(0),
