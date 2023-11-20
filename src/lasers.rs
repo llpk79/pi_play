@@ -147,12 +147,12 @@ impl Receiver {
         let mut message_data = Vec::from(&data[0..data_len - 32]);
         let checksum_data = &data[data_len - 32..];
         // Pad message with 0's.
-        for _ in 0..(message_data.len() % 8) - 1 {
+        for _ in 0..(message_data.len() % 8) {
             message_data.push(0);
         }
 
         // Get int from each byte.
-        for i in (0.. message_data.len()).step_by(8) {
+        for i in (0.. message_data.len() - 1).step_by(8) {
             let mut byte = 0;
             for bit in (0..8).map(|j| message_data[i + j] << j) {
                 byte += bit
