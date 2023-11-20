@@ -231,13 +231,13 @@ impl Barometer {
         ((u32::from(msb) << 16) + (u32::from(lsb) << 8) + xlsb as u32) >> (8 - raw_modifier)
     }
 
-    pub fn read_temperature(&mut self) -> i16 {
+    pub fn read_temperature(&mut self) -> f32 {
         let raw_temp = self.read_raw_temp();
         // From datasheet
         let x1: i16 = (((raw_temp - self.ac6) * self.ac5) >> 15) as i16;
         let x2: i16 = (self.mc << 11) / (x1 + self.mb);
         let b5 = x1 + x2;
-        return ((b5 + 8) >> 4) / 10
+        return ((b5 + 8) >> 4) as f32 / 10_f32
     }
 
     pub fn read_pressure(&mut self, mode: &Mode) -> i64 {

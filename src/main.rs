@@ -39,7 +39,7 @@ fn do_laser() {
             let fahrenheit = read_temp(true);
             let other_c = barometer.read_temperature();
             let baro = barometer.read_pressure(&Mode::Standard);
-            let message = format!("C: {:.2} F: {:.2}  \nC: {} B: {}      ", celsius, fahrenheit, other_c, baro);
+            let message = format!("C: {:.1} F: {:.1}  \nC: {} B: {}      ", celsius, fahrenheit, other_c, baro);
             laser.send_message(message);
             thread::sleep(Duration::from_millis(1000))
         });
