@@ -192,7 +192,7 @@ impl Barometer {
         }
     }
 
-    fn read_raw_pressure(&mut self, mode: &Mode) -> u16 {
+    fn read_raw_pressure(&mut self, mode: &Mode) -> u32 {
         let raw_modifier: u16;
         match mode {
             Mode::LowPower => {
@@ -228,7 +228,7 @@ impl Barometer {
             Ok(xlsb) => xlsb,
             Err(_e) => panic!()
         };
-        (((msb << 16) + (lsb << 8) + xlsb) >> (8 - raw_modifier)) as u16
+        ((u32::from(msb) << 16) + (u32::from(lsb) << 8) + xlsb as u32) >> (8 - raw_modifier)
     }
 
     pub fn read_temperature(&mut self) -> i16 {
@@ -257,10 +257,10 @@ impl Barometer {
             Mode::HighRes => (((self.ac1 * 4 + y3) << self.high_res_mask) + 2) / 4,
             Mode::UltraHighRes => (((self.ac1 * 4 + y3) << self.ultra_high_res_mask) + 2) / 4,
         };
-        let z1 = (self.ac3 * b6) >> 13;
-        let z2 = (self.b1 * ((b6 * b6) >> 12)) >> 16;
+        let z1: i32 = ((self.ac3 * b6) >> 13) as i32;
+        let z2 = (self.b1 as i32 * ((b6 * b6) >> 12) as i32) >> 16;
         let z3 = ((z1 + z2) + 2) >> 2;
-        let b4: i64 = ((self.ac4 as i32 * (z3 as i32 + 32768)) >> 15) as i64;
+        let b4: i64 = ((self.ac4 as i32 * (z3 + 32768)) >> 15) as i64;
         let b7 = match mode {
             Mode::LowPower => (raw_pressure as i16 - b3) as i64 * (50_000 >> self.low_power_mask),
             Mode::Standard => (raw_pressure as i16 - b3) as i64 * (50_000 >> self.standard_res_mask),
