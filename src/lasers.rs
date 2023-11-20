@@ -144,11 +144,17 @@ impl Receiver {
             return (false, 0.0);
         }
         let mut sum: u32 = 0;
+        let mut message_data = Vec::from(&data[0..data_len - 32]);
+        let checksum_data = &data[data_len - 32..];
+        // Pad message with 0's.
+        for _ in 0..(message_data.len() % 8) {
+            message_data.push(0);
+        }
 
         // Get int from each byte.
         for i in (0..data_len - 32).step_by(8) {
             let mut byte = 0;
-            for bit in (0..8).map(|j| data[i + j] << j) {
+            for bit in (0..8).map(|j| message_data[i + j] << j) {
                 byte += bit
             }
             sum += byte;
@@ -156,7 +162,7 @@ impl Receiver {
 
         // Get checksum.
         let mut check: u32 = 0;
-        for (i, bit) in data[data_len - 32..].iter().enumerate() {
+        for (i, bit) in checksum_data.iter().enumerate() {
             check += *bit << i;
         }
         print!("sum {}\ncheck {}\n", sum, check);
