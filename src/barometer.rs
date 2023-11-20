@@ -135,6 +135,14 @@ impl Barometer {
         }
     }
 
+    fn read_u16(&mut self, command: u8) -> u16 {
+        let data: u16 = match self.i2c.smbus_read_word_data(command) {
+            Ok(data) => data & 0xFFFF_u16,
+            Err(_e) => panic!()
+        };
+        data
+    }
+
     pub fn init(&mut self) {
         self.i2c.smbus_set_slave_address(self.addr,false).expect("Slave addr should be set");
         self.ac1 = match self.i2c.smbus_read_word_data(self.cal_ac1) {
