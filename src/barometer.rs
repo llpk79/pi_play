@@ -184,7 +184,7 @@ impl Barometer {
 
     pub fn read_raw_temp(&mut self) -> i64 {
         self.i2c.smbus_write_byte_data(self.control, self.read_temp & 0xFF).expect("data should write");
-        thread::sleep(Duration::from_micros(450));
+        thread::sleep(Duration::from_millis(5));
         let msb =  match self.i2c.smbus_read_byte_data(self.msb) {
             Ok(msb) => msb & 0xFF,
             Err(_e) => panic!()
@@ -210,22 +210,22 @@ impl Barometer {
         match mode {
             Mode::LowPower => {
                 self.i2c.smbus_write_byte_data(self.control, self.read_pressure + (self.low_power_mask << 6) & 0xFF).expect("should write");
-                thread::sleep(Duration::from_micros(450));
+                thread::sleep(Duration::from_millis(5));
                 raw_modifier = self.low_power_mask;
             }
             Mode::Standard => {
                 self.i2c.smbus_write_byte_data(self.control, self.read_pressure + (self.standard_res_mask << 6) & 0xFF).expect("should write");
-                thread::sleep(Duration::from_micros(750));
+                thread::sleep(Duration::from_millis(8));
                 raw_modifier = self.standard_res_mask;
             }
             Mode::HighRes => {
                 self.i2c.smbus_write_byte_data(self.control, self.read_pressure + (self.high_res_mask << 6) & 0xFF).expect("should write");
-                thread::sleep(Duration::from_micros(1350));
+                thread::sleep(Duration::from_millis(14));
                 raw_modifier = self.high_res_mask;
             }
             Mode::UltraHighRes => {
                 self.i2c.smbus_write_byte_data(self.control, self.read_pressure + (self.ultra_high_res_mask << 6) & 0xFF).expect("should write");
-                thread::sleep(Duration::from_micros(2550));
+                thread::sleep(Duration::from_millis(26));
                 raw_modifier = self.ultra_high_res_mask;
             }
         }
