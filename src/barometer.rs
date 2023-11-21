@@ -164,7 +164,7 @@ impl Barometer {
     pub fn init(&mut self) {
         self.i2c.smbus_set_slave_address(self.addr,false).expect("Slave addr should be set");
         // Calibration
-        for i in 0..2 {
+        for i in 0..1 {
             self.ac1 = self.read_s16(self.cal_ac1 + i);
             self.ac2 = self.read_s16(self.cal_ac2 + i);
             self.ac3 = self.read_s16(self.cal_ac3 + i);
@@ -182,7 +182,7 @@ impl Barometer {
         }
     }
 
-    fn read_raw_temp(&mut self) -> i32 {
+    pub fn read_raw_temp(&mut self) -> i32 {
         self.i2c.smbus_write_byte_data(self.control, self.read_temp & 0xFF).expect("data should write");
         thread::sleep(Duration::from_micros(5));
         let msb =  match self.i2c.smbus_read_byte_data(self.msb) {
@@ -196,7 +196,16 @@ impl Barometer {
         (msb << 8 + lsb) as i32
     }
 
-    fn read_raw_pressure(&mut self, mode: &Mode) -> i64 {
+    pub fn read_temperature(&mut self, raw_temp: i32) -> i64 {
+        println!("raw temp {}", raw_temp);
+        // From datasheet
+        let x1: i64 = ((raw_temp - self.ac6 as i32) * self.ac5 as i32 >> 15) as i64;
+        let x2: i64 = ((self.mc as i64) << 11) / (x1 + self.md as i64);
+        self.b5 = x1 + x2;
+        ((self.b5 + 8) >> 4)
+    }
+
+    pub fn read_raw_pressure(&mut self, mode: &Mode) -> i64 {
         let raw_modifier: u8;
         match mode {
             Mode::LowPower => {
@@ -232,21 +241,10 @@ impl Barometer {
             Ok(xlsb) => xlsb & 0xFF,
             Err(_e) => panic!()
         };
-        (((u32::from(msb) << 16) + (u32::from(lsb) << 8) + xlsb as u32) >> (8 - raw_modifier)) as i64
+        ((msb << 16 + lsb << 8 + xlsb) >> (8 - raw_modifier)) as i64
     }
 
-    pub fn read_temperature(&mut self) -> i64 {
-        let raw_temp = self.read_raw_temp();
-        println!("raw temp {}", raw_temp);
-        // From datasheet
-        let x1: i64 = ((raw_temp - self.ac6 as i32) * self.ac5 as i32 >> 15) as i64;
-        let x2: i64 = ((self.mc as i64) << 11) / (x1 + self.mb as i64);
-        self.b5 = x1 + x2;
-        ((self.b5 + 8) >> 4)
-    }
-
-    pub fn read_pressure(&mut self, mode: &Mode) -> i64 {
-        let raw_pressure = self.read_raw_pressure(mode);
+    pub fn read_pressure(&mut self, raw_pressure: i64, mode: &Mode) -> i64 {
         println!("raw pressure {}", raw_pressure);
         // From datasheet.
         let b6 = self.b5 - 4000;
@@ -269,7 +267,7 @@ impl Barometer {
             Mode::HighRes => (raw_pressure - b3) * (50_000 >> self.high_res_mask),
             Mode::UltraHighRes => (raw_pressure - b3) * (50_000 >> self.ultra_high_res_mask)
         } as u64;
-        let pressure: i64 = match b7 < 0x80000000 {
+        let pressure: i64 = match b7 < 0x80_000_000 {
             true => (b7 * 2) / b4,
             false => (b7 / b4) * 2,
         } as i64;
@@ -277,7 +275,7 @@ impl Barometer {
         final1 = (final1 * 3038) >> 16;
         let final2 = (-7357 * pressure) >> 16;
 
-        pressure + ((final1 + final2 + 3791) >> 4)
+        pressure + (final1 + final2 + 3791) >> 4
     }
 
     pub fn read_altitude(&mut self, mode: Mode) -> f32 {
