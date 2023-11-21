@@ -201,9 +201,10 @@ impl Barometer {
         // From datasheet
         let x1: i64 = (raw_temp - self.ac6 as i64) * (self.ac5 >> 15) as i64;
         let x2: i64 = (self.mc << 11) as i64 / (x1 + self.md as i64);
+        let b5 = x1 + x2;
         self.b5 = x1 + x2;
-        println!("x1 {}\nx2 {}\nb5 {}\nT {}\n", x1, x1, self.b5, (self.b5 + 8) >> 4);
-        (self.b5 + 8) >> 4
+        println!("x1 {}\nx2 {}\nb5 {}\nT {}\n", x1, x1, b5, self.b5);
+        (b5 + 8) >> 4
     }
 
     pub fn read_raw_pressure(&mut self, mode: &Mode) -> i64 {
