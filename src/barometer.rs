@@ -184,17 +184,16 @@ impl Barometer {
 
     pub fn read_raw_temp(&mut self) -> i64 {
         self.i2c.smbus_write_byte_data(self.control, self.read_temp & 0xFF).expect("data should write");
-        thread::sleep(Duration::from_micros(5));
+        thread::sleep(Duration::from_micros(4500));
         let msb =  match self.i2c.smbus_read_byte_data(self.msb) {
             Ok(msb) => msb & 0xFF,
             Err(_e) => panic!()
         };
-        // let lsb = match self.i2c.smbus_read_byte_data(self.lsb) {
-        //     Ok(lsb) => lsb & 0xFF,
-        //     Err(_e) => panic!()
-        // };
-        // ((msb as i64) << 8) + lsb as i64
-        msb as i64
+        let lsb = match self.i2c.smbus_read_byte_data(self.lsb) {
+            Ok(lsb) => lsb & 0xFF,
+            Err(_e) => panic!()
+        };
+        ((msb as i64) << 8) + lsb as i64
     }
 
     pub fn read_temperature(&mut self, raw_temp: i64) -> i64 {
@@ -211,22 +210,22 @@ impl Barometer {
         match mode {
             Mode::LowPower => {
                 self.i2c.smbus_write_byte_data(self.control, self.read_pressure + (self.low_power_mask << 6) & 0xFF).expect("should write");
-                thread::sleep(Duration::from_micros(5));
+                thread::sleep(Duration::from_micros(4500));
                 raw_modifier = self.low_power_mask;
             }
             Mode::Standard => {
                 self.i2c.smbus_write_byte_data(self.control, self.read_pressure + (self.standard_res_mask << 6) & 0xFF).expect("should write");
-                thread::sleep(Duration::from_micros(8));
+                thread::sleep(Duration::from_micros(7500));
                 raw_modifier = self.standard_res_mask;
             }
             Mode::HighRes => {
                 self.i2c.smbus_write_byte_data(self.control, self.read_pressure + (self.high_res_mask << 6) & 0xFF).expect("should write");
-                thread::sleep(Duration::from_micros(14));
+                thread::sleep(Duration::from_micros(1350));
                 raw_modifier = self.high_res_mask;
             }
             Mode::UltraHighRes => {
                 self.i2c.smbus_write_byte_data(self.control, self.read_pressure + (self.ultra_high_res_mask << 6) & 0xFF).expect("should write");
-                thread::sleep(Duration::from_micros(26));
+                thread::sleep(Duration::from_micros(2550));
                 raw_modifier = self.ultra_high_res_mask;
             }
         }
