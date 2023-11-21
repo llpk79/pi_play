@@ -202,7 +202,7 @@ impl Barometer {
         let x1: i64 = ((raw_temp - self.ac6 as i32) * self.ac5 as i32 >> 15) as i64;
         let x2: i64 = ((self.mc as i64) << 11) / (x1 + self.md as i64);
         self.b5 = x1 + x2;
-        ((self.b5 + 8) >> 4)
+        (self.b5 + 8) >> 4
     }
 
     pub fn read_raw_pressure(&mut self, mode: &Mode) -> i64 {
@@ -279,12 +279,14 @@ impl Barometer {
     }
 
     pub fn read_altitude(&mut self, mode: Mode) -> f32 {
-        let pressure = self.read_pressure(&mode);
+        let raw_pressure = self.read_raw_pressure(&mode);
+        let pressure = self.read_pressure(raw_pressure, &mode);
         44330.0_f32 * (1.0 - f32::powf(pressure as f32 / SEA_LEVEL_PA, 1.0/5.255))
     }
 
     pub fn read_sea_level_pressure(&mut self, mode: Mode, altitude: f32) -> f32 {
-        let pressure = self.read_pressure(&mode);
+        let raw_pressure = self.read_raw_pressure(&mode);
+        let pressure = self.read_pressure(raw_pressure, &mode);
         pressure as f32 / f32::powf(1.0 - altitude / 44330.0_f32, 5.255)
     }
 }
