@@ -193,7 +193,7 @@ impl Barometer {
             Ok(lsb) => lsb,
             Err(_e) => panic!()
         };
-        ((msb << 8) + lsb) as i32
+        (((msb as i16) << 8) + lsb as i16) as i32
     }
 
     pub fn read_temperature(&mut self, raw_temp: i32) -> i64 {
@@ -241,7 +241,7 @@ impl Barometer {
             Ok(xlsb) => xlsb,
             Err(_e) => panic!()
         };
-        (((msb << 16) + (lsb << 8) + xlsb) >> (8 - raw_modifier)) as i64
+        ((((msb as i16) << 16) + ((lsb as i16) << 8) + xlsb as i16) >> (8 - raw_modifier)) as i64
     }
 
     pub fn read_pressure(&mut self, raw_pressure: i64, mode: &Mode) -> i64 {
