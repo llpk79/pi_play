@@ -144,8 +144,8 @@ impl Barometer {
     fn read_u16(&mut self, command: u8) -> u16 {
         let data: u16 = match self.i2c.smbus_read_word_data(command) {
             Ok(data) => {
-                // let mut data = data & 0xFFFF_u16;
-                // data = ((data << 8) & 0xFF00) + (data >> 8);
+                let mut data = data; // & 0xFFFF_u16;
+                data = ((data << 8) & 0xFF00) + (data >> 8);
                 data
             },
             Err(_e) => panic!()
