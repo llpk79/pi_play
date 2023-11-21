@@ -34,6 +34,7 @@ impl Laser {
     ///
     /// Terminate message with 1000 microsecond pulse.
     pub fn send_message(&mut self, message: String) {
+        print!("boop");
         let encoded_message = self.huff_tree.encode(&message);
         // Initiation sequence.
         self.out.set_value(false).expect("Pin should be active");
@@ -115,7 +116,7 @@ impl Receiver {
             }
             let bit_time = (chrono::Utc::now() - start).num_milliseconds();
             // .expect("Some time should have passed");
-            // println!("bit time {}", bit_time);
+            println!("l bit time {}", bit_time);
             match bit_time {
                 i64::MIN..=-0 => continue,
                 1 => data.push(0),
