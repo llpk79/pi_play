@@ -22,8 +22,9 @@ pub struct Barometer {
 
     // Registers.
     control: u8,
-    temp_data: u8,
-    pressure_data: u8,
+    msb: u8,
+    lsb: u8,
+    xlsb: u8,
 
     // Calibration registers.
     cal_ac1: u8,
@@ -71,8 +72,9 @@ impl Barometer {
         let high_res_mask = 0x20_u8;
         let ultra_high_res_mask = 0x30_u8;
         let control = 0xF4_u8;
-        let temp_data = 0xF6_u8;
-        let pressure_data = 0xF6_u8;
+        let lsb = 0xF6_u8;
+        let msb = 0xF7_u8;
+        let xlsb = 0xF8_u8;
         let cal_ac1 = 0xAA_u8;
         let cal_ac2 = 0xAC_u8;
         let cal_ac3 = 0xAE_u8;
@@ -106,8 +108,9 @@ impl Barometer {
             high_res_mask,
             ultra_high_res_mask,
             control,
-            temp_data,
-            pressure_data,
+            lsb,
+            msb,
+            xlsb,
             cal_ac1,
             cal_ac2,
             cal_ac3,
@@ -138,8 +141,8 @@ impl Barometer {
     fn read_u16(&mut self, command: u8) -> u16 {
         let data: u16 = match self.i2c.smbus_read_word_data(command) {
             Ok(data) => {
-                // let mut data = data & 0xFFFF_u16;
-                // data = ((data << 8) & 0xFF00) + (data >> 8);
+                let mut data = data & 0xFFFF_u16;
+                data = ((data << 8) & 0xFF00) + (data >> 8);
                 data
             },
             Err(_e) => panic!()
@@ -150,8 +153,8 @@ impl Barometer {
     fn read_s16(&mut self, command: u8) -> i16 {
         let raw_read = self.read_u16(command);
         return match raw_read {
-            u16::MIN..=32767 => raw_read as i16,
-            _ => (raw_read as i32 - 65536_i32) as i16
+            u16::MIN..=32_767 => raw_read as i16,
+            _ => (raw_read as i32 - 65_536_i32) as i16
         };
     }
 
@@ -176,10 +179,15 @@ impl Barometer {
     fn read_raw_temp(&mut self) -> u16 {
         self.i2c.smbus_write_byte_data(self.control, self.read_temp & 0xFF).expect("data should write");
         thread::sleep(Duration::from_micros(5));
-        return match self.i2c.smbus_read_word_data(self.temp_data) {
-            Ok(raw_temp) => raw_temp,
+        let msb =  match self.i2c.smbus_read_byte_data(self.msb) {
+            Ok(msb) => msb,
             Err(_e) => panic!()
-        }
+        };
+        let lsb = match self.i2c.smbus_read_byte_data(self.lsb) {
+            Ok(lsb) => lsb,
+            Err(_e) => panic!()
+        };
+        (msb << 8 + lsb) as u16
     }
 
     fn read_raw_pressure(&mut self, mode: &Mode) -> u32 {
@@ -206,15 +214,15 @@ impl Barometer {
                 raw_modifier = self.ultra_high_res_mask;
             }
         }
-        let msb = match self.i2c.smbus_read_byte_data(self.pressure_data) {
+        let msb = match self.i2c.smbus_read_byte_data(self.msb) {
             Ok(msb) => msb & 0xFF,
             Err(_e) => panic!()
         };
-        let lsb = match self.i2c.smbus_read_byte_data(self.pressure_data + 0x10) {
+        let lsb = match self.i2c.smbus_read_byte_data(self.lsb) {
             Ok(lsb) => lsb & 0xFF,
             Err(_e) => panic!()
         };
-        let xlsb = match self.i2c.smbus_read_byte_data(self.pressure_data + 0x20) {
+        let xlsb = match self.i2c.smbus_read_byte_data(self.xlsb) {
             Ok(xlsb) => xlsb & 0xFF,
             Err(_e) => panic!()
         };
