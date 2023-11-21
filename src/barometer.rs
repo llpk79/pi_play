@@ -220,12 +220,12 @@ impl Barometer {
             }
             Mode::HighRes => {
                 self.i2c.smbus_write_byte_data(self.control, self.read_pressure + (self.high_res_mask << 6) & 0xFF).expect("should write");
-                thread::sleep(Duration::from_micros(1350));
+                thread::sleep(Duration::from_micros(13500));
                 raw_modifier = self.high_res_mask;
             }
             Mode::UltraHighRes => {
                 self.i2c.smbus_write_byte_data(self.control, self.read_pressure + (self.ultra_high_res_mask << 6) & 0xFF).expect("should write");
-                thread::sleep(Duration::from_micros(2550));
+                thread::sleep(Duration::from_micros(25500));
                 raw_modifier = self.ultra_high_res_mask;
             }
         }
