@@ -27,6 +27,7 @@ pub fn measure_temp_humid() -> (f32, f32) {
         let mut limit = 0;
         while data_pin.read_value().unwrap() == High {
             if limit > 20 {
+                println!("bit hung");
                 break
             } else {
                 limit += 1
@@ -38,7 +39,8 @@ pub fn measure_temp_humid() -> (f32, f32) {
         match bit_time {
             i64::MIN..=30 => data.push(0),
             31..=125 => data.push(1),
-            126.. => break
+            126.. => {
+                break; }
         }
         if data.len() > 40 {
             break
