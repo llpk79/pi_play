@@ -26,7 +26,7 @@ pub fn measure_temp_humid() -> (f32, f32) {
         let start = chrono::Utc::now();
         let mut limit = 0;
         while data_pin.read_value().unwrap() == High {
-            if limit > 3 {
+            if limit > 2 {
                 break
             } else {
                 limit += 1
@@ -40,6 +40,10 @@ pub fn measure_temp_humid() -> (f32, f32) {
             46..=125 => data.push(0),
             126.. => break
         }
+    }
+    if data.len() < 40 {
+        println!("Error reading temp/humidity");
+        return (0.0, 0.0)
     }
     let hum_bit = Vec::from(&data[0..8]);
     let hum_dec_bit = Vec::from(&data[8..16]);
@@ -59,7 +63,7 @@ pub fn measure_temp_humid() -> (f32, f32) {
         temp_dec += temp_dec_bit[i] * i32::pow(2, 7 - i as u32);
         check += check_bit[i] * i32::pow(2, 7 - i as u32);
     }
-    if data.len() < 40 || check != hum + hum_dec + temp + temp_dec {
+    if check != hum + hum_dec + temp + temp_dec {
         println!("Error reading temp/humidity");
         return (0.0, 0.0)
     };
