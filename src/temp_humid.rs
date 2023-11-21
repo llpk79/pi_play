@@ -45,7 +45,7 @@ pub fn measure_temp_humid() -> (f32, f32) {
         }
     }
     if data.len() < 40 {
-        println!("Error reading temp/humidity");
+        println!("Error reading temp/humidity; not enough data received.");
         return (0.0, 0.0)
     }
     let hum_bit = Vec::from(&data[0..8]);
@@ -67,7 +67,8 @@ pub fn measure_temp_humid() -> (f32, f32) {
         check += check_bit[i] * i32::pow(2, 7 - i as u32);
     }
     if check != hum + hum_dec + temp + temp_dec {
-        println!("Error reading temp/humidity");
+        println!("Error reading temp/humidity; checksum error.");
+        println!("temp {}.{}\nhum {}.{}", temp, temp_dec, hum, hum_dec);
         return (0.0, 0.0)
     };
     let hum = f32::from_str(&format!("{}.{}", hum, hum_dec)).expect("should be float");
