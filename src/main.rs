@@ -50,7 +50,7 @@ fn do_laser() {
                 celsius as f32 / 10_f32,
                 fahrenheit,
                 baro as f32 / 100_f32,
-                if humidity > 0.0 {(humidity / 10_f32).to_string()} else {"ERR".to_string()}
+                if humidity > 0.0 {(humidity / 1_f32).to_string()} else {"ERR".to_string()}
             );
             laser.send_message(message);
             thread::sleep(Duration::from_millis(30_000))
