@@ -19,7 +19,7 @@ pub fn measure_temp_humid() -> (f32, f32) {
     while data_pin.read_value().unwrap() == High {
         continue;
     }
-    while data.len() < 40 {
+    loop {
         while data_pin.read_value().unwrap() == Low {
             continue;
         }
@@ -28,13 +28,13 @@ pub fn measure_temp_humid() -> (f32, f32) {
             continue;
         }
         let end = chrono::Utc::now();
-        let bit_time = end - start;
-        println!("bit time {:?}", bit_time.num_microseconds().unwrap());
-        if bit_time.num_microseconds().unwrap() > 45 {
-            data.push(1);
-        } else {
-            data.push(0);
-        };
+        let bit_time = (end - start).num_microseconds().unwrap();
+        println!("bit time {:?}", bit_time);
+        match bit_time {
+            i64::MIN..=45 => data.push(1),
+            46..=125 => data.push(0),
+            126.. => break
+        }
     }
     let hum_bit = Vec::from(&data[0..8]);
     let hum_dec_bit = Vec::from(&data[8..16]);
@@ -56,7 +56,7 @@ pub fn measure_temp_humid() -> (f32, f32) {
     }
     if check != hum + hum_dec + temp + temp_dec {
         println!("Error reading temp/humidity");
-        // println!("check {}\ntest {}\n", check, hum + hum_dec + temp + temp_dec);
+        return (0.0, 0.0)
     };
     let hum = f32::from_str(&format!("{}.{}", hum, hum_dec)).expect("should be float");
     let temp = f32::from_str(&format!("{}.{}", temp, temp_dec)).expect("should be float");
