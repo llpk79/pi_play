@@ -40,6 +40,9 @@ pub fn measure_temp_humid() -> (f32, f32) {
             46..=125 => data.push(0),
             126.. => break
         }
+        if data.len() > 40 {
+            break
+        }
     }
     if data.len() < 40 {
         println!("Error reading temp/humidity");
