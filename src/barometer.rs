@@ -8,7 +8,7 @@ use std::fs::File;
 use std::thread;
 use std::time::Duration;
 
-const SEA_LEVEL_PA: f32 = 102_650.0;
+const SEA_LEVEL_PA: f32 = 102_750.0;
 
 pub struct Barometer {
     // Device.
