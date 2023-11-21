@@ -71,10 +71,10 @@ impl Barometer {
     pub fn new() -> Barometer {
         let i2c = I2c::from_path("/dev/i2c-1".to_string()).expect("Device should be found");
         let addr = 0x77_u16;
-        let low_power_mask = 0_u8;
-        let standard_res_mask = 1_u8;
-        let high_res_mask = 2_u8;
-        let ultra_high_res_mask = 3_u8;
+        let low_power_mask = 0x00_u8;
+        let standard_res_mask = 0x01_u8;
+        let high_res_mask = 0x02_u8;
+        let ultra_high_res_mask = 0x03_u8;
         let control = 0xF4_u8;
         let msb = 0xF6_u8;
         let lsb = 0xF7_u8;
