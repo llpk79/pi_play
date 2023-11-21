@@ -73,8 +73,8 @@ impl Barometer {
         let high_res_mask = 0x20_u8;
         let ultra_high_res_mask = 0x30_u8;
         let control = 0xF4_u8;
-        let lsb = 0xF6_u8;
-        let msb = 0xF7_u8;
+        let msb = 0xF6_u8;
+        let lsb = 0xF7_u8;
         let xlsb = 0xF8_u8;
         let cal_ac1 = 0xAA_u8;
         let cal_ac2 = 0xAC_u8;
