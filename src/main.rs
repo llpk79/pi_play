@@ -47,7 +47,7 @@ fn do_laser() {
             let altitude = barometer.read_altitude(&mode);
 
             let message = format!(
-                "C: {:.1} F: {:.1}      \nB: {:.2} A {:.1}       ",
+                "C: {:.1} F: {:.1}      \nB: {:.1} A: {:.1}       ",
                 other_c as f32 / 10_f32,
                 fahrenheit,
                 baro as f32 / 100_f32,
