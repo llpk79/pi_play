@@ -270,7 +270,7 @@ impl Barometer {
             Mode::UltraHighRes => (raw_pressure - b3) * (50_000 >> self.ultra_high_res_mask)
         } as u64;
         println!("z1 {}\nz2 {}\nz3 {}\nb4 {}\nb7 {}\n", z1, z2, z3, b4, b7);
-        let pressure: i64 = match b7 < 0x80_000_000 {
+        let mut pressure: i64 = match b7 < 0x80_000_000 {
             true => (b7 * 2) / b4,
             false => (b7 / b4) * 2,
         } as i64;
@@ -279,7 +279,8 @@ impl Barometer {
         let final2 = (-7357 * pressure) >> 16;
 
         println!("pres {}\nf1 {}\nf2 {}\n", pressure, final1, final2);
-        pressure + (final1 + final2 + 3791) >> 4
+        pressure = pressure + (final1 + final2 + 3791) >> 4;
+        pressure
     }
 
     pub fn read_altitude(&mut self, mode: Mode) -> f32 {
