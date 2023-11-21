@@ -24,8 +24,13 @@ pub fn measure_temp_humid() -> (f32, f32) {
             continue;
         }
         let start = chrono::Utc::now();
+        let mut limit = 0;
         while data_pin.read_value().unwrap() == High {
-            continue;
+            if limit > 3 {
+                break
+            } else {
+                limit += 1
+            }
         }
         let end = chrono::Utc::now();
         let bit_time = (end - start).num_microseconds().unwrap();
