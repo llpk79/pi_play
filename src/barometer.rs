@@ -168,6 +168,8 @@ impl Barometer {
         self.mb = self.read_s16(self.cal_mb);
         self.mc = self.read_s16(self.cal_mc);
         self.md =self.read_s16(self.cal_md);
+        println!("Calebration:\nac1 {}\nac1 {}\nac3 {}\nac4 {}\nac5 {}\nac6 {}\nb1 {}\nb2 {}\nmb {}\nmc {}\nmd {}",
+        self.ac1, self.ac2, self.ac3, self.ac4, self.ac5, self.ac6, self.b1, self.b2, self.mb, self.mc, self.md)
     }
 
     fn read_raw_temp(&mut self) -> u16 {
