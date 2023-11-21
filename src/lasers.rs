@@ -195,7 +195,7 @@ impl Receiver {
                 let decode_time =
                     (chrono::Utc::now() - end).num_microseconds().unwrap() as f64 / 1000_000.0_f64;
                 println!(
-                    "Message in {:.3} sec\nDecode in {:.6} sec\nKB {:.3}\n'Error' {:.6}\n",
+                    "Message in {:.3} sec\nDecode in {:.6} sec\nKB: {:.3}\nTransmission loss: {:.6}\n",
                     seconds,
                     decode_time,
                     lcd_message.len() as f32 / 1000_f32,
