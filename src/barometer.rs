@@ -164,19 +164,22 @@ impl Barometer {
     pub fn init(&mut self) {
         self.i2c.smbus_set_slave_address(self.addr,false).expect("Slave addr should be set");
         // Calibration
-        self.ac1 = self.read_s16(self.cal_ac1);
-        self.ac2 = self.read_s16(self.cal_ac2);
-        self.ac3 = self.read_s16(self.cal_ac3);
-        self.ac4 = self.read_u16(self.cal_ac4);
-        self.ac5 = self.read_u16(self.cal_ac5);
-        self.ac6 = self.read_u16(self.cal_ac6);
-        self.b1 = self.read_s16(self.cal_b1);
-        self.b2 = self.read_s16(self.cal_b2);
-        self.mb = self.read_s16(self.cal_mb);
-        self.mc = self.read_s16(self.cal_mc);
-        self.md =self.read_s16(self.cal_md);
-        println!("Calebration:\nac1 {}\nac2 {}\nac3 {}\nac4 {}\nac5 {}\nac6 {}\nb1 {}\nb2 {}\nmb {}\nmc {}\nmd {}",
-        self.ac1, self.ac2, self.ac3, self.ac4, self.ac5, self.ac6, self.b1, self.b2, self.mb, self.mc, self.md)
+        for i in 0..2 {
+            self.ac1 = self.read_s16(self.cal_ac1 + i);
+            self.ac2 = self.read_s16(self.cal_ac2 + i);
+            self.ac3 = self.read_s16(self.cal_ac3 + i);
+            self.ac4 = self.read_u16(self.cal_ac4 + i);
+            self.ac5 = self.read_u16(self.cal_ac5 + i);
+            self.ac6 = self.read_u16(self.cal_ac6 + i);
+            self.b1 = self.read_s16(self.cal_b1 + i);
+            self.b2 = self.read_s16(self.cal_b2 + i);
+            self.mb = self.read_s16(self.cal_mb + i);
+            self.mc = self.read_s16(self.cal_mc + i);
+            self.md =self.read_s16(self.cal_md + i);
+            println!("Calebration:\nac1 {}\nac2 {}\nac3 {}\nac4 {}\nac5 {}\nac6 {}\nb1 {}\nb2 {}\nmb {}\nmc {}\nmd {}",
+                     self.ac1, self.ac2, self.ac3, self.ac4, self.ac5, self.ac6, self.b1, self.b2, self.mb, self.mc, self.md)
+
+        }
     }
 
     fn read_raw_temp(&mut self) -> i32 {
