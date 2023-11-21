@@ -8,7 +8,7 @@ use std::time::Duration;
 /// Send a message with a laser!
 fn do_laser() {
     // Dummy message to encode temperature stuff.
-    let message = "FCBA:::111222333444555666777888999000....-        \n".to_string();
+    let message = "FCBA111222333444555666777888999000....-        \n".to_string();
     // Compress message with Huffman Coding.
     let mut huff_tree = HuffTree::new();
     huff_tree.build_tree(&message);
@@ -46,7 +46,7 @@ fn do_laser() {
             let altitude = barometer.read_altitude(&mode);
 
             let message = format!(
-                "C: {:.1} F: {:.1}      \nB: {:.1} A: {:.1}       ",
+                "C {:.1} F {:.1}        \nB {:.1} A {:.1}        ",
                 celsius as f32 / 10_f32,
                 fahrenheit,
                 baro as f32 / 100_f32,
