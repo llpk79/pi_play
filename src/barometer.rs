@@ -8,7 +8,7 @@ use std::fs::File;
 use std::thread;
 use std::time::Duration;
 
-const SEA_LEVEL_PA: f32 = 102_750.0;
+const SEA_LEVEL_PA: f32 = 101_325.0;
 
 pub struct Barometer {
     // Device.
@@ -268,7 +268,7 @@ impl Barometer {
         (((msb as i64) << 16) + ((lsb as i64) << 8) + xlsb as i64) >> (8 - raw_modifier)
     }
 
-    pub fn read_pressure(&mut self, raw_pressure: i64, mode: &Mode) -> i64 {
+    pub fn read_pressure(&self, raw_pressure: i64, mode: &Mode) -> i64 {
         // From datasheet.
         let b6: i64 = self.b5 - 4000;
         let x1: i64 = (self.b2 as i64 * (b6 * (b6 >> 12))) >> 11;
