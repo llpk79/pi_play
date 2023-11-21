@@ -193,7 +193,7 @@ impl Barometer {
             Ok(lsb) => lsb,
             Err(_e) => panic!()
         };
-        (msb << 8 + lsb) as i32
+        ((msb << 8) + lsb) as i32
     }
 
     pub fn read_temperature(&mut self, raw_temp: i32) -> i64 {
@@ -241,26 +241,26 @@ impl Barometer {
             Ok(xlsb) => xlsb,
             Err(_e) => panic!()
         };
-        ((msb << 16 + lsb << 8 + xlsb) >> (8 - raw_modifier)) as i64
+        (((msb << 16) + (lsb << 8) + xlsb) >> (8 - raw_modifier)) as i64
     }
 
     pub fn read_pressure(&mut self, raw_pressure: i64, mode: &Mode) -> i64 {
         println!("raw pressure {}", raw_pressure);
         // From datasheet.
         let b6 = self.b5 - 4000;
-        let x1: i64 = (self.b2 as i64 * (b6 * b6 >> 12)) >> 11;
-        let x2: i64 = self.ac2 as i64 * b6 >> 12;
+        let x1: i64 = (self.b2 as i64 * (b6 * (b6 >> 12))) >> 11;
+        let x2: i64 = self.ac2 as i64 * (b6 >> 12);
         let x3 = x1 + x2;
         let b3 = match  mode {
-            Mode::LowPower => ((self.ac1 as i64 * 4 + x3) << self.low_power_mask + 2) / 4,
-            Mode::Standard => ((self.ac1 as i64 * 4 + x3) << self.standard_res_mask + 2) / 4,
-            Mode::HighRes => ((self.ac1 as i64 * 4 + x3) << self.high_res_mask + 2) / 4,
-            Mode::UltraHighRes => ((self.ac1 as i64 * 4 + x3) << self.ultra_high_res_mask + 2) / 4,
+            Mode::LowPower => (((self.ac1 as i64 * 4) + x3) << self.low_power_mask + 2) / 4,
+            Mode::Standard => (((self.ac1 as i64 * 4) + x3) << self.standard_res_mask + 2) / 4,
+            Mode::HighRes => (((self.ac1 as i64 * 4) + x3) << self.high_res_mask + 2) / 4,
+            Mode::UltraHighRes => (((self.ac1 as i64) * 4 + x3) << self.ultra_high_res_mask + 2) / 4,
         };
         let z1: i32 = ((self.ac3 as i64 * b6) >> 13) as i32;
         let z2 = (self.b1 as i32 * ((b6 * b6) >> 12) as i32) >> 16;
         let z3 = ((z1 + z2) + 2) >> 2;
-        let b4: u64 = ((self.ac4 as i32 * (z3 + 32_768)) >> 15) as u64;
+        let b4: u64 = (self.ac4 as i32 * ((z3 + 32_768) >> 15)) as u64;
         let b7:u64 = match mode {
             Mode::LowPower => (raw_pressure - b3) * (50_000 >> self.low_power_mask),
             Mode::Standard => (raw_pressure - b3) * (50_000 >> self.standard_res_mask),

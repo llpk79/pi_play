@@ -41,8 +41,8 @@ fn do_laser() {
             let raw_c = barometer.read_raw_temp();
             let other_c = barometer.read_temperature(raw_c);
 
-            let raw_baro = barometer.read_raw_pressure(&Mode::Standard);
-            let baro = barometer.read_pressure(raw_baro, &Mode::Standard);
+            let raw_baro = barometer.read_raw_pressure(&Mode::LowPower);
+            let baro = barometer.read_pressure(raw_baro, &Mode::LowPower);
 
             let message = format!("C: {:.1} F: {:.1}  \nC: {} B: {}      ", celsius, fahrenheit, other_c, baro);
             laser.send_message(message);
