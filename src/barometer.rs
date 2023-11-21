@@ -155,9 +155,9 @@ impl Barometer {
 
     fn read_s16(&mut self, command: u8) -> i16 {
         let raw_read = self.read_u16(command);
-        return match raw_read {
-            u16::MIN..=32_767 => raw_read as i16,
-            _ => (raw_read as i32 - 65_536_i32) as i16
+        return match raw_read > 32_767 {
+            true => (raw_read as i32 - 65_536_i32) as i16,
+            false => raw_read  as i16
         };
     }
 
@@ -176,13 +176,13 @@ impl Barometer {
             self.mb = self.read_s16(self.cal_mb + i);
             self.mc = self.read_s16(self.cal_mc + i);
             self.md =self.read_s16(self.cal_md + i);
-            println!("Calebration:\nac1 {}\nac2 {}\nac3 {}\nac4 {}\nac5 {}\nac6 {}\nb1 {}\nb2 {}\nmb {}\nmc {}\nmd {}",
+            println!("Calibration:\nac1 {}\nac2 {}\nac3 {}\nac4 {}\nac5 {}\nac6 {}\nb1 {}\nb2 {}\nmb {}\nmc {}\nmd {}",
                      self.ac1, self.ac2, self.ac3, self.ac4, self.ac5, self.ac6, self.b1, self.b2, self.mb, self.mc, self.md)
 
         }
     }
 
-    pub fn read_raw_temp(&mut self) -> i32 {
+    pub fn read_raw_temp(&mut self) -> i64 {
         self.i2c.smbus_write_byte_data(self.control, self.read_temp & 0xFF).expect("data should write");
         thread::sleep(Duration::from_micros(5));
         let msb =  match self.i2c.smbus_read_byte_data(self.msb) {
@@ -193,13 +193,13 @@ impl Barometer {
             Ok(lsb) => lsb & 0xFF,
             Err(_e) => panic!()
         };
-        ((msb as i32) << 8) + lsb as i32
+        ((msb as i64) << 8) + lsb as i64
     }
 
-    pub fn read_temperature(&mut self, raw_temp: i32) -> i64 {
+    pub fn read_temperature(&mut self, raw_temp: i64) -> i64 {
         println!("raw temp {}", raw_temp);
         // From datasheet
-        let x1: i64 = ((raw_temp - self.ac6 as i32) * (self.ac5 as i32 >> 15)) as i64;
+        let x1: i64 = (raw_temp - self.ac6 as i64) * (self.ac5 as i64 >> 15);
         let x2: i64 = ((self.mc as i64) << 11) / (x1 + self.md as i64);
         self.b5 = x1 + x2;
         (self.b5 + 8) >> 4
@@ -214,17 +214,17 @@ impl Barometer {
                 raw_modifier = self.low_power_mask;
             }
             Mode::Standard => {
-                self.i2c.smbus_write_byte_data(self.control, self.read_pressure + (self.standard_res_mask << 6)).expect("should write");
+                self.i2c.smbus_write_byte_data(self.control, self.read_pressure + (self.standard_res_mask << 6) & 0xFF).expect("should write");
                 thread::sleep(Duration::from_micros(8));
                 raw_modifier = self.standard_res_mask;
             }
             Mode::HighRes => {
-                self.i2c.smbus_write_byte_data(self.control, self.read_pressure + (self.high_res_mask << 6)).expect("should write");
+                self.i2c.smbus_write_byte_data(self.control, self.read_pressure + (self.high_res_mask << 6) & 0xFF).expect("should write");
                 thread::sleep(Duration::from_micros(14));
                 raw_modifier = self.high_res_mask;
             }
             Mode::UltraHighRes => {
-                self.i2c.smbus_write_byte_data(self.control, self.read_pressure + (self.ultra_high_res_mask << 6)).expect("should write");
+                self.i2c.smbus_write_byte_data(self.control, self.read_pressure + (self.ultra_high_res_mask << 6) & 0xFF).expect("should write");
                 thread::sleep(Duration::from_micros(26));
                 raw_modifier = self.ultra_high_res_mask;
             }
@@ -241,26 +241,26 @@ impl Barometer {
             Ok(xlsb) => xlsb & 0xFF,
             Err(_e) => panic!()
         };
-        ((((msb as i32) << 16) + ((lsb as i32) << 8) + xlsb as i32) >> (8 - raw_modifier)) as i64
+        (((msb as i64) << 16) + ((lsb as i64) << 8) + xlsb as i64) >> (8 - raw_modifier)
     }
 
     pub fn read_pressure(&mut self, raw_pressure: i64, mode: &Mode) -> i64 {
         println!("raw pressure {}", raw_pressure);
         // From datasheet.
-        let b6 = self.b5 - 4000;
+        let b6: i64 = self.b5 - 4000;
         let x1: i64 = (self.b2 as i64 * (b6 * (b6 >> 12))) >> 11;
         let x2: i64 = self.ac2 as i64 * (b6 >> 12);
-        let x3 = x1 + x2;
-        let b3 = match  mode {
+        let x3: i64 = x1 + x2;
+        let b3: i64 = match  mode {
             Mode::LowPower => (((self.ac1 as i64 * 4) + x3) << (self.low_power_mask + 2)) / 4,
             Mode::Standard => (((self.ac1 as i64 * 4) + x3) << self.standard_res_mask + 2) / 4,
             Mode::HighRes => (((self.ac1 as i64 * 4) + x3) << self.high_res_mask + 2) / 4,
             Mode::UltraHighRes => (((self.ac1 as i64) * 4 + x3) << self.ultra_high_res_mask + 2) / 4,
         };
-        let z1: i64 = (self.ac3 as i64 * (b6 >> 13));
+        let z1: i64 = self.ac3 as i64 * (b6 >> 13);
         let z2: i64 = (self.b1 as i64 * ((b6 * b6) >> 12)) >> 16;
         let z3: i64 = ((z1 + z2) + 2) >> 2;
-        let b4: u64 = (self.ac4 as u64 * ((z3 as u64 + 32_768) >> 15));
+        let b4: u64 = self.ac4 as u64 * ((z3 as u64 + 32_768) >> 15);
         let b7: u64 = match mode {
             Mode::LowPower => (raw_pressure - b3) * (50_000 >> self.low_power_mask),
             Mode::Standard => (raw_pressure - b3) * (50_000 >> self.standard_res_mask),
@@ -279,14 +279,14 @@ impl Barometer {
     }
 
     pub fn read_altitude(&mut self, mode: Mode) -> f32 {
-        let raw_pressure = self.read_raw_pressure(&mode);
-        let pressure = self.read_pressure(raw_pressure, &mode);
+        let raw_pressure: i64 = self.read_raw_pressure(&mode);
+        let pressure: i64 = self.read_pressure(raw_pressure, &mode);
         44330.0_f32 * (1.0 - f32::powf(pressure as f32 / SEA_LEVEL_PA, 1.0/5.255))
     }
 
     pub fn read_sea_level_pressure(&mut self, mode: Mode, altitude: f32) -> f32 {
-        let raw_pressure = self.read_raw_pressure(&mode);
-        let pressure = self.read_pressure(raw_pressure, &mode);
+        let raw_pressure: i64 = self.read_raw_pressure(&mode);
+        let pressure: i64 = self.read_pressure(raw_pressure, &mode);
         pressure as f32 / f32::powf(1.0 - altitude / 44330.0_f32, 5.255)
     }
 }
