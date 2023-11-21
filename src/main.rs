@@ -37,7 +37,7 @@ fn do_laser() {
 
             let raw_c = barometer.read_raw_temp();
             let celsius = barometer.read_temperature(raw_c);
-            let fahrenheit = ((celsius as f32 / 1000_f32)  * 9.0_f32 / 5.0) + 32.0;
+            let fahrenheit = ((celsius as f32 / 10_f32)  * 9.0_f32 / 5.0) + 32.0;
 
             let mode = HighRes;
             let raw_baro = barometer.read_raw_pressure(&mode);
