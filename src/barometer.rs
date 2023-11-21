@@ -241,7 +241,7 @@ impl Barometer {
             Ok(xlsb) => xlsb,
             Err(_e) => panic!()
         };
-        ((((msb as i16) << 16) + ((lsb as i16) << 8) + xlsb as i16) >> (8 - raw_modifier)) as i64
+        ((((msb as i32) << 16) + ((lsb as i32) << 8) + xlsb as i32) >> (8 - raw_modifier)) as i64
     }
 
     pub fn read_pressure(&mut self, raw_pressure: i64, mode: &Mode) -> i64 {
