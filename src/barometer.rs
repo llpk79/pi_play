@@ -193,7 +193,7 @@ impl Barometer {
             Ok(lsb) => lsb & 0xFF,
             Err(_e) => panic!()
         };
-        (((msb as i32) << 8) + lsb as i32)
+        ((msb as i32) << 8) + lsb as i32
     }
 
     pub fn read_temperature(&mut self, raw_temp: i32) -> i64 {
@@ -260,7 +260,7 @@ impl Barometer {
         let z1: i32 = ((self.ac3 as i64 * b6) >> 13) as i32;
         let z2 = (self.b1 as i32 * ((b6 * b6) >> 12) as i32) >> 16;
         let z3 = ((z1 + z2) + 2) >> 2;
-        let b4: u64 = (self.ac4 as i32 * ((z3 + 32_768) >> 15)) as u64;
+        let b4: u64 = (self.ac4 as u32 * ((z3 as u32 + 32_768) >> 15)) as u64;
         let b7:u64 = match mode {
             Mode::LowPower => (raw_pressure - b3) * (50_000 >> self.low_power_mask),
             Mode::Standard => (raw_pressure - b3) * (50_000 >> self.standard_res_mask),
