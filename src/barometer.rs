@@ -253,7 +253,7 @@ impl Barometer {
         let x2: i64 = (self.ac2 as i64 * b6) >> 12;
         let x3: i64 = x1 + x2;
         let b3: i64 = match  mode {
-            Mode::LowPower => ((self.ac1 as i64 * 4 + x3) << self.low_power_mask + 2) / 4,
+            Mode::LowPower => (((self.ac1 as i64 * 4 + x3) << self.low_power_mask) + 2) / 4,
             Mode::Standard => (((self.ac1 as i64 * 4) + x3) << self.standard_res_mask + 2) / 4,
             Mode::HighRes => (((self.ac1 as i64 * 4) + x3) << self.high_res_mask + 2) / 4,
             Mode::UltraHighRes => (((self.ac1 as i64) * 4 + x3) << self.ultra_high_res_mask + 2) / 4,
@@ -269,6 +269,7 @@ impl Barometer {
             Mode::HighRes => (raw_pressure - b3) * (50_000 >> self.high_res_mask),
             Mode::UltraHighRes => (raw_pressure - b3) * (50_000 >> self.ultra_high_res_mask)
         } as u64;
+        println!("z1 {}\nz2 {}\nz3 {}\nb4 {}\nb7 {}\n", z1, z2, z3, b4, b7);
         let pressure: i64 = match b7 < 0x80_000_000 {
             true => (b7 * 2) / b4,
             false => (b7 / b4) * 2,
@@ -277,6 +278,7 @@ impl Barometer {
         final1 = (final1 * 3038) >> 16;
         let final2 = (-7357 * pressure) >> 16;
 
+        println!("pres {}\nf1 {}\nf2 {}\n", pressure, final1, final2);
         pressure + (final1 + final2 + 3791) >> 4
     }
 
