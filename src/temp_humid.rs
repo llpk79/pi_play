@@ -54,7 +54,7 @@ pub fn measure_temp_humid() -> (f32, f32) {
         temp_dec += temp_dec_bit[i] * i32::pow(2, 7 - i as u32);
         check += check_bit[i] * i32::pow(2, 7 - i as u32);
     }
-    if check != hum + hum_dec + temp + temp_dec {
+    if data.len() < 40 || check != hum + hum_dec + temp + temp_dec {
         println!("Error reading temp/humidity");
         return (0.0, 0.0)
     };
