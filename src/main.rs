@@ -46,11 +46,11 @@ fn do_laser() {
             let (_, humidity) = measure_temp_humid();
 
             let message = format!(
-                "C {:.1} F {:.1}        \nB {:.1} H {:.1}        ",
+                "C {:.1} F {:.1}        \nB {:.1} H {}        ",
                 celsius as f32 / 10_f32,
                 fahrenheit,
                 baro as f32 / 100_f32,
-                humidity if humidity > 0 else "ERR"
+                if humidity > 0.0 {humidity.to_string()} else {"ERR".to_string()}
             );
             laser.send_message(message);
             thread::sleep(Duration::from_millis(30_000))
