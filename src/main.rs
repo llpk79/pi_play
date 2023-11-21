@@ -9,7 +9,7 @@ use std::time::Duration;
 /// Send a message with a laser!
 fn do_laser() {
     // Dummy message to encode temperature stuff.
-    let message = "FCCB:::111222333444555666777888999000...-        \n".to_string();
+    let message = "FCBA:::111222333444555666777888999000....-        \n".to_string();
     // Compress message with Huffman Coding.
     let mut huff_tree = HuffTree::new();
     huff_tree.build_tree(&message);
