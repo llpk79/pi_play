@@ -202,6 +202,7 @@ impl Barometer {
         let x1: i64 = (raw_temp - self.ac6 as i64) * (self.ac5 as i64 >> 15);
         let x2: i64 = ((self.mc as i64) << 11) / (x1 + self.md as i64);
         self.b5 = x1 + x2;
+        println!("x {}\nx2 {}\nb5 {}\nT {}\n", x1, x1, self.b5, (self.b5 + 8) >> 4);
         (self.b5 + 8) >> 4
     }
 
