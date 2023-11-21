@@ -40,7 +40,7 @@ fn do_laser() {
             let raw_c = barometer.read_raw_temp();
             let other_c = barometer.read_temperature(raw_c);
 
-            let mode = Mode::Standard;
+            let mode = Mode::UltraHighRes;
             let raw_baro = barometer.read_raw_pressure(&mode);
             let baro = barometer.read_pressure(raw_baro, &mode);
 
