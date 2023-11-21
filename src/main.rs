@@ -9,7 +9,7 @@ use std::time::Duration;
 /// Send a message with a laser!
 fn do_laser() {
     // Dummy message to encode temperature stuff.
-    let message = "FCBH111222333444555666777888999000....-        \n".to_string();
+    let message = "FCBHER111222333444555666777888999000....-        \n".to_string();
     // Compress message with Huffman Coding.
     let mut huff_tree = HuffTree::new();
     huff_tree.build_tree(&message);
@@ -50,7 +50,7 @@ fn do_laser() {
                 celsius as f32 / 10_f32,
                 fahrenheit,
                 baro as f32 / 100_f32,
-                humidity
+                humidity if humidity > 0 else "ERR"
             );
             laser.send_message(message);
             thread::sleep(Duration::from_millis(30_000))
