@@ -35,7 +35,6 @@ fn do_laser() {
     let laser_thread = thread::Builder::new()
         .name("laser".to_string())
         .spawn(move || loop {
-            let celsius = read_temp(false);
             let fahrenheit = read_temp(true);
 
             let raw_c = barometer.read_raw_temp();
@@ -45,7 +44,7 @@ fn do_laser() {
             let raw_baro = barometer.read_raw_pressure(&mode);
             let baro = barometer.read_pressure(raw_baro, &mode);
 
-            let message = format!("C: {:.1} F: {:.1}  \nC:{:.1}B:{:.1}      ", celsius, fahrenheit, other_c as f32 / 10_f32, baro);
+            let message = format!("C: {:.1} F: {:.1}      \nB: {:.2}        ", other_c, fahrenheit, baro as f32 / 100_f32);
             laser.send_message(message);
             thread::sleep(Duration::from_millis(1000))
         });
