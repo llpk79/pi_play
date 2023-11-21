@@ -189,11 +189,12 @@ impl Barometer {
             Ok(msb) => msb & 0xFF,
             Err(_e) => panic!()
         };
-        let lsb = match self.i2c.smbus_read_byte_data(self.lsb) {
-            Ok(lsb) => lsb & 0xFF,
-            Err(_e) => panic!()
-        };
-        ((msb as i64) << 8) + lsb as i64
+        // let lsb = match self.i2c.smbus_read_byte_data(self.lsb) {
+        //     Ok(lsb) => lsb & 0xFF,
+        //     Err(_e) => panic!()
+        // };
+        // ((msb as i64) << 8) + lsb as i64
+        msb as i64
     }
 
     pub fn read_temperature(&mut self, raw_temp: i64) -> i64 {
