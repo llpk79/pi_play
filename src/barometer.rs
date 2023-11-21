@@ -279,7 +279,7 @@ impl Barometer {
         let final2 = (-7357 * pressure) >> 16;
 
         println!("pres {}\nf1 {}\nf2 {}\n", pressure, final1, final2);
-        pressure = pressure + ((final1 + final2 + 3791) >> 4);
+        pressure = (pressure + (final1 + final2 + 3791)) >> 4;
         pressure
     }
 
