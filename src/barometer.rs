@@ -183,7 +183,7 @@ impl Barometer {
     }
 
     pub fn read_raw_temp(&mut self) -> i32 {
-        self.i2c.smbus_write_byte_data(self.control, self.read_temp).expect("data should write");
+        self.i2c.smbus_write_byte_data(self.control, self.read_temp & 0xFF).expect("data should write");
         thread::sleep(Duration::from_micros(5));
         let msb =  match self.i2c.smbus_read_byte_data(self.msb) {
             Ok(msb) => msb & 0xFF,
@@ -209,7 +209,7 @@ impl Barometer {
         let raw_modifier: u8;
         match mode {
             Mode::LowPower => {
-                self.i2c.smbus_write_byte_data(self.control, self.read_pressure + (self.low_power_mask << 6)).expect("should write");
+                self.i2c.smbus_write_byte_data(self.control, self.read_pressure + (self.low_power_mask << 6) & 0xFF).expect("should write");
                 thread::sleep(Duration::from_micros(5));
                 raw_modifier = self.low_power_mask;
             }
