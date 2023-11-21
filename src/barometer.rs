@@ -250,7 +250,7 @@ impl Barometer {
         // From datasheet.
         let b6: i64 = self.b5 - 4000;
         let x1: i64 = (self.b2 as i64 * (b6 * (b6 >> 12))) >> 11;
-        let x2: i64 = self.ac2 as i64 * (b6 >> 12);
+        let x2: i64 = (self.ac2 as i64 * b6) >> 12;
         let x3: i64 = x1 + x2;
         let b3: i64 = match  mode {
             Mode::LowPower => (((self.ac1 as i64 * 4) + x3) << (self.low_power_mask + 2)) / 4,
