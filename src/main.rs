@@ -1,10 +1,10 @@
+use pi_play_lib::barometer::{Barometer, Mode};
 use pi_play_lib::huffman_code::HuffTree;
 use pi_play_lib::lasers::{Laser, Receiver};
 use pi_play_lib::lcd::LCD;
 use pi_play_lib::temp::read_temp;
-use pi_play_lib::barometer::{Mode, Barometer};
+use std::thread;
 use std::time::Duration;
-use std::{thread};
 
 /// Send a message with a laser!
 fn do_laser() {
@@ -44,7 +44,15 @@ fn do_laser() {
             let raw_baro = barometer.read_raw_pressure(&mode);
             let baro = barometer.read_pressure(raw_baro, &mode);
 
-            let message = format!("C: {:.1} F: {:.1}      \nB: {:.2}        ", other_c as f32 / 10_f32, fahrenheit, baro as f32 / 100_f32);
+            let altitude = barometer.read_altitude(&mode);
+
+            let message = format!(
+                "C: {:.1} F: {:.1}      \nB: {:.2} A {:.1}       ",
+                other_c as f32 / 10_f32,
+                fahrenheit,
+                baro as f32 / 100_f32,
+                altitude
+            );
             laser.send_message(message);
             thread::sleep(Duration::from_millis(1000))
         });

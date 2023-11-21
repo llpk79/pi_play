@@ -25,10 +25,7 @@ impl Laser {
             Ok(out) => out,
             Err(_e) => panic!(),
         };
-        Self {
-            out,
-            huff_tree,
-        }
+        Self { out, huff_tree }
     }
 
     /// Initiate message with 500 microsecond pulse.
@@ -92,9 +89,8 @@ impl Receiver {
             while self.in_.read_value().expect("Pin should be active") == High {
                 continue;
             }
-            let initiation_time = (chrono::Utc::now() - begin)
-                .num_milliseconds();
-                // .expect("Some time should have passed");
+            let initiation_time = (chrono::Utc::now() - begin).num_milliseconds();
+            // .expect("Some time should have passed");
             match initiation_time {
                 i64::MIN..=8 => continue,
                 9..=11 => break,
@@ -117,16 +113,15 @@ impl Receiver {
             while self.in_.read_value().expect("Pin should be active") == High {
                 continue;
             }
-            let bit_time = (chrono::Utc::now() - start)
-                .num_milliseconds();
-                // .expect("Some time should have passed");
+            let bit_time = (chrono::Utc::now() - start).num_milliseconds();
+            // .expect("Some time should have passed");
             // println!("bit time {}", bit_time);
             match bit_time {
                 i64::MIN..=-0 => continue,
                 1 => data.push(0),
                 2 => data.push(1),
                 3..=10 => continue, // Bad data, we could guess, I guess?
-                11.. => break,       // Termination sequence.
+                11.. => break,      // Termination sequence.
             };
         }
         data
@@ -152,7 +147,7 @@ impl Receiver {
         }
 
         // Get int from each byte.
-        for i in (0.. message_data.len() - 1).step_by(8) {
+        for i in (0..message_data.len() - 1).step_by(8) {
             let mut byte = 0;
             for bit in (0..8).map(|j| message_data[i + j] << j) {
                 byte += bit
@@ -192,7 +187,8 @@ impl Receiver {
                 let sans_checksum = Vec::from(&data[0..(data.len() - 32)]);
                 let message = self.huff_tree.decode(sans_checksum);
                 let pre_lcd_message: Vec<&str> = message.split("\n").collect();
-                let lcd_message: Vec<String> = pre_lcd_message.iter().map(|s| s.to_string()).collect();
+                let lcd_message: Vec<String> =
+                    pre_lcd_message.iter().map(|s| s.to_string()).collect();
 
                 // Calculate stats
                 let seconds = (end - start).num_milliseconds() as f64 / 1000.0_f64;
@@ -214,6 +210,5 @@ impl Receiver {
                 Vec::from(["".to_string()])
             }
         };
-
     }
 }
