@@ -52,7 +52,8 @@ fn do_laser() {
                 baro as f32 / 100_f32,
                 humidity
             );
-            laser.send_message(message);
+            laser.send_message(message.clone());
+            println!("message {}", message);
             thread::sleep(Duration::from_millis(30_000))
         });
 
