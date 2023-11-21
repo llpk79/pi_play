@@ -53,7 +53,7 @@ fn do_laser() {
                 altitude
             );
             laser.send_message(message);
-            thread::sleep(Duration::from_millis(1000))
+            thread::sleep(Duration::from_millis(30000))
         });
 
     receiver_thread
