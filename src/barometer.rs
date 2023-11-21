@@ -48,6 +48,7 @@ pub struct Barometer {
     ac6: u16,
     b1: i16,
     b2: i16,
+    b5: i16,
     mb: i16,
     mc: i16,
     md: i16,
@@ -94,6 +95,7 @@ impl Barometer {
         let ac6 = 0_u16;
         let b1 = 0_i16;
         let b2 = 0_i16;
+        let b5 = 0_i16;
         let mb = 0_i16;
         let mc = 0_i16;
         let md = 0_i16;
@@ -130,6 +132,7 @@ impl Barometer {
             ac6,
             b1,
             b2,
+            b5,
             mb,
             mc,
             md,
@@ -229,36 +232,33 @@ impl Barometer {
         ((u32::from(msb) << 16) + (u32::from(lsb) << 8) + xlsb as u32) >> (8 - raw_modifier)
     }
 
-    pub fn read_temperature(&mut self) -> f32 {
+    pub fn read_temperature(&mut self) -> u16 {
         let raw_temp = self.read_raw_temp();
+        println!("raw temp {}", raw_temp);
         // From datasheet
-        let x1: i16 = (((raw_temp - self.ac6) * self.ac5) >> 15) as i16;
+        let x1: i16 = ((raw_temp - self.ac6) * self.ac5 >> 15) as i16;
         let x2: i16 = (self.mc << 11) / (x1 + self.mb);
-        let b5 = x1 + x2;
-        return ((b5 + 8) >> 4) as f32 / 10_f32
+        self.b5 = x1 + x2;
+        ((self.b5 + 8) >> 4) as u16
     }
 
     pub fn read_pressure(&mut self, mode: &Mode) -> i64 {
-        let raw_temp = self.read_raw_temp();
         let raw_pressure = self.read_raw_pressure(mode);
         // From datasheet.
-        let x1: i16 = (((raw_temp - self.ac6) * self.ac5) >> 15) as i16;
-        let x2: i16 = (self.mc << 11) / (x1 + self.md);
-        let b5 = x1 + x2;
-        let b6 = b5 - 4000;
-        let y1 = (self.b2 * (b6 * b6) >> 12) >> 11;
-        let y2 = (self.ac2 * b6) >> 11;
-        let y3 = y1 + y2;
-        let b3 = match mode {
-            Mode::LowPower => (((self.ac1 * 4 + y3) << self.low_power_mask) + 2) / 4,
-            Mode::Standard => (((self.ac1 * 4 + y3) << self.standard_res_mask) + 2) / 4,
-            Mode::HighRes => (((self.ac1 * 4 + y3) << self.high_res_mask) + 2) / 4,
-            Mode::UltraHighRes => (((self.ac1 * 4 + y3) << self.ultra_high_res_mask) + 2) / 4,
+        let b6 = self.b5 - 4000;
+        let x1: i16 = (self.b2 * (b6 * b6 >> 12)) >> 11;
+        let x2: i16 = self.ac2 * b6 >> 12;
+        let x3 = x1 + x2;
+        let b3 = match  mode {
+            Mode::LowPower => ((self.ac1 * 4 + x3) << self.low_power_mask + 2) / 4,
+            Mode::Standard => ((self.ac1 * 4 + x3) << self.standard_res_mask + 2) / 4,
+            Mode::HighRes => ((self.ac1 * 4 + x3) << self.high_res_mask + 2) / 4,
+            Mode::UltraHighRes => ((self.ac1 * 4 + x3) << self.ultra_high_res_mask + 2) / 4,
         };
         let z1: i32 = ((self.ac3 * b6) >> 13) as i32;
         let z2 = (self.b1 as i32 * ((b6 * b6) >> 12) as i32) >> 16;
         let z3 = ((z1 + z2) + 2) >> 2;
-        let b4: i64 = ((self.ac4 as i32 * (z3 + 32768)) >> 15) as i64;
+        let b4: i64 = ((self.ac4 as i32 * (z3 + 32_768)) >> 15) as i64;
         let b7 = match mode {
             Mode::LowPower => (raw_pressure as i16 - b3) as i64 * (50_000 >> self.low_power_mask),
             Mode::Standard => (raw_pressure as i16 - b3) as i64 * (50_000 >> self.standard_res_mask),
