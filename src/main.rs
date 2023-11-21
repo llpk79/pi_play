@@ -1,8 +1,7 @@
-use pi_play_lib::barometer::{Barometer, Mode};
+use pi_play_lib::barometer::{Barometer, Mode::{HighRes}};
 use pi_play_lib::huffman_code::HuffTree;
 use pi_play_lib::lasers::{Laser, Receiver};
 use pi_play_lib::lcd::LCD;
-use pi_play_lib::temp::read_temp;
 use std::thread;
 use std::time::Duration;
 
@@ -35,12 +34,12 @@ fn do_laser() {
     let laser_thread = thread::Builder::new()
         .name("laser".to_string())
         .spawn(move || loop {
-            let fahrenheit = read_temp(true);
 
             let raw_c = barometer.read_raw_temp();
-            let other_c = barometer.read_temperature(raw_c);
+            let celsius = barometer.read_temperature(raw_c);
+            let fahrenheit = (celsius as f32 * 9.0_f32 / 5.0) + 32.0;
 
-            let mode = Mode::HighRes;
+            let mode = HighRes;
             let raw_baro = barometer.read_raw_pressure(&mode);
             let baro = barometer.read_pressure(raw_baro, &mode);
 
@@ -48,7 +47,7 @@ fn do_laser() {
 
             let message = format!(
                 "C: {:.1} F: {:.1}      \nB: {:.1} A: {:.1}       ",
-                other_c as f32 / 10_f32,
+                celsius as f32 / 10_f32,
                 fahrenheit,
                 baro as f32 / 100_f32,
                 altitude
