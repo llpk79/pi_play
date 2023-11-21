@@ -70,7 +70,7 @@ pub fn measure_temp_humid() -> (f32, f32) {
     }
     if check != hum + hum_dec + temp + temp_dec {
         println!("Error reading temp/humidity; checksum error.");
-        println!("temp {}.{}\nhum {}.{}", temp, temp_dec, hum, hum_dec);
+        println!("temp {}.{}\nhum {}.{}\ncheck {}", temp, temp_dec, hum, hum_dec, check);
         return (0.0, 0.0)
     };
     let hum = f32::from_str(&format!("{}.{}", hum, hum_dec)).expect("should be float");
