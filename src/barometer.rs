@@ -199,7 +199,7 @@ impl Barometer {
     pub fn read_temperature(&mut self, raw_temp: i32) -> i64 {
         println!("raw temp {}", raw_temp);
         // From datasheet
-        let x1: i64 = ((raw_temp - self.ac6 as i32) * self.ac5 as i32 >> 15) as i64;
+        let x1: i64 = ((raw_temp - self.ac6 as i32) * (self.ac5 as i32 >> 15)) as i64;
         let x2: i64 = ((self.mc as i64) << 11) / (x1 + self.md as i64);
         self.b5 = x1 + x2;
         (self.b5 + 8) >> 4
@@ -252,16 +252,16 @@ impl Barometer {
         let x2: i64 = self.ac2 as i64 * (b6 >> 12);
         let x3 = x1 + x2;
         let b3 = match  mode {
-            Mode::LowPower => (((self.ac1 as i64 * 4) + x3) << self.low_power_mask + 2) / 4,
+            Mode::LowPower => (((self.ac1 as i64 * 4) + x3) << (self.low_power_mask + 2)) / 4,
             Mode::Standard => (((self.ac1 as i64 * 4) + x3) << self.standard_res_mask + 2) / 4,
             Mode::HighRes => (((self.ac1 as i64 * 4) + x3) << self.high_res_mask + 2) / 4,
             Mode::UltraHighRes => (((self.ac1 as i64) * 4 + x3) << self.ultra_high_res_mask + 2) / 4,
         };
-        let z1: i32 = ((self.ac3 as i64 * b6) >> 13) as i32;
-        let z2 = (self.b1 as i32 * ((b6 * b6) >> 12) as i32) >> 16;
-        let z3 = ((z1 + z2) + 2) >> 2;
-        let b4: u64 = (self.ac4 as u32 * ((z3 as u32 + 32_768) >> 15)) as u64;
-        let b7:u64 = match mode {
+        let z1: i64 = (self.ac3 as i64 * (b6 >> 13));
+        let z2: i64 = (self.b1 as i64 * ((b6 * b6) >> 12)) >> 16;
+        let z3: i64 = ((z1 + z2) + 2) >> 2;
+        let b4: u64 = (self.ac4 as u64 * ((z3 as u64 + 32_768) >> 15));
+        let b7: u64 = match mode {
             Mode::LowPower => (raw_pressure - b3) * (50_000 >> self.low_power_mask),
             Mode::Standard => (raw_pressure - b3) * (50_000 >> self.standard_res_mask),
             Mode::HighRes => (raw_pressure - b3) * (50_000 >> self.high_res_mask),
