@@ -260,7 +260,7 @@ impl Barometer {
         };
         println!("b6 {}\nx1 {}\nx2 {}\nx3 {}\nb3 {}", b6, x1, x2, x3, b3);
         let z1: i64 = self.ac3 as i64 * (b6 >> 13);
-        let z2: i64 = (self.b1 as i64 * ((b6 * b6) >> 12)) >> 16;
+        let z2: i64 = (self.b1 as i64 * (b6 * (b6 >> 12))) >> 16;
         let z3: i64 = ((z1 + z2) + 2) >> 2;
         let b4: u64 = self.ac4 as u64 * ((z3 as u64 + 32_768) >> 15);
         let b7: u64 = match mode {
