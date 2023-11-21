@@ -15,10 +15,10 @@ pub struct Barometer {
     addr: u16,
 
     // Operating modes.
-    low_power_mask: u16,
-    standard_res_mask: u16,
-    high_res_mask: u16,
-    ultra_high_res_mask: u16,
+    low_power_mask: u8,
+    standard_res_mask: u8,
+    high_res_mask: u8,
+    ultra_high_res_mask: u8,
 
     // Registers.
     control: u8,
@@ -51,8 +51,8 @@ pub struct Barometer {
     mc: i16,
     md: i16,
     // Commands.
-    read_temp: u16,
-    read_pressure: u16,
+    read_temp: u8,
+    read_pressure: u8,
 }
 
 pub enum Mode {
@@ -66,10 +66,10 @@ impl Barometer {
     pub fn new() -> Barometer {
         let i2c = I2c::from_path("/dev/i2c-1".to_string()).expect("Device should be found");
         let addr = 0x77_u16;
-        let low_power_mask = 0x00_u16;
-        let standard_res_mask = 0x10_u16;
-        let high_res_mask = 0x20_u16;
-        let ultra_high_res_mask = 0x30_u16;
+        let low_power_mask = 0x00_u8;
+        let standard_res_mask = 0x10_u8;
+        let high_res_mask = 0x20_u8;
+        let ultra_high_res_mask = 0x30_u8;
         let control = 0xF4_u8;
         let temp_data = 0xF6_u8;
         let pressure_data = 0xF6_u8;
@@ -95,8 +95,8 @@ impl Barometer {
         let mb = 0_i16;
         let mc = 0_i16;
         let md = 0_i16;
-        let read_temp = 0x2E_u16;
-        let read_pressure = 0x34_u16;
+        let read_temp = 0x2E_u8;
+        let read_pressure = 0x34_u8;
 
         Self {
             i2c,
@@ -171,7 +171,7 @@ impl Barometer {
     }
 
     fn read_raw_temp(&mut self) -> u16 {
-        self.i2c.smbus_write_word_data(self.control, self.read_temp).expect("data should write");
+        self.i2c.smbus_write_byte_data(self.control, self.read_temp & 0xFF).expect("data should write");
         thread::sleep(Duration::from_micros(5));
         return match self.i2c.smbus_read_word_data(self.temp_data) {
             Ok(raw_temp) => raw_temp,
@@ -180,39 +180,39 @@ impl Barometer {
     }
 
     fn read_raw_pressure(&mut self, mode: &Mode) -> u32 {
-        let raw_modifier: u16;
+        let raw_modifier: u8;
         match mode {
             Mode::LowPower => {
-                self.i2c.smbus_write_word_data(self.control, self.read_pressure + (self.low_power_mask << 6)).expect("should write");
+                self.i2c.smbus_write_byte_data(self.control, (self.read_pressure + (self.low_power_mask << 6)) & 0xFF).expect("should write");
                 thread::sleep(Duration::from_micros(5));
                 raw_modifier = self.low_power_mask;
             }
             Mode::Standard => {
-                self.i2c.smbus_write_word_data(self.control, self.read_pressure + (self.standard_res_mask << 6)).expect("should write");
+                self.i2c.smbus_write_byte_data(self.control, (self.read_pressure + (self.standard_res_mask << 6)) & 0xFF).expect("should write");
                 thread::sleep(Duration::from_micros(8));
                 raw_modifier = self.standard_res_mask;
             }
             Mode::HighRes => {
-                self.i2c.smbus_write_word_data(self.control, self.read_pressure + (self.high_res_mask << 6)).expect("should write");
+                self.i2c.smbus_write_byte_data(self.control, (self.read_pressure + (self.high_res_mask << 6)) & 0xFF).expect("should write");
                 thread::sleep(Duration::from_micros(14));
                 raw_modifier = self.high_res_mask;
             }
             Mode::UltraHighRes => {
-                self.i2c.smbus_write_word_data(self.control, self.read_pressure + (self.ultra_high_res_mask << 6)).expect("should write");
+                self.i2c.smbus_write_byte_data(self.control, (self.read_pressure + (self.ultra_high_res_mask << 6)) & 0xFF).expect("should write");
                 thread::sleep(Duration::from_micros(26));
                 raw_modifier = self.ultra_high_res_mask;
             }
         }
         let msb = match self.i2c.smbus_read_byte_data(self.pressure_data) {
-            Ok(msb) => msb,
+            Ok(msb) => msb & 0xFF,
             Err(_e) => panic!()
         };
         let lsb = match self.i2c.smbus_read_byte_data(self.pressure_data + 0x10) {
-            Ok(lsb) => lsb,
+            Ok(lsb) => lsb & 0xFF,
             Err(_e) => panic!()
         };
         let xlsb = match self.i2c.smbus_read_byte_data(self.pressure_data + 0x20) {
-            Ok(xlsb) => xlsb,
+            Ok(xlsb) => xlsb & 0xFF,
             Err(_e) => panic!()
         };
         ((u32::from(msb) << 16) + (u32::from(lsb) << 8) + xlsb as u32) >> (8 - raw_modifier)
