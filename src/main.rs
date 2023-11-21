@@ -2,13 +2,14 @@ use pi_play_lib::barometer::{Barometer, Mode::{HighRes}};
 use pi_play_lib::huffman_code::HuffTree;
 use pi_play_lib::lasers::{Laser, Receiver};
 use pi_play_lib::lcd::LCD;
+use pi_play_lib::temp_humid::measure_temp_humid;
 use std::thread;
 use std::time::Duration;
 
 /// Send a message with a laser!
 fn do_laser() {
     // Dummy message to encode temperature stuff.
-    let message = "FCBA111222333444555666777888999000....-        \n".to_string();
+    let message = "FCBH111222333444555666777888999000....-        \n".to_string();
     // Compress message with Huffman Coding.
     let mut huff_tree = HuffTree::new();
     huff_tree.build_tree(&message);
@@ -42,15 +43,14 @@ fn do_laser() {
             let mode = HighRes;
             let raw_baro = barometer.read_raw_pressure(&mode);
             let baro = barometer.read_pressure(raw_baro, &mode);
-
-            let altitude = barometer.read_altitude(&mode);
+            let (_, humidity) = measure_temp_humid();
 
             let message = format!(
-                "C {:.1} F {:.1}        \nB {:.1} A {:.1}        ",
+                "C {:.1} F {:.1}        \nB {:.1} H {:.1}        ",
                 celsius as f32 / 10_f32,
                 fahrenheit,
                 baro as f32 / 100_f32,
-                altitude
+                humidity
             );
             laser.send_message(message);
             thread::sleep(Duration::from_millis(30_000))
