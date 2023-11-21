@@ -1,3 +1,6 @@
+// DHT11 datasheet:
+// https://www.mouser.com/datasheet/2/758/DHT11-Technical-Data-Sheet-Translated-Version-1143054.pdf
+
 use std::str::FromStr;
 use gpio::GpioValue::{High, Low};
 use gpio::{GpioIn, GpioOut};
@@ -27,7 +30,7 @@ pub fn measure_temp_humid() -> (f32, f32) {
         let mut limit = 0;
         while data_pin.read_value().unwrap() == High {
             if limit > 25 {
-                println!("bit hung");
+                // println!("bit hung");
                 break
             } else {
                 limit += 1
@@ -35,7 +38,7 @@ pub fn measure_temp_humid() -> (f32, f32) {
         }
         let end = chrono::Utc::now();
         let bit_time = (end - start).num_microseconds().unwrap();
-        println!("bit time {:?}", bit_time);
+        // println!("bit time {:?}", bit_time);
         match bit_time {
             i64::MIN..=30 => data.push(0),
             31..=125 => data.push(1),
@@ -75,6 +78,6 @@ pub fn measure_temp_humid() -> (f32, f32) {
     };
     let hum = f32::from_str(&format!("{}.{}", hum, hum_dec)).expect("should be float");
     let temp = f32::from_str(&format!("{}.{}", temp, temp_dec)).expect("should be float");
-    println!("temp {}\nhumidity {}\n", temp, hum);
+    // println!("temp {}\nhumidity {}\n", temp, hum);
     (temp, hum)
 }
