@@ -10,7 +10,7 @@ pub fn measure_temp_humid() -> (f32, f32) {
     let mut data = Vec::new();
     let mut start_pin = gpio::sysfs::SysFsGpioOutput::open(PIN).unwrap();
     start_pin.set_value(false).unwrap();
-    thread::sleep(Duration::from_micros(20));
+    thread::sleep(Duration::from_millis(20));
     start_pin.set_value(true).unwrap();
     let mut data_pin = gpio::sysfs::SysFsGpioInput::open(PIN).unwrap();
     while data_pin.read_value().unwrap() == Low {
