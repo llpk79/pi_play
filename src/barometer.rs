@@ -186,11 +186,11 @@ impl Barometer {
         self.i2c.smbus_write_byte_data(self.control, self.read_temp).expect("data should write");
         thread::sleep(Duration::from_micros(5));
         let msb =  match self.i2c.smbus_read_byte_data(self.msb) {
-            Ok(msb) => msb,
+            Ok(msb) => msb & 0xFF,
             Err(_e) => panic!()
         };
         let lsb = match self.i2c.smbus_read_byte_data(self.lsb) {
-            Ok(lsb) => lsb,
+            Ok(lsb) => lsb & 0xFF,
             Err(_e) => panic!()
         };
         (((msb as i32) << 8) + lsb as i32)
@@ -230,15 +230,15 @@ impl Barometer {
             }
         }
         let msb = match self.i2c.smbus_read_byte_data(self.msb) {
-            Ok(msb) => msb,
+            Ok(msb) => msb & 0xFF,
             Err(_e) => panic!()
         };
         let lsb = match self.i2c.smbus_read_byte_data(self.lsb) {
-            Ok(lsb) => lsb,
+            Ok(lsb) => lsb & 0xFF,
             Err(_e) => panic!()
         };
         let xlsb = match self.i2c.smbus_read_byte_data(self.xlsb) {
-            Ok(xlsb) => xlsb,
+            Ok(xlsb) => xlsb & 0xFF,
             Err(_e) => panic!()
         };
         ((((msb as i32) << 16) + ((lsb as i32) << 8) + xlsb as i32) >> (8 - raw_modifier)) as i64
