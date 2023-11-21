@@ -244,6 +244,7 @@ impl Barometer {
 
     pub fn read_pressure(&mut self, mode: &Mode) -> i64 {
         let raw_pressure = self.read_raw_pressure(mode);
+        println!("raw pressure {}", raw_pressure);
         // From datasheet.
         let b6 = self.b5 - 4000;
         let x1: i16 = (self.b2 * (b6 * b6 >> 12)) >> 11;
@@ -258,17 +259,17 @@ impl Barometer {
         let z1: i32 = ((self.ac3 * b6) >> 13) as i32;
         let z2 = (self.b1 as i32 * ((b6 * b6) >> 12) as i32) >> 16;
         let z3 = ((z1 + z2) + 2) >> 2;
-        let b4: i64 = ((self.ac4 as i32 * (z3 + 32_768)) >> 15) as i64;
-        let b7 = match mode {
+        let b4: u64 = ((self.ac4 as i32 * (z3 + 32_768)) >> 15) as u64;
+        let b7:u64 = match mode {
             Mode::LowPower => (raw_pressure as i16 - b3) as i64 * (50_000 >> self.low_power_mask),
             Mode::Standard => (raw_pressure as i16 - b3) as i64 * (50_000 >> self.standard_res_mask),
             Mode::HighRes => (raw_pressure as i16 - b3) as i64 * (50_000 >> self.high_res_mask),
             Mode::UltraHighRes => (raw_pressure as i16 - b3) as i64 * (50_000 >> self.ultra_high_res_mask)
-        };
-        let pressure = match b7 < 0x80000000 {
+        } as u64;
+        let pressure: i64 = match b7 < 0x80000000 {
             true => (b7 * 2) / b4,
             false => (b7 / b4) * 2,
-        };
+        } as i64;
         let mut final1 = (pressure >> 8) * (pressure >> 8);
         final1 = (final1 * 3038) >> 16;
         let final2 = (-7357 * pressure) >> 16;
