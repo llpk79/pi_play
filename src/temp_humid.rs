@@ -40,8 +40,8 @@ pub fn measure_temp_humid() -> (f32, f32) {
         let bit_time = (end - start).num_microseconds().unwrap();
         // println!("bit time {:?}", bit_time);
         match bit_time {
-            i64::MIN..=30 => data.push(0),
-            31..=125 => data.push(1),
+            i64::MIN..=25 => data.push(0),
+            26..=125 => data.push(1),
             126.. => {
                 break; }
         }
