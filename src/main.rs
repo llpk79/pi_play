@@ -3,11 +3,15 @@ use pi_play_lib::huffman_code::HuffTree;
 use pi_play_lib::lasers::{Laser, Receiver};
 use pi_play_lib::lcd::LCD;
 use pi_play_lib::temp_humid::measure_temp_humid;
+use pi_play_lib::dot_matrix::DotMatrix;
 use std::thread;
 use std::time::Duration;
 
 /// Send a message with a laser!
 fn do_laser() {
+    let mut dot_matrix = DotMatrix::new();
+    dot_matrix.test();
+
     // Dummy message to encode temperature stuff.
     let message = "FCBHER111222333444555666777888999000....-        \n".to_string();
     // Compress message with Huffman Coding.
