@@ -2,6 +2,7 @@ use gpio::GpioValue::{High, Low};
 use gpio::{GpioIn, GpioOut};
 use std::thread;
 use std::time::Duration;
+use rand::random;
 
 const RCLK:u16 = 17;
 const SRCLK:u16 = 27;
@@ -47,11 +48,14 @@ impl DotMatrix {
     }
 
     fn display_data(&mut self, data: [u8; 8], tab: [u8; 8]) {
-        for (i, col) in data.iter().enumerate() {
-            for bit in (0..8).map(|n| (col >> n) & 1) {
-                self.input(bit);
-                self.input(tab[i]);
-                self.output();
+        for i in 0..data.len() {
+            for _ in 0..15 {
+                for j in 0..8 {
+                    self.input(data[i + j]);
+                    self.input(tab[j]);
+                    self.output();
+                    thread::sleep(Duration::from_millis(2));
+                }
             }
         }
     }
