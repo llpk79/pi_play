@@ -23,7 +23,7 @@ fn do_laser() {
 
     let mut barometer = Barometer::new();
     barometer.init();
-
+    let mut valid_humidity: f32 = 0.0;
     // Start a thread each for the laser and receiver.
     let receiver_thread = thread::Builder::new()
         .name("receiver".to_string())
@@ -44,13 +44,14 @@ fn do_laser() {
             let raw_baro = barometer.read_raw_pressure(&mode);
             let baro = barometer.read_pressure(raw_baro, &mode);
             let (_, humidity) = measure_temp_humid();
+            valid_humidity = if humidity > 0.0 {humidity} else { valid_humidity };
 
             let message = format!(
-                "C {:.1} F {:.1}        \nB {:.1} H {}        ",
+                "C {:.1} F {:.1}        \nB {:.1} H {:1}        ",
                 celsius as f32 / 10_f32,
                 fahrenheit,
                 baro as f32 / 100_f32,
-                if humidity > 0.0 {format!("{:1}", humidity)} else {"ERR".to_string()}
+                valid_humidity
             );
             laser.send_message(message);
             thread::sleep(Duration::from_millis(30_000))
