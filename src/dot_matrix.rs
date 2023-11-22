@@ -16,11 +16,11 @@ pub struct DotMatrix {
 impl DotMatrix {
     pub fn new() -> DotMatrix {
         let mut rclk = gpio::sysfs::SysFsGpioOutput::open(RCLK).expect("Pin should be active");
-        rclk.set_value(false).expect("Pin should set.");
+        rclk.set_value(Low).expect("Pin should set.");
         let mut srclk = gpio::sysfs::SysFsGpioOutput::open(SRCLK).expect("Pin should be active");
-        srclk.set_value(false).expect("PIn should set.");
+        srclk.set_value(Low).expect("PIn should set.");
         let mut sdi = gpio::sysfs::SysFsGpioOutput::open(SDI).expect("Pin should be active");
-        sdi.set_value(false).expect("Pin should set.");
+        sdi.set_value(Low).expect("Pin should set.");
 
         Self {
             rclk,
@@ -33,7 +33,7 @@ impl DotMatrix {
         for i in 0..8 {
             match 0x80 & (data << i) {
                 0 => self.sdi.set_value(Low).expect("bit should set"),
-                _ => self.sdi.set_value(Low).expect("bit should set"),
+                _ => self.sdi.set_value(High).expect("bit should set"),
             };
             self.srclk.set_value(High).expect("bit should set");
             self.srclk.set_value(Low).expect("bit should set");
