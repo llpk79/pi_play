@@ -3,14 +3,13 @@ use pi_play_lib::huffman_code::HuffTree;
 use pi_play_lib::lasers::{Laser, Receiver};
 use pi_play_lib::lcd::LCD;
 use pi_play_lib::temp_humid::measure_temp_humid;
-use pi_play_lib::dot_matrix::DotMatrix;
+use pi_play_lib::dot_matrix::{DotMatrix, DotMatrixData};
 use std::thread;
 use std::time::Duration;
 
 /// Send a message with a laser!
 fn do_laser() {
     let mut dot_matrix = DotMatrix::new();
-    dot_matrix.test();
 
     // Dummy message to encode temperature stuff.
     let message = "FCBHER111222333444555666777888999000....-        \n".to_string();
@@ -27,7 +26,10 @@ fn do_laser() {
 
     let mut barometer = Barometer::new();
     barometer.init();
-    let mut valid_humidity: f32 = 0.0;
+    let mut prev_humidity: f32 = 0.0;
+    let mut prev_pressure: i64 = 0;
+    let mut prev_temp: i64 = 0;
+
     // Start a thread each for the laser and receiver.
     let receiver_thread = thread::Builder::new()
         .name("receiver".to_string())
@@ -45,17 +47,36 @@ fn do_laser() {
             let fahrenheit = ((celsius as f32 / 10_f32)  * 9.0_f32 / 5.0) + 32.0;
 
             let mode = HighRes;
-            let raw_baro = barometer.read_raw_pressure(&mode);
-            let baro = barometer.read_pressure(raw_baro, &mode);
+            let raw_pressure = barometer.read_raw_pressure(&mode);
+            let pressure = barometer.read_pressure(raw_pressure, &mode);
             let (_, humidity) = measure_temp_humid();
-            valid_humidity = if humidity > 0.0 {humidity} else { valid_humidity };
+
+            prev_humidity = if humidity > 0.0 {humidity} else { prev_humidity };
+            prev_temp = if celsius > 0 {celsius} else {prev_temp};
+            prev_pressure = if pressure > 0 {pressure} else { prev_pressure };
+
+            let dot_matrix_data = DotMatrixData::new();
+            if pressure > prev_pressure {
+                dot_matrix.display_data(dot_matrix_data.data[2], dot_matrix_data.tab);
+                dot_matrix.display_data(dot_matrix_data.data[0], dot_matrix_data.tab);
+            } else {
+                dot_matrix.display_data(dot_matrix_data.data[2], dot_matrix_data.tab);
+                dot_matrix.display_data(dot_matrix_data.data[1], dot_matrix_data.tab);
+            }
+            if celsius > prev_temp {
+                dot_matrix.display_data(dot_matrix_data.data[3], dot_matrix_data.tab);
+                dot_matrix.display_data(dot_matrix_data.data[0], dot_matrix_data.tab);
+            } else {
+                dot_matrix.display_data(dot_matrix_data.data[3], dot_matrix_data.tab);
+                dot_matrix.display_data(dot_matrix_data.data[1], dot_matrix_data.tab);
+            }
 
             let message = format!(
                 "C {:.1} F {:.1}        \nB {:.1} H {:.1}        ",
                 celsius as f32 / 10_f32,
                 fahrenheit,
-                baro as f32 / 100_f32,
-                valid_humidity
+                pressure as f32 / 100_f32,
+                prev_humidity
             );
             laser.send_message(message);
             thread::sleep(Duration::from_millis(30_000))
