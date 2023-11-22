@@ -31,15 +31,19 @@ impl DotMatrix {
 
     fn input(&mut self, data: u8) {
         for i in 0..8 {
-            self.sdi.set_value(0x80 & (data << i)).expect("bit should set");
-            self.srclk.set_value(true).expect("bit should set");
-            self.srclk.set_value(false).expect("bit should set");
+            match 0x80 & (data << i) {
+                1 => self.sdi.set_value(High).expect("bit should set"),
+                0 => self.sdi.set_value(Low).expect("bit should set"),
+                _ => panic!()
+            };
+            self.srclk.set_value(High).expect("bit should set");
+            self.srclk.set_value(Low).expect("bit should set");
         }
     }
 
     fn output(&mut self) {
-        self.rclk.set_value(true).expect("pin should set");
-        self.rclk.set_value(false).expect("pin should set");
+        self.rclk.set_value(High).expect("pin should set");
+        self.rclk.set_value(Low).expect("pin should set");
     }
 
     fn display_data(&mut self, data: [u8; 8], tab: [u8; 8]) {
