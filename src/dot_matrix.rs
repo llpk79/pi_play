@@ -46,10 +46,10 @@ impl DotMatrix {
     }
 
     fn display_data(&mut self, data: [u8; 8], tab: [u8; 8]) {
-        for i in 0..8 {
+        for _ in 0..8 {
             for _ in 0..15 {
                 for j in 0..8 {
-                    self.input(data[i + j]);
+                    self.input(data[j]);
                     self.input(tab[j]);
                     self.output();
                     thread::sleep(Duration::from_millis(2));
