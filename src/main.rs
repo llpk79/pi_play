@@ -56,19 +56,27 @@ fn do_laser() {
             prev_pressure = if pressure > 0 {pressure} else { prev_pressure };
 
             let dot_matrix_data = DotMatrixData::new();
-            if pressure > prev_pressure {
+            if pressure > prev_pressure  {
+                    dot_matrix.display_data(dot_matrix_data.data[3], dot_matrix_data.tab);
+                    dot_matrix.display_data(dot_matrix_data.data[0], dot_matrix_data.tab)
+                } else if pressure == prev_pressure {
+                dot_matrix.display_data(dot_matrix_data.data[3], dot_matrix_data.tab);
                 dot_matrix.display_data(dot_matrix_data.data[2], dot_matrix_data.tab);
-                dot_matrix.display_data(dot_matrix_data.data[0], dot_matrix_data.tab);
             } else {
-                dot_matrix.display_data(dot_matrix_data.data[2], dot_matrix_data.tab);
+                dot_matrix.display_data(dot_matrix_data.data[3], dot_matrix_data.tab);
                 dot_matrix.display_data(dot_matrix_data.data[1], dot_matrix_data.tab);
             }
+
             if celsius > prev_temp {
-                dot_matrix.display_data(dot_matrix_data.data[3], dot_matrix_data.tab);
+                dot_matrix.display_data(dot_matrix_data.data[4], dot_matrix_data.tab);
                 dot_matrix.display_data(dot_matrix_data.data[0], dot_matrix_data.tab);
+            } else if celsius == prev_temp {
+                dot_matrix.display_data(dot_matrix_data.data[4], dot_matrix_data.tab);
+                dot_matrix.display_data(dot_matrix_data.data[2], dot_matrix_data.tab);
             } else {
-                dot_matrix.display_data(dot_matrix_data.data[3], dot_matrix_data.tab);
+                dot_matrix.display_data(dot_matrix_data.data[4], dot_matrix_data.tab);
                 dot_matrix.display_data(dot_matrix_data.data[1], dot_matrix_data.tab);
+
             }
 
             let message = format!(
