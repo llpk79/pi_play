@@ -1,8 +1,7 @@
 use gpio::GpioValue::{High, Low};
-use gpio::{GpioIn, GpioOut};
+use gpio::GpioOut;
 use std::thread;
 use std::time::Duration;
-use rand::random;
 
 const RCLK:u16 = 17;
 const SRCLK:u16 = 27;
@@ -35,7 +34,7 @@ impl DotMatrix {
             match 0x80 & (data << i) {
                 1 => self.sdi.set_value(High).expect("bit should set"),
                 0 => self.sdi.set_value(Low).expect("bit should set"),
-                _ => panic!()
+                _ => println!("bit {}", 0x80 & (data << i))
             };
             self.srclk.set_value(High).expect("bit should set");
             self.srclk.set_value(Low).expect("bit should set");
