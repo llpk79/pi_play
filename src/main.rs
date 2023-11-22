@@ -51,22 +51,30 @@ fn do_laser() {
             let pressure = barometer.read_pressure(raw_pressure, &mode);
             let (_, humidity) = measure_temp_humid();
 
-            prev_humidity = if humidity > 0.0 {humidity} else { prev_humidity };
-            prev_temp = if celsius > 0 {celsius} else {prev_temp};
-            prev_pressure = if pressure > 0 {pressure} else { prev_pressure };
+            prev_humidity = if humidity > prev_humidity {humidity} else { prev_humidity };
+            prev_temp = if celsius > prev_temp {celsius} else {prev_temp};
+            prev_pressure = if pressure > prev_pressure {pressure} else { prev_pressure };
 
+            let message = format!(
+                "C {:.1} F {:.1}        \nB {:.1} H {:.1}        ",
+                celsius as f32 / 10_f32,
+                fahrenheit,
+                pressure as f32 / 100_f32,
+                prev_humidity
+            );
+
+            laser.send_message(message);
             let dot_matrix_data = DotMatrixData::new();
             if pressure > prev_pressure  {
-                    dot_matrix.display_data(dot_matrix_data.data[3], dot_matrix_data.tab);
-                    dot_matrix.display_data(dot_matrix_data.data[0], dot_matrix_data.tab)
-                } else if pressure == prev_pressure {
+                dot_matrix.display_data(dot_matrix_data.data[3], dot_matrix_data.tab);
+                dot_matrix.display_data(dot_matrix_data.data[0], dot_matrix_data.tab)
+            } else if pressure == prev_pressure {
                 dot_matrix.display_data(dot_matrix_data.data[3], dot_matrix_data.tab);
                 dot_matrix.display_data(dot_matrix_data.data[2], dot_matrix_data.tab);
             } else {
                 dot_matrix.display_data(dot_matrix_data.data[3], dot_matrix_data.tab);
                 dot_matrix.display_data(dot_matrix_data.data[1], dot_matrix_data.tab);
             }
-
             if celsius > prev_temp {
                 dot_matrix.display_data(dot_matrix_data.data[4], dot_matrix_data.tab);
                 dot_matrix.display_data(dot_matrix_data.data[0], dot_matrix_data.tab);
@@ -76,17 +84,8 @@ fn do_laser() {
             } else {
                 dot_matrix.display_data(dot_matrix_data.data[4], dot_matrix_data.tab);
                 dot_matrix.display_data(dot_matrix_data.data[1], dot_matrix_data.tab);
-
             }
 
-            let message = format!(
-                "C {:.1} F {:.1}        \nB {:.1} H {:.1}        ",
-                celsius as f32 / 10_f32,
-                fahrenheit,
-                pressure as f32 / 100_f32,
-                prev_humidity
-            );
-            laser.send_message(message);
             thread::sleep(Duration::from_millis(30_000))
         });
 
