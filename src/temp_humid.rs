@@ -38,7 +38,7 @@ pub fn measure_temp_humid() -> (f32, f32) {
         }
         let end = chrono::Utc::now();
         let bit_time = (end - start).num_microseconds().unwrap();
-        // println!("bit time {:?}", bit_time);
+        println!("bit time {:?}", bit_time);
         match bit_time {
             i64::MIN..=25 => data.push(0),
             26..=125 => data.push(1),
