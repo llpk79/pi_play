@@ -51,9 +51,6 @@ fn do_laser() {
             let pressure = barometer.read_pressure(raw_pressure, &mode);
             let (_, humidity) = measure_temp_humid();
 
-            prev_humidity = if humidity > prev_humidity {humidity} else { prev_humidity };
-            prev_temp = if celsius > prev_temp {celsius} else {prev_temp};
-            prev_pressure = if pressure > prev_pressure {pressure} else { prev_pressure };
 
             let message = format!(
                 "C {:.1} F {:.1}        \nB {:.1} H {:.1}        ",
@@ -85,6 +82,10 @@ fn do_laser() {
                 dot_matrix.display_data(dot_matrix_data.data[4], dot_matrix_data.tab);
                 dot_matrix.display_data(dot_matrix_data.data[1], dot_matrix_data.tab);
             }
+            
+            prev_humidity = if humidity > prev_humidity {humidity} else { prev_humidity };
+            prev_temp = if celsius > prev_temp {celsius} else {prev_temp};
+            prev_pressure = if pressure > prev_pressure {pressure} else { prev_pressure };
 
             thread::sleep(Duration::from_millis(30_000))
         });
