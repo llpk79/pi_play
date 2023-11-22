@@ -47,7 +47,7 @@ fn do_laser() {
             valid_humidity = if humidity > 0.0 {humidity} else { valid_humidity };
 
             let message = format!(
-                "C {:.1} F {:.1}        \nB {:.1} H {:1}        ",
+                "C {:.1} F {:.1}        \nB {:.1} H {:.1}        ",
                 celsius as f32 / 10_f32,
                 fahrenheit,
                 baro as f32 / 100_f32,
