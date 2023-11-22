@@ -78,6 +78,6 @@ pub fn measure_temp_humid() -> (f32, f32) {
     };
     let hum = f32::from_str(&format!("{}.{}", hum, hum_dec)).expect("should be float");
     let temp = f32::from_str(&format!("{}.{}", temp, temp_dec)).expect("should be float");
-    println!("temp {}\nhumid {}\n", temp, hum);
+    // println!("temp {}\nhumid {}\n", temp, hum);
     (temp, hum)
 }
