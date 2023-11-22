@@ -67,7 +67,7 @@ fn do_laser() {
                 dot_matrix.display_data(dot_matrix_data.data[1], dot_matrix_data.tab)
             } else if pressure == prev_pressure {
                 dot_matrix.display_data(dot_matrix_data.data[3], dot_matrix_data.tab);
-                dot_matrix.display_data(dot_matrix_data.data[2], dot_matrix_data.tab);
+                dot_matrix.display_data(dot_matrix_data.data[2], dot_matrix_data.rev_tab);
             } else {
                 dot_matrix.display_data(dot_matrix_data.data[3], dot_matrix_data.tab);
                 dot_matrix.display_data(dot_matrix_data.data[0], dot_matrix_data.tab);
@@ -77,7 +77,7 @@ fn do_laser() {
                 dot_matrix.display_data(dot_matrix_data.data[1], dot_matrix_data.tab);
             } else if celsius == prev_temp {
                 dot_matrix.display_data(dot_matrix_data.data[4], dot_matrix_data.tab);
-                dot_matrix.display_data(dot_matrix_data.data[2], dot_matrix_data.tab);
+                dot_matrix.display_data(dot_matrix_data.data[2], dot_matrix_data.rev_tab);
             } else {
                 dot_matrix.display_data(dot_matrix_data.data[4], dot_matrix_data.tab);
                 dot_matrix.display_data(dot_matrix_data.data[0], dot_matrix_data.tab);
