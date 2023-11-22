@@ -1,4 +1,3 @@
-use std::ffi::c_void;
 use gpio::GpioValue::{High, Low};
 use gpio::GpioOut;
 use std::thread;
@@ -46,7 +45,7 @@ impl DotMatrix {
         self.rclk.set_value(Low).expect("pin should set");
     }
 
-    pub fn display_data(&mut self, data: Vec<u8>, tab: [u8; 8]) {
+    pub fn display_data(&mut self, data: &Vec<u8>, tab: [u8; 8]) {
         for i in 0..data.len() - 8 {
             for _ in 0..15 {
                 for j in 0..8 {
@@ -77,7 +76,7 @@ impl DotMatrix {
             0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,  //NULL
         ];
         let tab = [0xfe,0xfd,0xfb,0xf7,0xef,0xdf,0xbf,0x7f];
-        self.display_data(data.to_vec(), tab);
+        self.display_data(&data.to_vec(), tab);
     }
 }
 
