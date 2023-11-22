@@ -41,8 +41,8 @@ pub fn measure_temp_humid() -> (f32, f32) {
         // println!("bit time {:?}", bit_time);
         match bit_time {
             i64::MIN..=35 => data.push(0),
-            36..=125 => data.push(1),
-            126.. => {
+            36..=85 => data.push(1),
+            86.. => {
                 break; }
         }
         if data.len() > 40 {
