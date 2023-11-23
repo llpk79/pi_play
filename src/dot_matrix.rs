@@ -52,7 +52,7 @@ impl DotMatrix {
                     self.input(data[i + j]);
                     self.input(tab[j]);
                     self.output();
-                    thread::sleep(Duration::from_micros(125));
+                    thread::sleep(Duration::from_micros(750));
                 }
             }
         }
