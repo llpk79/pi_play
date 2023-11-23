@@ -53,7 +53,7 @@ impl DotMatrix {
                     self.input(tab[j]);
                     self.output();
                     // Scroll speed.
-                    thread::sleep(Duration::from_micros(750));
+                    thread::sleep(Duration::from_micros(500));
                 }
             }
         }
