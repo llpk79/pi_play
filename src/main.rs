@@ -63,37 +63,37 @@ fn do_laser() {
             laser.send_message(message);
             let dot_matrix_data = DotMatrixData::new();
             if pressure > prev_pressure  {
-                dot_matrix.display_data(&dot_matrix_data.data[4], dot_matrix_data.tab);
+                dot_matrix.display_data(&dot_matrix_data.data[3], dot_matrix_data.tab);
                 dot_matrix.display_data(&dot_matrix_data.data[1], dot_matrix_data.rev_tab)
             } else if pressure == prev_pressure {
-                dot_matrix.display_data(&dot_matrix_data.data[4], dot_matrix_data.tab);
-                dot_matrix.display_data(&dot_matrix_data.data[3], dot_matrix_data.rev_tab);
+                dot_matrix.display_data(&dot_matrix_data.data[3], dot_matrix_data.tab);
+                dot_matrix.display_data(&dot_matrix_data.data[2], dot_matrix_data.rev_tab);
             } else {
-                dot_matrix.display_data(&dot_matrix_data.data[4], dot_matrix_data.tab);
+                dot_matrix.display_data(&dot_matrix_data.data[3], dot_matrix_data.tab);
                 dot_matrix.display_data(&dot_matrix_data.data[0], dot_matrix_data.rev_tab);
             }
             if celsius > prev_temp {
-                dot_matrix.display_data(&dot_matrix_data.data[5], dot_matrix_data.tab);
+                dot_matrix.display_data(&dot_matrix_data.data[4], dot_matrix_data.tab);
                 dot_matrix.display_data(&dot_matrix_data.data[1], dot_matrix_data.rev_tab);
             } else if celsius == prev_temp {
-                dot_matrix.display_data(&dot_matrix_data.data[5], dot_matrix_data.tab);
-                dot_matrix.display_data(&dot_matrix_data.data[3], dot_matrix_data.rev_tab);
+                dot_matrix.display_data(&dot_matrix_data.data[4], dot_matrix_data.tab);
+                dot_matrix.display_data(&dot_matrix_data.data[2], dot_matrix_data.rev_tab);
             } else {
-                dot_matrix.display_data(&dot_matrix_data.data[5], dot_matrix_data.tab);
+                dot_matrix.display_data(&dot_matrix_data.data[4], dot_matrix_data.tab);
                 dot_matrix.display_data(&dot_matrix_data.data[0], dot_matrix_data.rev_tab);
             }
             if humidity > prev_humidity {
-                dot_matrix.display_data(&dot_matrix_data.data[6], dot_matrix_data.tab);
+                dot_matrix.display_data(&dot_matrix_data.data[5], dot_matrix_data.tab);
                 dot_matrix.display_data(&dot_matrix_data.data[1], dot_matrix_data.rev_tab);
             } else if humidity == prev_humidity {
-                dot_matrix.display_data(&dot_matrix_data.data[6], dot_matrix_data.tab);
-                dot_matrix.display_data(&dot_matrix_data.data[3], dot_matrix_data.rev_tab);
+                dot_matrix.display_data(&dot_matrix_data.data[5], dot_matrix_data.tab);
+                dot_matrix.display_data(&dot_matrix_data.data[2], dot_matrix_data.rev_tab);
             } else {
-                dot_matrix.display_data(&dot_matrix_data.data[6], dot_matrix_data.tab);
+                dot_matrix.display_data(&dot_matrix_data.data[5], dot_matrix_data.tab);
                 dot_matrix.display_data(&dot_matrix_data.data[0], dot_matrix_data.rev_tab);
             }
 
-            dot_matrix.display_data(&dot_matrix_data.data[7], dot_matrix_data.tab);
+            dot_matrix.display_data(&dot_matrix_data.data[6], dot_matrix_data.tab);
             prev_humidity = if humidity != prev_humidity && humidity != 0.0 {humidity} else { prev_humidity };
             prev_temp = if celsius != prev_temp {celsius} else {prev_temp};
             prev_pressure = if pressure != prev_pressure {pressure} else { prev_pressure };
