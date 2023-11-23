@@ -83,7 +83,7 @@ fn do_laser() {
                 dot_matrix.display_data(&dot_matrix_data.data[0], dot_matrix_data.rev_tab);
             }
 
-            dot_matrix.display_data(&dot_matrix_data.data[6], dot_matrix_data.tab);
+            dot_matrix.display_data(&dot_matrix_data.data[6], dot_matrix_data.flash_tab);
             prev_humidity = if humidity > prev_humidity {humidity} else { prev_humidity };
             prev_temp = if celsius > prev_temp {celsius} else {prev_temp};
             prev_pressure = if pressure > prev_pressure {pressure} else { prev_pressure };

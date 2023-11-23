@@ -85,12 +85,14 @@ pub struct DotMatrixData {
     pub data: Vec<Vec<u8>>,
     pub tab: [u8; 8],
     pub rev_tab: [u8; 8],
+    pub flash_tab: [u8; 8],
 }
 
 impl DotMatrixData {
     pub fn new() -> DotMatrixData {
         let tab = [0xfe,0xfd,0xfb,0xf7,0xef,0xdf,0xbf,0x7f];
         let rev_tab = [0x7f,0xbf,0xdf,0xef,0xf7,0xfb,0xfd,0xfe];
+        let flash_tab = [0xFF;8];
         let line_go_up = [
             0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
             // 0x40, 0x20, 0x10, 0x08, 0x10, 0x0a, 0x06, 0x0e, // line go up
@@ -138,6 +140,6 @@ impl DotMatrixData {
             0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
         ].to_vec();
         let data = Vec::from([line_go_down, line_go_up, line_stay_same, rev_line_stay_same, pressure, temp, i_heart_macey]);
-        Self {data, tab, rev_tab}
+        Self {data, tab, rev_tab, flash_tab}
     }
 }
