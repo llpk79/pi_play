@@ -12,7 +12,7 @@ fn do_laser() {
     let mut dot_matrix = DotMatrix::new();
 
     // Dummy message to encode temperature stuff.
-    let message = "FCBHER111222333444555666777888999000....-        \n".to_string();
+    let message = "FCBH111222333444555666777888999000....-        \n".to_string();
     // Compress message with Huffman Coding.
     let mut huff_tree = HuffTree::new();
     huff_tree.build_tree(&message);
@@ -85,7 +85,7 @@ fn do_laser() {
             if humidity > prev_humidity {
                 dot_matrix.display_data(&dot_matrix_data.data[5], dot_matrix_data.tab);
                 dot_matrix.display_data(&dot_matrix_data.data[1], dot_matrix_data.rev_tab);
-            } else if humidity == prev_humidity {
+            } else if humidity != prev_humidity || humidity == 0.0 {
                 dot_matrix.display_data(&dot_matrix_data.data[5], dot_matrix_data.tab);
                 dot_matrix.display_data(&dot_matrix_data.data[2], dot_matrix_data.rev_tab);
             } else {
