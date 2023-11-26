@@ -1,6 +1,6 @@
 use crate::adc_0832::ADC;
 use gpio::GpioValue::{High, Low};
-use gpio::{GpioIn, GpioOut};
+use gpio::GpioIn;
 
 const BUTTON_PIN: u16 = 12;
 
