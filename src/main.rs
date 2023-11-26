@@ -4,6 +4,7 @@ use pi_play_lib::lasers::{Laser, Receiver};
 use pi_play_lib::lcd::LCD;
 use pi_play_lib::temp_humid::measure_temp_humid;
 use pi_play_lib::dot_matrix::{DotMatrix, DotMatrixData};
+use pi_play_lib::joy_stick::JoyStick;
 use std::thread;
 use std::time::Duration;
 
@@ -109,6 +110,16 @@ fn do_laser() {
         .expect("Thread should exist")
         .join()
         .expect("Thread should close");
+
+    let mut joystick = JoyStick::new();
+
+    let joystick_thread = thread::spawn(move || loop {
+        let (hori, vert, button) = joystick.output();
+        println!("Horizontal {}\nVertical {}\nButton {}", hori, vert, button);
+        thread::sleep(Duration::from_millis(250));
+    });
+
+    joystick_thread.join().expect("thread closed");
 }
 
 fn main() {

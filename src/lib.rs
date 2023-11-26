@@ -8,3 +8,5 @@ pub mod segment;
 pub mod temp;
 pub mod temp_humid;
 pub mod dot_matrix;
+pub mod adc_0832;
+pub mod joy_stick;
