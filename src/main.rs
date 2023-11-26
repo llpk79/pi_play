@@ -102,15 +102,6 @@ fn do_laser() {
             thread::sleep(Duration::from_millis(30_000))
         });
 
-    receiver_thread
-        .expect("Thread should exist")
-        .join()
-        .expect("Thread should close");
-    laser_thread
-        .expect("Thread should exist")
-        .join()
-        .expect("Thread should close");
-
     let mut joystick = JoyStick::new();
 
     let joystick_thread = thread::spawn(move || loop {
@@ -120,6 +111,15 @@ fn do_laser() {
     });
 
     joystick_thread.join().expect("thread closed");
+    receiver_thread
+        .expect("Thread should exist")
+        .join()
+        .expect("Thread should close");
+    laser_thread
+        .expect("Thread should exist")
+        .join()
+        .expect("Thread should close");
+
 }
 
 fn main() {
