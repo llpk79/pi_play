@@ -54,14 +54,14 @@ impl ADC {
 
         let mut lsb_data: u8 = 0;
         let mut data_in = gpio::sysfs::SysFsGpioInput::open(DIO_PIN).expect("Pin is active");
-        for _ in 0..8 {
+        for i in 0..8 {
             self.clk.set_value(High).expect("Pin should set");
             thread::sleep(Duration::from_micros(2));
             self.clk.set_value(Low).expect("Pin should set");
             thread::sleep(Duration::from_micros(2));
             match data_in.read_value().expect("Pin should read") {
-                High => lsb_data = lsb_data << 1 | 255,
-                Low => lsb_data = lsb_data << 1 | 0
+                High => lsb_data = lsb_data << i | 255,
+                Low => lsb_data = lsb_data << i | 0
             }
         }
         let mut msb_data: u8 = 0;
