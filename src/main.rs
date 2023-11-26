@@ -107,7 +107,7 @@ fn do_laser() {
     let joystick_thread = thread::spawn(move || loop {
         let (hori, vert, button) = joystick.output();
         println!("Horizontal {}\nVertical {}\nButton {}", hori, vert, button);
-        thread::sleep(Duration::from_millis(250));
+        thread::sleep(Duration::from_millis(500));
     });
 
     joystick_thread.join().expect("thread closed");
