@@ -163,7 +163,7 @@ impl Receiver {
         let min = min(sum, check) as f32;
         let max = max(sum, check) as f32;
         let error = min / max;
-        (error > 0.9, error)
+        (error > 0.995, error)
     }
 
     /// Call detect, receive and decode methods.
@@ -191,10 +191,10 @@ impl Receiver {
                 let decode_time =
                     (chrono::Utc::now() - end).num_microseconds().unwrap() as f64 / 1000_000.0_f64;
                 println!(
-                    "Message in {:.3} sec\nDecode in {:.6} sec\nKB: {:.3}\nTransmission loss: {:.6}\n",
+                    "Message in {:.3} sec\nDecode in {:.6} sec\nKB/s: {:.3}\nTransmission loss: {:.6}\n",
                     seconds,
                     decode_time,
-                    message.len() as f32 / 1000_f32,
+                    (message.len() as f32 / 1000_f32) / seconds as f32,
                     1.0 - error,
                 );
 
