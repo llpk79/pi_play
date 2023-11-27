@@ -76,7 +76,6 @@ impl ADC {
             thread::sleep(Duration::from_micros(2));
         }
         self.cs.set_value(High).expect("Pin should set");
-        println!("lsb {}\nmsb {}\n", lsb_data, msb_data);
         if lsb_data == msb_data {
             lsb_data
         }
