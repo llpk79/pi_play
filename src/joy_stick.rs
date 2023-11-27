@@ -20,9 +20,9 @@ impl JoyStick {
     pub fn output(&mut self) -> (u8, u8, u8) {
         let horizontal = self.acd.get_result(0);
         let vertical = self.acd.get_result( 1);
-        let pressed = match  self.button.read_value().expect("Pin is read") {
-            High => 0,
-            Low => { println!("pressed"); 1 }
+        let pressed = match self.button.read_value().expect("Pin is read") {
+            High => { println!("pressed"); 1 },
+            Low => 0
         };
         (horizontal, vertical, pressed)
     }
