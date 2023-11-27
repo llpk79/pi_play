@@ -23,16 +23,6 @@ fn do_laser() {
     let mut receiver = Receiver::new(huff_tree.clone());
     let mut laser = Laser::new(huff_tree);
 
-    let mut lcd = LCD::new();
-    lcd.display_init();
-
-    let mut barometer = Barometer::new();
-    barometer.init();
-    let mut prev_humidity: f32 = 0.0;
-    let mut prev_pressure: i64 = 0;
-    let mut prev_temp: i64 = 0;
-
-
     // Start a thread each for the laser and receiver.
     let receiver_thread = thread::Builder::new()
         .name("receiver".to_string())
@@ -47,6 +37,15 @@ fn do_laser() {
             laser.send_message(message.clone());
             thread::sleep(Duration::from_millis(5_000))
         });
+
+    let mut lcd = LCD::new();
+    lcd.display_init();
+
+    let mut barometer = Barometer::new();
+    barometer.init();
+    let mut prev_humidity: f32 = 0.0;
+    let mut prev_pressure: i64 = 0;
+    let mut prev_temp: i64 = 0;
 
     let temp_thread = thread::Builder::new()
         .name("temp".to_string())

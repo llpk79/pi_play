@@ -37,33 +37,33 @@ impl Laser {
         let encoded_message = self.huff_tree.encode(&message);
         // Initiation sequence.
         self.out.set_value(false).expect("Pin should be active");
-        thread::sleep(Duration::from_millis(5));
+        thread::sleep(Duration::from_micros(50));
         self.out.set_value(true).expect("Pin should be active");
-        thread::sleep(Duration::from_millis(10));
+        thread::sleep(Duration::from_micros(500));
         self.out.set_value(false).expect("Pin should be active");
-        thread::sleep(Duration::from_millis(5));
+        thread::sleep(Duration::from_micros(50));
 
         // Begin message transmission.
         for bit in encoded_message {
             match bit == 1 {
                 true => {
                     self.out.set_value(true).expect("Pin should be active");
-                    thread::sleep(Duration::from_millis(2));
+                    thread::sleep(Duration::from_micros(25));
                     self.out.set_value(false).expect("Pin should be active");
                 }
                 false => {
                     self.out.set_value(true).expect("Pin should be active");
-                    thread::sleep(Duration::from_millis(1));
+                    thread::sleep(Duration::from_micros(5));
                     self.out.set_value(false).expect("Pin should be active");
                 }
             }
             // Bit resolution. Gets sloppy below 50 microseconds.
-            thread::sleep(Duration::from_millis(1))
+            thread::sleep(Duration::from_micros(50))
         }
 
         // Termination sequence.
         self.out.set_value(true).expect("Pin should be active");
-        thread::sleep(Duration::from_millis(15));
+        thread::sleep(Duration::from_micros(1000));
         self.out.set_value(false).expect("Pin should be active");
     }
 }
@@ -89,12 +89,12 @@ impl Receiver {
             while self.in_.read_value().expect("Pin should be active") == High {
                 continue;
             }
-            let initiation_time = (chrono::Utc::now() - begin).num_milliseconds();
+            let initiation_time = (chrono::Utc::now() - begin).num_microseconds().expect("time has passed");
             // .expect("Some time should have passed");
             match initiation_time {
-                i64::MIN..=8 => continue,
-                9..=11 => break,
-                12.. => continue,
+                i64::MIN..=399 => continue,
+                400..=600 => break,
+                601.. => continue,
             }
         }
     }
@@ -113,15 +113,15 @@ impl Receiver {
             while self.in_.read_value().expect("Pin should be active") == High {
                 continue;
             }
-            let bit_time = (chrono::Utc::now() - start).num_milliseconds();
+            let bit_time = (chrono::Utc::now() - start).num_microseconds().expect("time has passed");
             // .expect("Some time should have passed");
             // println!("l bit time {}", bit_time);
             match bit_time {
                 i64::MIN..=-0 => continue,
-                1 => data.push(0),
-                2 => data.push(1),
-                3..=10 => continue, // Bad data, we could guess, I guess?
-                11.. => break,      // Termination sequence.
+                1..=49 => data.push(0),
+                50..=99 => data.push(1),
+                100..=1000 => continue, // Bad data, we could guess, I guess?
+                1001.. => break,      // Termination sequence.
             };
         }
         data
