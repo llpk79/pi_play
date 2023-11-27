@@ -14,7 +14,7 @@ fn do_laser() {
 
     // Dummy message to encode temperature stuff.
     // let message = "FCBH111222333444555666777888999000....-        \n".to_string();
-    let message = fs::read_to_string("./src/lasers.rs").expect("file exists");
+    let message = fs::read_to_string("./src/barometer.rs").expect("file exists");
     // Compress message with Huffman Coding.
     let mut huff_tree = HuffTree::new();
     huff_tree.build_tree(&message);
