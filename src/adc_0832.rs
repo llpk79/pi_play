@@ -28,13 +28,13 @@ impl ADC {
         self.clk.set_value(Low).expect("Pin should set");
         data_out.set_value(High).expect("Pin should set");
         thread::sleep(Duration::from_micros(2));
-        self.clk.set_value(High).expect("Pin should set");
+        self.clk.set_value(High).expect("Pin should set"); // 1
         thread::sleep(Duration::from_micros(2));
         self.clk.set_value(Low).expect("Pin should set");
 
         data_out.set_value(High).expect("Pin should set");
         thread::sleep(Duration::from_micros(2));
-        self.clk.set_value(High).expect("Pin should set");
+        self.clk.set_value(High).expect("Pin should set"); // 2
         thread::sleep(Duration::from_micros(2));
         self.clk.set_value(Low).expect("Pin should set");
 
@@ -45,7 +45,7 @@ impl ADC {
         }
         thread::sleep(Duration::from_micros(2));
 
-        self.clk.set_value(High).expect("Pin should set");
+        self.clk.set_value(High).expect("Pin should set"); // 3
         data_out.set_value(High).expect("Pin should set");
         thread::sleep(Duration::from_micros(2));
         self.clk.set_value(Low).expect("Pin should set");
@@ -60,15 +60,17 @@ impl ADC {
             self.clk.set_value(Low).expect("Pin should set");
             thread::sleep(Duration::from_micros(2));
             match data_in.read_value().expect("Pin should read") {
-                High => lsb_data = lsb_data << i | 255,
-                Low => lsb_data = lsb_data << i | 0
+                // High => lsb_data = lsb_data << i | 255,
+                // Low => lsb_data = lsb_data << i | 0
+                High => lsb_data += 1 << i ,
+                Low => lsb_data = 0 << i
             }
         }
         let mut msb_data: u8 = 0;
         for i in 0..8 {
             match data_in.read_value().expect("Pin should read") {
-                High => msb_data = msb_data | 255 << i,
-                Low => msb_data = msb_data | 0 << i,
+                High => msb_data = 1 << (7 - i),
+                Low => msb_data =  0 << (7 - i),
             };
             self.clk.set_value(High).expect("Pin should set");
             thread::sleep(Duration::from_micros(2));
