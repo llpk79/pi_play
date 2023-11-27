@@ -170,7 +170,7 @@ impl Receiver {
     /// Call detect, receive and decode methods.
     ///
     /// Print to stdout.
-    pub fn receive_message(&mut self) -> Vec<String> {
+    pub fn receive_message(&mut self) -> String {
         println!("\n\nAwaiting transmission...");
         self.detect_message();
         let start = chrono::Utc::now();
@@ -186,9 +186,6 @@ impl Receiver {
             true => {
                 let sans_checksum = Vec::from(&data[0..(data.len() - 32)]);
                 let message = self.huff_tree.decode(sans_checksum);
-                let pre_lcd_message: Vec<&str> = message.split("\n").collect();
-                let lcd_message: Vec<String> =
-                    pre_lcd_message.iter().map(|s| s.to_string()).collect();
 
                 // Calculate stats
                 let seconds = (end - start).num_milliseconds() as f64 / 1000.0_f64;
@@ -198,16 +195,16 @@ impl Receiver {
                     "Message in {:.3} sec\nDecode in {:.6} sec\nKB: {:.3}\nTransmission loss: {:.6}\n",
                     seconds,
                     decode_time,
-                    lcd_message.len() as f32 / 1000_f32,
+                    message.len() as f32 / 1000_f32,
                     1.0 - error,
                 );
 
-                lcd_message
+                message
             }
             false => {
                 println!("ERROR: Invalid data detected.\n");
 
-                Vec::from(["".to_string()])
+                "".to_string()
             }
         };
     }
