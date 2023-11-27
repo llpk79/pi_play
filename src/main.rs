@@ -67,7 +67,7 @@ fn do_laser() {
                     fahrenheit
                 ),
                 format!(
-                    "\nB {:.1} H {:.1}        ",
+                    "B {:.1} H {:.1}        ",
                     pressure as f32 / 100_f32,
                     prev_humidity
                 ),
