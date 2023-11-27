@@ -13,7 +13,8 @@ fn do_laser() {
     let mut dot_matrix = DotMatrix::new();
 
     // Dummy message to encode temperature stuff.
-    let message = "FCBH111222333444555666777888999000....-        \n".to_string();
+    // let message = "FCBH111222333444555666777888999000....-        \n".to_string();
+    let message = fs::read_to_string("./src/lasers.rs").expect("file exists");
     // Compress message with Huffman Coding.
     let mut huff_tree = HuffTree::new();
     huff_tree.build_tree(&message);
@@ -31,7 +32,6 @@ fn do_laser() {
     let mut prev_pressure: i64 = 0;
     let mut prev_temp: i64 = 0;
 
-    let message = fs::read_to_string("./src/lasers.rs").expect("file exists");
 
     // Start a thread each for the laser and receiver.
     let receiver_thread = thread::Builder::new()
