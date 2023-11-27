@@ -62,15 +62,15 @@ impl ADC {
             match data_in.read_value().expect("Pin should read") {
                 // High => lsb_data = lsb_data << i | 255,
                 // Low => lsb_data = lsb_data << i | 0
-                High => lsb_data += 1 << i ,
-                Low => lsb_data += 0 << i
+                High => lsb_data = lsb_data | 1 << i ,
+                Low => lsb_data = lsb_data | 0 << i
             }
         }
         let mut msb_data: u8 = 0;
         for i in 0..8 {
             match data_in.read_value().expect("Pin should read") {
-                High => msb_data += 1 << (7 - i),
-                Low => msb_data +=  0 << (7 - i),
+                High => msb_data = msb_data | 1 << (7 - i),
+                Low => msb_data = msb_data |  0 << (7 - i),
             };
             self.clk.set_value(High).expect("Pin should set");
             thread::sleep(Duration::from_micros(2));
