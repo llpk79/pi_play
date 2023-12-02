@@ -1,42 +1,13 @@
 use pi_play_lib::barometer::{Barometer, Mode::HighRes};
 use pi_play_lib::dot_matrix::{DotMatrix, DotMatrixData};
-use pi_play_lib::huffman_code::HuffTree;
-use pi_play_lib::lasers::{Laser, Receiver};
 use pi_play_lib::lcd::LCD;
 use pi_play_lib::temp_humid::measure_temp_humid;
-// use pi_play_lib::joy_stick::JoyStick;
 use std::time::Duration;
-use std::{fs, thread};
+use std::thread;
 
 /// Send a message with a laser!
 fn do_laser() {
     let mut dot_matrix = DotMatrix::new();
-
-    // Dummy message to encode temperature stuff.
-    // let message = "FCBH111222333444555666777888999000....-        \n".to_string();
-    let message = fs::read_to_string("./src/barometer.rs").expect("file exists");
-    // Compress message with Huffman Coding.
-    let mut huff_tree = HuffTree::new();
-    huff_tree.build_tree(&message);
-
-    // Pass huff_tree to receiver to decode message.
-    let mut receiver = Receiver::new(huff_tree.clone());
-    let mut laser = Laser::new(huff_tree);
-
-    // Start a thread each for the laser and receiver.
-    let receiver_thread = thread::Builder::new()
-        .name("receiver".to_string())
-        .spawn(move || loop {
-            let message = receiver.receive_message();
-            println!("Message:\n\n{}", message);
-        });
-
-    let laser_thread = thread::Builder::new()
-        .name("laser".to_string())
-        .spawn(move || loop {
-            laser.send_message(message.clone());
-            thread::sleep(Duration::from_millis(5_000))
-        });
 
     let mut lcd = LCD::new();
     lcd.display_init();
@@ -125,24 +96,6 @@ fn do_laser() {
             thread::sleep(Duration::from_secs(15))
         });
 
-    // let mut joystick = JoyStick::new();
-    //
-    // let joystick_thread = thread::spawn(move || loop {
-    //     let (horizontal, vert, button) = joystick.output();
-    //     println!("Horizontal {}\nVertical {}\nButton {}", horizontal, vert, button);
-    //     thread::sleep(Duration::from_millis(500));
-    // });
-    //
-    // joystick_thread.join().expect("thread closed");
-
-    receiver_thread
-        .expect("Thread should exist")
-        .join()
-        .expect("Thread should close");
-    laser_thread
-        .expect("Thread should exist")
-        .join()
-        .expect("Thread should close");
     temp_thread
         .expect("thread exists")
         .join()

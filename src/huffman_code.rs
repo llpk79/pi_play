@@ -46,7 +46,7 @@ impl HuffTree {
         frequency_map
     }
 
-    /// Create HuffmanTree to code characters with greater frequency with a short codes and
+    /// Create HuffmanTree to code characters with greater frequency with a short code and
     /// infrequent characters with long codes.
     pub fn build_tree(&mut self, message: &String) {
         // Build a vec of single node HuffTrees from the frequency map.
@@ -62,11 +62,11 @@ impl HuffTree {
         // Keep doing this until len is 1. This is the root of the sorted HuffTree.
         while node_vec.len() > 1 {
             node_vec.sort_by(|a, b| (&b.freq).cmp(&a.freq));
-            let node1 = node_vec.pop().expect("Vec should have elements.");
-            let node2 = node_vec.pop().expect("Vec should have elements.");
-            let mut new_node = Node::new_box(Node::new(node1.freq + node2.freq, None));
-            new_node.left = Some(node1);
-            new_node.right = Some(node2);
+            let new_left = node_vec.pop().expect("Vec should have elements.");
+            let new_right = node_vec.pop().expect("Vec should have elements.");
+            let mut new_node = Node::new_box(Node::new(new_left.freq + new_right.freq, None));
+            new_node.left = Some(new_left);
+            new_node.right = Some(new_right);
             node_vec.push(new_node);
         }
         self.root = Some(node_vec.pop().expect("Tree must have root."));
