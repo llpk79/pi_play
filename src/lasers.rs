@@ -89,7 +89,9 @@ impl Receiver {
             while self.in_.read_value().expect("Pin should be active") == High {
                 continue;
             }
-            let initiation_time = (chrono::Utc::now() - begin).num_microseconds().expect("time has passed");
+            let initiation_time = (chrono::Utc::now() - begin)
+                .num_microseconds()
+                .expect("time has passed");
             // .expect("Some time should have passed");
             match initiation_time {
                 i64::MIN..=399 => continue,
@@ -113,14 +115,16 @@ impl Receiver {
             while self.in_.read_value().expect("Pin should be active") == High {
                 continue;
             }
-            let bit_time = (chrono::Utc::now() - start).num_microseconds().expect("time has passed");
+            let bit_time = (chrono::Utc::now() - start)
+                .num_microseconds()
+                .expect("time has passed");
             // println!("l bit time {}", bit_time);
             match bit_time {
                 i64::MIN..=-0 => continue,
                 1..=89 => data.push(0),
                 90..=199 => data.push(1),
                 200..=1000 => continue, // Bad data, we could guess, I guess?
-                1001.. => break,      // Termination sequence.
+                1001.. => break,        // Termination sequence.
             };
         }
         data
