@@ -29,7 +29,7 @@ pub fn measure_temp_humid() -> (f32, f32) {
         let start = chrono::Utc::now();
         let mut limit = 0;
         while data_pin.read_value().unwrap() == High {
-            if limit > 35 {
+            if limit > 30 {
                 // println!("bit hung");
                 break;
             } else {
