@@ -1,5 +1,9 @@
+pub mod adc_0832;
+pub mod barometer;
 pub mod distance;
+pub mod dot_matrix;
 pub mod huffman_code;
+pub mod joy_stick;
 pub mod lasers;
 pub mod lcd;
 pub mod motor;

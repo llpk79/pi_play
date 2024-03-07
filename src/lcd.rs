@@ -1,3 +1,10 @@
+// To use the lcd:
+// let mut lcd = LCD::new();
+// lcd.backlight_off();
+// lcd.display_init();
+// lcd.backlight_on();
+// lcd.display_data(data);
+
 extern crate i2c_linux;
 
 use i2c_linux::I2c;
@@ -36,10 +43,6 @@ impl LCD {
         }
     }
 
-    pub fn set_slave_address(&mut self) {
-        self.i2c.smbus_set_slave_address(self.addr, false).unwrap();
-    }
-
     fn write_byte_data(&mut self, data: u8) {
         self.i2c
             .smbus_write_byte_data(0u8, data | self.data_mask)
@@ -72,7 +75,7 @@ impl LCD {
         self.send(char_code, self.rs_mask);
     }
 
-    pub fn print_line(&mut self, line: &String) {
+    fn print_line(&mut self, line: &String) {
         if line.len() > self.columns as usize {
             line[0..self.columns as usize].to_string();
         }
@@ -81,7 +84,7 @@ impl LCD {
         }
     }
 
-    pub fn cursor_to(&mut self, row: u8, col: u8) {
+    fn cursor_to(&mut self, row: u8, col: u8) {
         let offsets: [u8; 4] = [0x00, 0x40, 0x14, 0x54];
         self.command(0x80 | (offsets[row as usize] + col), 50u64);
     }
@@ -95,6 +98,8 @@ impl LCD {
     }
 
     pub fn display_init(&mut self) {
+        self.i2c.smbus_set_slave_address(self.addr, false).unwrap();
+        self.backlight_off();
         thread::sleep(Duration::from_micros(10000));
         self.write_4_bits(0x30);
         thread::sleep(Duration::from_micros(45000));
@@ -108,6 +113,7 @@ impl LCD {
         self.clear();
         self.command(0x04 | 0x02, 50u64);
         thread::sleep(Duration::from_micros(300000));
+        self.backlight_on();
     }
 
     pub fn backlight_on(&mut self) {

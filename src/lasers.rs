@@ -1,7 +1,6 @@
 use crate::huffman_code::HuffTree;
 use gpio::GpioValue::{High, Low};
 use gpio::{GpioIn, GpioOut};
-use std::cmp::{max, min};
 use std::thread;
 use std::time::Duration;
 
@@ -59,7 +58,7 @@ impl Laser {
                     self.out.set_value(false).expect("Pin should be active");
                 }
             }
-            // Bit resolution. Gets sloppy below 50 microseconds.
+            // Bit resolution. It gets sloppy below 50 microseconds.
             thread::sleep(Duration::from_micros(50))
         }
 
@@ -118,51 +117,17 @@ impl Receiver {
             }
             let bit_time = (chrono::Utc::now() - start)
                 .num_microseconds()
-                .expect("Some time should have passed");
-            // println!("bit time {}", bit_time);
+                .expect("time has passed");
+            // println!("l bit time {}", bit_time);
             match bit_time {
                 i64::MIN..=-0 => continue,
-                1..=95 => data.push(0),
-                96..=200 => data.push(1),
-                201..=999 => continue, // Bad data, we could guess, I guess?
-                1000.. => break,       // Termination sequence.
+                1..=89 => data.push(0),
+                90..=199 => data.push(1),
+                200..=1000 => continue, // Bad data, we could guess, I guess?
+                1001.. => break,        // Termination sequence.
             };
         }
         data
-    }
-
-    /// Last 32 bits contain checksum.
-    ///
-    /// Sum each 8 bit word in message and compare to checksum.
-    ///
-    /// Return comparison and error.
-    fn validate(&self, data: &Vec<u32>) -> (bool, f32) {
-        let data_len = data.len();
-        // Min one byte message plus checksum.
-        if data_len < 40 {
-            return (false, 0.0);
-        }
-        let mut sum: u32 = 0;
-
-        // Get int from each byte.
-        for i in (0..data_len - 32).step_by(8) {
-            let mut byte = 0;
-            for bit in (0..8).map(|j| data[i + j] << j) {
-                byte += bit
-            }
-            sum += byte;
-        }
-
-        // Get checksum.
-        let mut check: u32 = 0;
-        for (i, bit) in data[data_len - 32..].iter().enumerate() {
-            check += *bit << i;
-        }
-        // VERY roughly estimate data fidelity.
-        let min = min(sum, check) as f32;
-        let max = max(sum, check) as f32;
-        let error = min / max;
-        (error > 0.995, error)
     }
 
     /// Call detect, receive and decode methods.
@@ -175,34 +140,53 @@ impl Receiver {
 
         println!("\nIncoming message detected...\n");
         let data = self.receive_message();
-
-        println!("Message received. Validating...\n");
-        let (valid, error) = self.validate(&data);
-
-        let end = chrono::Utc::now();
-        let num_kbytes = match valid {
-            true => {
-                let sans_checksum = Vec::from(&data[0..(data.len() - 32)]);
-                let message = self.huff_tree.decode(sans_checksum);
-                println!("Validated message:\n\n{}\n", message);
-                message.len() as f64 / 1000.0
-            }
-            false => {
-                println!("ERROR: Invalid data detected.\n");
-                0.0
-            }
-        };
+        let message = self.huff_tree.decode(data);
 
         // Calculate stats
-        let seconds = (end - start).num_milliseconds() as f64 / 1000.0_f64;
-        let decode_time =
-            (chrono::Utc::now() - end).num_microseconds().unwrap() as f64 / 1000_000.0_f64;
+        let num_kbytes = message.len() as f64 / 1000.0;
+        let seconds = (chrono::Utc::now() - start).num_milliseconds() as f64 / 1000.0_f64;
+        
+        println!("{message}");
         println!(
-            "Message in {:.4} sec\nDecode in {:.6} sec\nKB/s {:.3}\n'Error' {:.6}\n",
+            "Message in {:.4} sec\nKB/s {:.3}\n",
             seconds,
-            decode_time,
             num_kbytes / seconds,
-            1.0 - error,
         );
     }
 }
+
+/// Send a message with a laser!
+pub fn do_laser(message: String) {
+    // Compress message with Huffman Coding.
+    let mut huff_tree = HuffTree::new();
+    let encoded_message = huff_tree.encode(message);
+
+    // Pass huff_tree to receiver to decode message.
+    let mut receiver = Receiver::new(huff_tree);
+    let mut laser = Laser::new(encoded_message);
+
+    // Start a thread each for the laser and receiver.
+    let receiver_thread = thread::Builder::new()
+        .name("receiver".to_string())
+        .spawn(move || loop {
+            receiver.print_message();
+        });
+
+    let laser_thread = thread::Builder::new()
+        .name("laser".to_string())
+        .spawn(move || loop {
+            laser.send_message();
+            thread::sleep(Duration::from_millis(2000))
+        });
+
+    receiver_thread
+        .expect("Thread should exist")
+        .join()
+        .expect("Thread should close");
+    laser_thread
+        .expect("Thread should exist")
+        .join()
+        .expect("Thread should close");
+}
+
+
