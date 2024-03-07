@@ -1,7 +1,6 @@
 use crate::huffman_code::HuffTree;
 use gpio::GpioValue::{High, Low};
 use gpio::{GpioIn, GpioOut};
-use std::cmp::{max, min};
 use std::thread;
 use std::time::Duration;
 
@@ -131,40 +130,6 @@ impl Receiver {
         data
     }
 
-    /// Last 32 bits contain checksum.
-    ///
-    /// Sum each 8 bit word in message and compare to checksum.
-    ///
-    /// Return comparison and error.
-    fn validate(&self, data: &Vec<u32>) -> (bool, f32) {
-        let data_len = data.len();
-        // Min one byte message plus checksum.
-        if data_len < 40 {
-            return (false, 0.0);
-        }
-        let mut sum: u32 = 0;
-
-        // Get int from each byte.
-        for i in (0..data_len - 32).step_by(8) {
-            let mut byte = 0;
-            for bit in (0..8).map(|j| data[i + j] << j) {
-                byte += bit
-            }
-            sum += byte;
-        }
-
-        // Get checksum.
-        let mut check: u32 = 0;
-        for (i, bit) in data[data_len - 32..].iter().enumerate() {
-            check += *bit << i;
-        }
-        // VERY roughly estimate data fidelity.
-        let min = min(sum, check) as f32;
-        let max = max(sum, check) as f32;
-        let error = min / max;
-        (error > 0.995, error)
-    }
-
     /// Call detect, receive and decode methods.
     ///
     /// Print to stdout.
@@ -177,7 +142,7 @@ impl Receiver {
         let data = self.receive_message();
 
         println!("Message received. Validating...\n");
-        let (valid, error) = self.validate(&data);
+        let (valid, error) = self.huff_tree.validate(&data);
 
         let end = chrono::Utc::now();
         let num_kbytes = match valid {

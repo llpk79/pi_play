@@ -2,6 +2,7 @@
 // More or less stolen from https://github.com/pcein/rust-for-fun/blob/master/huffman-coding/tree.rs
 
 use ::std::collections::HashMap;
+use std::cmp::{max, min};
 
 struct Node {
     freq: i32,
@@ -115,13 +116,14 @@ impl HuffTree {
                 }
             }
         }
+        // let check_vec = (0..32).map(|n| (checksum >> n) & 1).collect();
         let mut check_vec = Vec::new();
         for bit in (0..32).map(|n| (checksum >> n) & 1) {
             check_vec.push(bit);
         }
         Vec::from([encoded_message, check_vec].concat())
     }
-
+    
     /// Build the tree and encode the message.
     pub fn encode(&mut self, message: String) -> Vec<u32> {
         self.build_tree(&message);
@@ -153,4 +155,56 @@ impl HuffTree {
         }
         decoded_message
     }
+
+    /// Last 32 bits contain checksum.
+    ///
+    /// Sum each 8 bit word in message and compare to checksum.
+    ///
+    /// Return comparison and error.
+    pub fn validate(&self, data: &Vec<u32>) -> (bool, f32) {
+        let data_len = data.len();
+        // Min one byte message plus checksum.
+        if data_len < 40 {
+            return (false, 0.0);
+        }
+        // Sum each byte of data as an int.
+        let mut sum = 0;
+        for i in (0..data_len - 32).step_by(8) {
+            let mut byte = 0;
+            for bit in (0..8).map(|j| data[i + j] << j) {
+                byte += bit
+            }
+            sum += byte;
+        }
+
+        // Get checksum.
+        let mut check: u32 = 0;
+        for (i, bit) in data[data_len - 32..].iter().enumerate() {
+            check += *bit << i;
+        }
+
+        // VERY roughly estimate data fidelity.
+        let min = min(sum, check) as f32;
+        let max = max(sum, check) as f32;
+        let error = min / max;
+        (error > 0.995, error)
+    }
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn encode_decode() {
+        let message = "This is the test message".to_string();
+        let mut huff_tree = HuffTree::new();
+        let encoded_message = huff_tree.encode(message);
+        let (valid, error) = huff_tree.validate(&encoded_message);
+        assert_eq!(valid, true);
+        assert_eq!(error < 0.05, true);
+        let decoded_message = huff_tree.decode(encoded_message);
+        assert_eq!(decoded_message, "This is the test message".to_string())
+    }
+}
+    
