@@ -1,19 +1,21 @@
 // Huffman encoding and decoding.
-// More or less stolen from https://github.com/pcein/rust-for-fun/blob/master/huffman-coding/tree.rs
+// Inspired by https://github.com/pcein/rust-for-fun/blob/master/huffman-coding/tree.rs
 
 use ::std::collections::HashMap;
+use std::cmp::{max, min};
 
-#[derive(Debug, Clone)]
+type Link = Option<Box<Node>>;
+
 struct Node {
     freq: i32,
     char_: Option<char>,
-    right: Option<Box<Node>>,
-    left: Option<Box<Node>>,
+    right: Link,
+    left: Link,
 }
-#[derive(Debug, Clone)]
 
 pub struct HuffTree {
-    root: Option<Box<Node>>,
+    root: Link,
+    padding: usize,
 }
 
 impl Node {
@@ -33,7 +35,10 @@ impl Node {
 
 impl HuffTree {
     pub fn new() -> HuffTree {
-        HuffTree { root: None }
+        HuffTree {
+            root: None,
+            padding: 0, // Encoded message must satisfy; message.len() % 8 == 0.
+        }
     }
 
     /// Map characters in message to their frequency in message.
@@ -46,9 +51,9 @@ impl HuffTree {
         frequency_map
     }
 
-    /// Create HuffmanTree to code characters with greater frequency with a short code and
+    /// Create HuffmanTree to code characters with greater frequency with a short codes and
     /// infrequent characters with long codes.
-    pub fn build_tree(&mut self, message: &String) {
+    fn build_tree(&mut self, message: &String) {
         // Build a vec of single node HuffTrees from the frequency map.
         let frequency_map = self.create_frequency_map(message);
         let mut node_vec: Vec<Box<Node>> = {
@@ -58,15 +63,15 @@ impl HuffTree {
                 .collect()
         };
         // Pop the top two nodes, combine their frequencies to create a new Node with char = None.
-        // Assign the larger popped node as the new node's left, the smaller as right.
+        // Assign the larger popped node as the new node's left, the smaller as right and push on the stack.
         // Keep doing this until len is 1. This is the root of the sorted HuffTree.
         while node_vec.len() > 1 {
             node_vec.sort_by(|a, b| (&b.freq).cmp(&a.freq));
-            let new_left = node_vec.pop().expect("Vec should have elements.");
-            let new_right = node_vec.pop().expect("Vec should have elements.");
-            let mut new_node = Node::new_box(Node::new(new_left.freq + new_right.freq, None));
-            new_node.left = Some(new_left);
-            new_node.right = Some(new_right);
+            let node1 = node_vec.pop().expect("Vec should have elements.");
+            let node2 = node_vec.pop().expect("Vec should have elements.");
+            let mut new_node = Node::new_box(Node::new(node1.freq + node2.freq, None));
+            new_node.left = Some(node1);
+            new_node.right = Some(node2);
             node_vec.push(new_node);
         }
         self.root = Some(node_vec.pop().expect("Tree must have root."));
@@ -95,7 +100,7 @@ impl HuffTree {
     /// Use char_code_map populated by assign_codes to map characters their to binary codes.
     ///
     /// Create checksum as vec is built. Append 32 bit checksum to message vec.
-    pub fn encode(&self, message: &String) -> Vec<u32> {
+    fn encode_string(&mut self, message: &String) -> Vec<u32> {
         let mut encoded_message = Vec::new();
         let mut char_code_map = HashMap::new();
         self.assign_codes(
@@ -117,17 +122,49 @@ impl HuffTree {
                 }
             }
         }
-        let mut check_vec = Vec::new();
-        for bit in (0..32).map(|n| (checksum >> n) & 1) {
-            check_vec.push(bit);
+        // Pad encoded_message so that encoded_message.len() % 8 == 0.
+        self.padding = 8 - (encoded_message.len() % 8);
+        for _ in 0..self.padding {
+            encoded_message.push(0)
         }
+        // Get bits from checksum
+        let check_vec = (0..32).map(|n| (checksum >> n) & 1).collect();
         Vec::from([encoded_message, check_vec].concat())
     }
 
     /// Build the tree and encode the message.
-    pub fn build_encode(&mut self, message: String) -> Vec<u32> {
+    pub fn encode(&mut self, message: String) -> Vec<u32> {
         self.build_tree(&message);
-        self.encode(&message)
+        self.encode_string(&message)
+    }
+
+    /// Last 32 bits contain checksum.
+    ///
+    /// Sum each 8 bit word in message and compare to checksum.
+    ///
+    /// Return comparison and error.
+    fn validate(&self, data: &Vec<u32>) -> (bool, f32) {
+        let data_len = data.len();
+        // Min one byte message plus checksum.
+        if data_len < 40 {
+            return (false, 0.0);
+        }
+        // Sum each byte of data as an int.
+        let sum = (0..data_len - 32).step_by(8).fold(0, |byte, i| {
+            byte + (0..8).fold(0, |bit, j| bit + (data[i + j] << j))
+        });
+
+        // Get checksum.
+        let check: u32 = data[data_len - 32..]
+            .iter()
+            .enumerate()
+            .fold(0, |acc, (i, bit)| acc + (*bit << i));
+
+        // VERY roughly estimate data fidelity.
+        let min = min(sum, check) as f32;
+        let max = max(sum, check) as f32;
+        let error = 1.0 - (min / max);
+        (error < 0.995, error)
     }
 
     /// Use encoded message to traverse tree and find characters.
@@ -136,9 +173,15 @@ impl HuffTree {
     ///
     /// Only leaf nodes have characters so if we found one that's it.
     pub fn decode(&self, encoded_message: Vec<u32>) -> String {
+        let (valid, error) = self.validate(&encoded_message);
+        if !valid {
+            return format!("Error: Invalid data detected. Data Loss: {error}\n");
+        }
         let mut decoded_message = String::new();
         let mut node = self.root.as_ref().expect("Tree must have root.");
-        for bit in encoded_message {
+        let sans_checksum_padding =
+            Vec::from(&encoded_message[0..(encoded_message.len() - (32 + self.padding))]);
+        for bit in sans_checksum_padding {
             if bit == 0 {
                 if let Some(ref left) = &node.left {
                     node = left;
@@ -153,6 +196,33 @@ impl HuffTree {
                 node = self.root.as_ref().expect("Tree must have root.");
             }
         }
-        decoded_message
+        format!("Validated message:\n\n{decoded_message}\nData Loss: {error}\n")
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    
+    /// Test that the whole deal works.
+    fn test_encode_decode() {
+        let message = "This is the test message".to_string();
+        let mut huff_tree = HuffTree::new();
+        let encoded_message = huff_tree.encode(message.clone());
+        let (valid, error) = huff_tree.validate(&encoded_message);
+        let decoded_message = huff_tree.decode(encoded_message);
+        assert_eq!(valid, true);
+        assert_eq!(error, 0.0);
+        assert_eq!(decoded_message, format!("Validated message:\n\n{message}\nData Loss: {error}\n"))
+    }
+
+    #[test]
+    fn test_create_frequency_map() {
+        let message = "abbccc".to_string();
+        let mut huff_tree = HuffTree::new();
+        huff_tree.encode(message.clone());
+        let expected = HashMap::from([('a', 1), ('b', 2), ('c', 3)]);
+        assert_eq!(huff_tree.create_frequency_map(&message), expected)
     }
 }
