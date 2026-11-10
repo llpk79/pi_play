@@ -29,8 +29,8 @@ pub fn measure_temp_humid() -> (f32, f32) {
         let start = chrono::Utc::now();
         let mut limit = 0;
         while data_pin.read_value().unwrap() == High {
-            if limit > 30 {
-                // println!("bit hung");
+            if limit > 35 {
+                println!("bit hung");
                 break;
             } else {
                 limit += 1
@@ -38,7 +38,7 @@ pub fn measure_temp_humid() -> (f32, f32) {
         }
         let end = chrono::Utc::now();
         let bit_time = (end - start).num_microseconds().unwrap();
-        // println!("bit time {:?}", bit_time);
+        println!("bit time {:?}", bit_time);
         match bit_time {
             i64::MIN..=35 => data.push(0),
             36..=85 => data.push(1),
@@ -80,6 +80,7 @@ pub fn measure_temp_humid() -> (f32, f32) {
         );
         return (0.0, 0.0);
     };
+    println!("Woo Hoooo!");
     let hum = f32::from_str(&format!("{}.{}", hum, hum_dec)).expect("should be float");
     let temp = f32::from_str(&format!("{}.{}", temp, temp_dec)).expect("should be float");
     // println!("temp {}\nhumid {}\n", temp, hum);
