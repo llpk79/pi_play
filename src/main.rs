@@ -1,13 +1,13 @@
-use pi_play_lib::distance::Distance;
-use std::thread;
-use std::time::Duration;
+use pi_play_lib::dot_matrix::DotMatrix;
 
 fn main() {
-    let mut distance = Distance::new();
+    let mut dot_matrix = DotMatrix::new();
     println!("Here we go!");
     loop {
-        let measurement = distance.print_measure();
-        println!("Measurement {measurement}");
-        thread::sleep(Duration::from_secs(1));
+        let message = dot_matrix.get_user_input();
+        match &message[..] {
+            "x" => break,
+            _ => dot_matrix.display_message(message),
+        };
     }
 }

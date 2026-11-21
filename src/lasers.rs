@@ -145,7 +145,7 @@ impl Receiver {
         // Calculate stats
         let num_kbytes = message.len() as f64 / 1000.0;
         let seconds = (chrono::Utc::now() - start).num_milliseconds() as f64 / 1000.0_f64;
-        
+
         println!("{message}");
         println!(
             "Message in {:.4} sec\nKB/s {:.3}\n",
@@ -188,5 +188,3 @@ pub fn do_laser(message: String) {
         .join()
         .expect("Thread should close");
 }
-
-

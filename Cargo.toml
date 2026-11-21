@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 gpio = "0.4.1"
+rppal = "0.19"
 chrono = "0.4"
 i2c-linux = "0.1.2"
 

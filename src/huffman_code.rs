@@ -204,7 +204,7 @@ impl HuffTree {
 mod tests {
     use super::*;
     #[test]
-    
+
     /// Test that the whole deal works.
     fn test_encode_decode() {
         let message = "This is the test message".to_string();
@@ -214,7 +214,10 @@ mod tests {
         let decoded_message = huff_tree.decode(encoded_message);
         assert_eq!(valid, true);
         assert_eq!(error, 0.0);
-        assert_eq!(decoded_message, format!("Validated message:\n\n{message}\nData Loss: {error}\n"))
+        assert_eq!(
+            decoded_message,
+            format!("Validated message:\n\n{message}\nData Loss: {error}\n")
+        )
     }
 
     #[test]
