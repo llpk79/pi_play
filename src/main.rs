@@ -1,13 +1,9 @@
 use pi_play_lib::dot_matrix::DotMatrix;
+use pi_play_lib::dot_matrix::Characters;
 
 fn main() {
-    let mut dot_matrix = DotMatrix::new();
+    let dot_matrix = DotMatrix::new();
+    let characters = Characters::new();
     println!("Here we go!");
-    loop {
-        let message = dot_matrix.get_user_input();
-        match &message[..] {
-            "x" => break,
-            _ => dot_matrix.display_message(message),
-        };
-    }
+    dot_matrix.display_user_message(characters)
 }
